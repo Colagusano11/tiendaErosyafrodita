@@ -29,3 +29,12 @@ export async function crearResena(
   const res = await api.post<Resena>(`/resenas/producto/${productoId}`, { rating, comentario });
   return res.data;
 }
+
+export async function checkPurchaseStatus(productoId: number): Promise<boolean> {
+  try {
+    const res = await api.get<{ purchased: boolean }>(`/resenas/purchased/${productoId}`);
+    return res.data.purchased;
+  } catch {
+    return false;
+  }
+}

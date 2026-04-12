@@ -27,7 +27,7 @@ const Cart: React.FC = () => {
           <div className="text-gray-400">
             <p className="mb-4">Tu carrito está vacío.</p>
             <Link
-              to="/catalog"
+              to="/"
               className="inline-flex items-center gap-2 text-primary hover:text-primary/80"
             >
               Seguir comprando

@@ -3,6 +3,7 @@ package com.colagusano11.tiendaonline.controllers;
 import com.colagusano11.tiendaonline.client.dto.UsuarioRegistroDto;
 import com.colagusano11.tiendaonline.models.Resena;
 import com.colagusano11.tiendaonline.repositories.ResenaRepository;
+import com.colagusano11.tiendaonline.repositories.PedidoRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -17,9 +18,11 @@ import java.util.OptionalDouble;
 public class ResenaController {
 
     private final ResenaRepository resenaRepository;
+    private final PedidoRepository pedidoRepository;
 
-    public ResenaController(ResenaRepository resenaRepository) {
+    public ResenaController(ResenaRepository resenaRepository, PedidoRepository pedidoRepository) {
         this.resenaRepository = resenaRepository;
+        this.pedidoRepository = pedidoRepository;
     }
 
     @GetMapping("/producto/{productoId}")
@@ -44,6 +47,11 @@ public class ResenaController {
             return ResponseEntity.status(401).body("Debes iniciar sesión para dejar una reseña.");
         }
 
+        // Verificar si el usuario ha comprado el producto
+        if (!pedidoRepository.hasUserPurchasedProduct(usuario.getId(), productoId)) {
+            return ResponseEntity.status(403).body("Solo los usuarios que han comprado este producto pueden dejar una reseña.");
+        }
+
         int rating = (int) body.get("rating");
         if (rating < 1 || rating > 5) {
             return ResponseEntity.badRequest().body("La valoración debe estar entre 1 y 5.");
@@ -65,5 +73,16 @@ public class ResenaController {
         resena.setFecha(LocalDateTime.now());
 
         return ResponseEntity.ok(resenaRepository.save(resena));
+    }
+
+    @GetMapping("/purchased/{productoId}")
+    public ResponseEntity<Map<String, Boolean>> checkPurchaseStatus(
+            @PathVariable Long productoId,
+            @AuthenticationPrincipal UsuarioRegistroDto usuario) {
+        
+        if (usuario == null) return ResponseEntity.ok(Map.of("purchased", false));
+        
+        boolean hasPurchased = pedidoRepository.hasUserPurchasedProduct(usuario.getId(), productoId);
+        return ResponseEntity.ok(Map.of("purchased", hasPurchased));
     }
 }

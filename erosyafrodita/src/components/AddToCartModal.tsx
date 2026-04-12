@@ -43,12 +43,13 @@ const AddToCartModal: React.FC = () => {
                         >
                             Ver Carrito
                         </Link>
-                        <button 
+                        <Link 
+                            to="/"
                             onClick={closeModal}
-                            className="w-full h-12 bg-white/5 hover:bg-white/10 text-white font-semibold rounded-full border border-white/10 transition-all active:scale-95"
+                            className="w-full h-12 bg-white/5 hover:bg-white/10 text-white font-semibold rounded-full border border-white/10 transition-all flex items-center justify-center active:scale-95"
                         >
                             Seguir Comprando
-                        </button>
+                        </Link>
                     </div>
                 </div>
             </div>

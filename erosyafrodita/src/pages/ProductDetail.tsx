@@ -3,7 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { getProductoById, type Producto } from "../api/products";
-import { getResenas, crearResena, type Resena } from "../api/reviews";
+import { getResenas, crearResena, checkPurchaseStatus, type Resena } from "../api/reviews";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
 import { useAuth } from "../context/AuthContext";
@@ -22,6 +22,7 @@ const ProductDetail: React.FC = () => {
   const [selectedImg, setSelectedImg] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [hasPurchased, setHasPurchased] = useState(false);
 
   // Filtramos imágenes que no cargan
   const { validUrls, loading: imgLoading } = useImageGallery([
@@ -49,7 +50,7 @@ const ProductDetail: React.FC = () => {
         setLoading(true);
         const data = await getProductoById(Number(id));
         setProduct(data);
-        setSelectedImg(data.imagen ?? null);
+        // No seteamos selectedImg aquí para dejar que validUrls mande
       } catch (e: any) {
         setError(e.message ?? "No se pudo cargar el producto");
       } finally {
@@ -65,7 +66,18 @@ const ProductDetail: React.FC = () => {
       setReviewsMedia(data.media);
       setReviewsTotal(data.total);
     });
-  }, [id]);
+
+    if (isAuthenticated) {
+      checkPurchaseStatus(Number(id)).then(setHasPurchased);
+    }
+  }, [id, isAuthenticated]);
+
+  // Si no hay imagen seleccionada, usamos la primera válida
+  useEffect(() => {
+    if (validUrls.length > 0 && !selectedImg) {
+      setSelectedImg(validUrls[0]);
+    }
+  }, [validUrls, selectedImg]);
 
   const handleSubmitReview = async () => {
     if (newRating === 0) { setSubmitError("Selecciona una valoración."); return; }
@@ -233,17 +245,17 @@ const ProductDetail: React.FC = () => {
 
               <div className="flex items-center gap-6 mb-8">
                 <div className="flex items-baseline gap-4">
-                  <span className={`text-3xl font-black ${hayDescuento ? "text-rose-500" : "text-white"}`}>
+                  <span className={`text-2xl font-black text-emerald-400`}>
                     {precioFinal.toFixed(2)} €
                   </span>
                   {hayDescuento && (
-                    <span className="text-base text-white/30 line-through">{precioPVP.toFixed(2)} €</span>
+                    <span className="text-sm text-white/30 line-through">{precioPVP.toFixed(2)} €</span>
                   )}
                   {product.enOferta && (
-                    <span className="text-[10px] font-black text-rose-400 bg-rose-500/10 px-3 py-1 rounded-full border border-rose-500/20">Oferta</span>
+                    <span className="text-[10px] font-black text-emerald-400 bg-emerald-400/10 px-3 py-1 rounded-full border border-emerald-400/20">Oferta</span>
                   )}
                   {!product.enOferta && LAUNCH_PROMO_ACTIVE && (
-                    <span className="text-[10px] font-black text-primary bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
+                    <span className="text-[10px] font-black text-emerald-400 bg-emerald-400/10 px-3 py-1 rounded-full border border-emerald-400/20">
                       -{Math.round(LAUNCH_DISCOUNT * 100)}% lanzamiento
                     </span>
                   )}
@@ -336,6 +348,17 @@ const ProductDetail: React.FC = () => {
                   <p className="text-white/40 text-sm font-light">
                     <Link to="/login" className="text-primary hover:underline font-bold">Inicia sesión</Link> para dejar una reseña.
                   </p>
+                ) : !hasPurchased ? (
+                  <div className="flex flex-col gap-4">
+                    <p className="text-white/40 text-sm font-light">
+                      Solo los usuarios que han <span className="text-primary font-bold italic">adquirido esta esencia</span> pueden compartir su experiencia.
+                    </p>
+                    <div className="p-4 rounded-2xl bg-primary/5 border border-primary/10 inline-block w-fit">
+                      <span className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-2">
+                        <span className="material-symbols-outlined !text-[16px]">receipt_long</span> Compra verificada requerida
+                      </span>
+                    </div>
+                  </div>
                 ) : (
                   <>
                     <div className="flex gap-1 mb-8 items-center">
