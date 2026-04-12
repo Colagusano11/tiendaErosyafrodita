@@ -78,23 +78,21 @@ const ProductDetail: React.FC = () => {
         const v = await getVariantes(data);
         setVariantes(v);
 
-        // Cargar recomendados (Lógica NOVEDADES_BRANDS de la Home)
-        const resNovedades = await getProductos(0, 100); // Traemos un pool
+        // Cargar recomendados (Lógica NOVEDADES_BRANDS de la Home con pool ampliado)
+        const resNovedades = await getProductos(0, 300); // Ampliamos a 300 para asegurar variedad
         const isNovedadBrand = (p: Producto) =>
             !!p.manufacturer &&
             NOVEDADES_BRANDS.some((b: string) =>
               p.manufacturer!.toUpperCase().includes(b)
             );
         
-        let filtered = resNovedades.content.filter(p => isNovedadBrand(p) && p.id !== data.id && p.stock > 0);
+        let branded = resNovedades.content.filter(p => isNovedadBrand(p) && p.id !== data.id && p.stock > 0);
+        let nonBranded = resNovedades.content.filter(p => !isNovedadBrand(p) && p.id !== data.id && p.stock > 0);
         
-        // Si no hay suficientes marcas curadas, rellenamos con productos normales
-        if (filtered.length < 4) {
-            const extra = resNovedades.content.filter(p => !isNovedadBrand(p) && p.id !== data.id && p.stock > 0);
-            filtered = [...filtered, ...extra];
-        }
+        // Mezclamos ambos pero priorizamos los de marca
+        let finalPool = [...shuffleArray(branded), ...shuffleArray(nonBranded)];
         
-        setRecomendados(shuffleArray(filtered).slice(0, 8));
+        setRecomendados(finalPool.slice(0, 12)); // Subimos a 12
         
       } catch (e: any) {
         setError(e.message ?? "No se pudo cargar el producto");
