@@ -16,8 +16,8 @@ import com.colagusano11.tiendaonline.client.dto.UsuarioRegistro;
 import com.colagusano11.tiendaonline.client.dto.UsuarioRegistroDto;
 
 
-@FeignClient(name = "mcsv-usuarios", contextId = "usuarioFeignClient",
-    url = "http://mcsv-usuario:8080"
+@FeignClient(name = "mcsv-usuario", contextId = "usuarioFeignClient",
+    url = "${config.baseurl.endpoint.mcsv-usuario:http://mcsv-usuario:8080}"
 )
 public interface UsuarioFeignClient {
 

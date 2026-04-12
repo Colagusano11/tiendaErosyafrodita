@@ -16,9 +16,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 
 
-@FeignClient(name= "mcsv-usuarios", 
+@FeignClient(name= "mcsv-usuario", 
 contextId = "authFeignClient", 
-url = "http://mcsv-usuario:8080")
+url = "${config.baseurl.endpoint.mcsv-usuario:http://mcsv-usuario:8080}")
 public interface AuthFeignClient {
 
   
@@ -34,11 +34,11 @@ String verificarCodigo(@RequestBody VerificarCodigoRequest req);
 AuthUsuario oauth2Success(@AuthenticationPrincipal OAuth2User principal);
 
 @PostMapping("/auth/forgot-password")
-String resetPassword(@RequestBody ForgotPasswordRequest req);
+String forgotPassword(@RequestBody ForgotPasswordRequest req);
 
 
 @PostMapping("/auth/reset-password")
-String forgotPassword(@RequestBody PasswordReset req);
+String resetPassword(@RequestBody PasswordReset req);
 
 @PostMapping("/auth/resend-code")
 String resendCode(@RequestBody java.util.Map<String, String> req);

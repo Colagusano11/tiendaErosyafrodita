@@ -34,13 +34,13 @@ public class AuthFeignController {
 
     @PostMapping("/forgot-password")
     public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordRequest req) {
-        String msg = authFeignClient.resetPassword(req);
+        String msg = authFeignClient.forgotPassword(req);
         return ResponseEntity.ok(msg);
     }
 
     @PostMapping("/reset-password")
     public ResponseEntity<String> resetPassword(@RequestBody PasswordReset req) {
-        String msg = authFeignClient.forgotPassword(req);
+        String msg = authFeignClient.resetPassword(req);
         return ResponseEntity.ok(msg);
     }
 

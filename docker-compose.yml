@@ -106,7 +106,7 @@ services:
       APP_FRONTEND_URL: ${FRONTEND_URL:-https://erosyafrodita.com}
       CONFIG_BASEURL_ENDPOINT_MCSV_USUARIO: "http://mcsv-usuario:8080"
       SPRING_CLOUD_LOADBALANCER_ENABLED: "true"
-      SPRING_CLOUD_DISCOVERY_CLIENT_SIMPLE_INSTANCES_MCSV-USUARIOS_0_URI: "http://mcsv-usuario:8080"
+      SPRING_CLOUD_DISCOVERY_CLIENT_SIMPLE_INSTANCES_MCSV_USUARIO_0_URI: "http://mcsv-usuario:8080"
     depends_on:
       db:
         condition: service_healthy

@@ -26,7 +26,6 @@ const RECOMENDADOS_BRANDS = [
 // Marcas curadas para la sección Novedades — basadas en el catálogo real
 const NOVEDADES_BRANDS = [
   "CALVIN KLEIN",
-
   "HOLLISTER",
   "KARL LAGERFELD",
   "L'OCCITANE EN PROVENCE",
