@@ -18,7 +18,7 @@ const AdminProductsPage: React.FC = () => {
   const [providerFilter, setProviderFilter] = useState("");
   const [minPrice, setMinPrice] = useState<string>("");
   const [maxPrice, setMaxPrice] = useState<string>("");
-  const [statusFilter, setStatusFilter] = useState<"TODOS" | "ACTIVOS" | "INACTIVOS" | "OFERTAS">("TODOS");
+  const [statusFilter, setStatusFilter] = useState<"TODOS" | "ACTIVOS" | "INACTIVOS" | "OFERTAS" | "BAJO_MARGEN">("TODOS");
   const [categories, setCategories] = useState<string[]>([]);
   const [brands, setBrands] = useState<string[]>([]);
   const [providers, setProviders] = useState<string[]>([]);
@@ -646,6 +646,18 @@ const AdminProductsPage: React.FC = () => {
 
                 <div className="flex items-center gap-2 flex-wrap justify-start sm:justify-end w-full sm:w-auto">
                     <button 
+                        onClick={() => setStatusFilter("BAJO_MARGEN")}
+                        className={`h-10 px-4 rounded-xl text-[9px] font-black uppercase transition-all flex items-center gap-2 group border ${
+                            statusFilter === "BAJO_MARGEN" 
+                            ? "bg-orange-500 text-white border-orange-600 shadow-lg shadow-orange-500/20" 
+                            : "bg-orange-500/10 border-orange-500/20 text-orange-500 hover:bg-orange-500 hover:text-white"
+                        }`}
+                    >
+                        <span className="material-symbols-outlined text-base">warning</span>
+                        Alerta Margen
+                    </button>
+
+                    <button 
                         onClick={() => handleBulkStatus(true)}
                         className="h-10 px-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 rounded-xl text-[9px] font-black uppercase hover:bg-emerald-500 hover:text-white transition-all flex items-center gap-2 group"
                     >
@@ -839,8 +851,11 @@ const AdminProductsPage: React.FC = () => {
                             <span className={`text-sm font-black ${mainProduct.enOferta ? 'text-white/30 line-through text-[11px]' : 'text-white/50'}`}>
                                 {mainProduct.precio.toFixed(2)}€
                             </span>
-                            <span className={`text-[10px] font-black uppercase italic ${mainProduct.enOferta ? 'line-through opacity-40 text-[8px]' : 'text-primary'}`}>
+                            <span className={`text-[10px] font-black uppercase italic flex items-center gap-1 ${mainProduct.enOferta ? 'line-through opacity-40 text-[8px]' : 'text-primary'}`}>
                                 PVP: {(mainProduct.precioPVP || 0).toFixed(2)}€
+                                {mainProduct.activo && mainProduct.precioPVP < (mainProduct.precio * 1.21) && (
+                                    <span className="material-symbols-outlined text-orange-500 text-sm animate-pulse" title="¡PRECIO BAJO EL COSTE CON IVA!">warning</span>
+                                )}
                             </span>
                             {mainProduct.enOferta && (
                                 <div className="flex items-center gap-2 animate-fade-in">

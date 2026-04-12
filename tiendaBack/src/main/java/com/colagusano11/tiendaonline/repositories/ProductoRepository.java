@@ -66,6 +66,7 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>{
             "(:status = 'INACTIVOS' AND p.activo = false) OR " +
             "(:status = 'OFERTAS' AND p.enOferta = true) OR " +
             "((:status = '' OR :status = 'ACTIVOS') AND p.activo = true) OR " +
+            "(:status = 'BAJO_MARGEN' AND p.activo = true AND p.precioPVP < (p.precio * 1.21)) OR " +
             "(:status IS NULL AND p.activo = true AND (p.imagen IS NOT NULL AND p.imagen <> '')))")
     void updateStatusByFilters(
             @org.springframework.data.repository.query.Param("activo") boolean activo,
@@ -99,6 +100,7 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>{
             "(:status = 'INACTIVOS' AND p.activo = false) OR " +
             "(:status = 'OFERTAS' AND p.enOferta = true) OR " +
             "((:status = '' OR :status = 'ACTIVOS') AND p.activo = true) OR " +
+            "(:status = 'BAJO_MARGEN' AND p.activo = true AND p.precioPVP < (p.precio * 1.21)) OR " +
             "(:status IS NULL AND p.activo = true AND (p.imagen IS NOT NULL AND p.imagen <> ''))))")
     void updateOfferByFilters(
             @org.springframework.data.repository.query.Param("enOferta") boolean enOferta,
@@ -134,6 +136,7 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>{
             "(:status = 'INACTIVOS' AND p.activo = false) OR " +
             "(:status = 'OFERTAS' AND p.enOferta = true) OR " +
             "((:status = '' OR :status = 'ACTIVOS') AND p.activo = true) OR " +
+            "(:status = 'BAJO_MARGEN' AND p.activo = true AND p.precioPVP < (p.precio * 1.21)) OR " +
             "(:status IS NULL AND p.activo = true AND (p.imagen IS NOT NULL AND p.imagen <> '')))")
     List<Long> searchIds(
             @org.springframework.data.repository.query.Param("manufacturador") String manufacturador,
