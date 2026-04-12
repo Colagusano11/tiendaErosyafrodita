@@ -9,6 +9,7 @@ import { LAUNCH_PROMO_ACTIVE, LAUNCH_DISCOUNT, applyPromo } from "../config/prom
 import { useAuth } from "../context/AuthContext";
 import { useAlert } from "../context/AlertContext";
 import { suscribirAvisoStock } from "../api/stock";
+import { useImageGallery } from "../hooks/useImageGallery";
 
 interface ProductCardProps {
   product: Producto;
@@ -28,6 +29,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onHide }) => {
     product.imagen3, 
     product.imagen4
   ]);
+
+  const handleHeartClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleWishlist(product);
+  };
 
   const image = validUrls[0]; // La primera que funcione
 
