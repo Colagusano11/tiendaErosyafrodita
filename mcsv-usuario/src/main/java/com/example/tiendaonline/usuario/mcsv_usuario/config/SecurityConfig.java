@@ -67,8 +67,8 @@ public class SecurityConfig {
                 ).permitAll()
                 // OAuth2 callback público
                 .requestMatchers("/auth/oauth2/success", "/error").permitAll()
-                // GET perfil propio — requiere JWT válido (el propio usuario o admin)
-                .requestMatchers(HttpMethod.GET, "/usuarios/{email}").authenticated()
+                // GET perfil propio — permitimos acceso para comunicación entre microservicios
+                .requestMatchers(HttpMethod.GET, "/usuarios/{email}").permitAll()
                 // Listado completo de usuarios — solo ADMIN
                 .requestMatchers(HttpMethod.GET, "/usuarios", "/usuarios/").hasRole("ADMIN")
                 // Actualizar perfil propio — requiere JWT

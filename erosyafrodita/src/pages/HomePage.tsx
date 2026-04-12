@@ -44,7 +44,8 @@ const HomePage: React.FC = () => {
   const [featuredProduct, setFeaturedProduct] = useState<Producto | null>(null);
   const [novedadesPool, setNovedadesPool] = useState<Producto[]>([]);
   const [novedadesCount, setNovedadesCount] = useState(10);
-  const [recommended, setRecommended] = useState<Producto[]>([]);
+  const [recommendedPool, setRecommendedPool] = useState<Producto[]>([]);
+  const [recommendedCount, setRecommendedCount] = useState(10);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -77,15 +78,19 @@ const HomePage: React.FC = () => {
           .sort((a, b) => (b.precioPVP - b.precio) - (a.precioPVP - a.precio))[0] ?? null;
         setFeaturedProduct(ofertaCandidate);
 
-        // --- RECOMENDADOS: mejor % de descuento sobre PVP del catálogo completo ---
-        const recomendadosPool = withImage
-          .filter(p => p.precioPVP > 0 && p.precio < p.precioPVP && p.id !== ofertaCandidate?.id)
-          .sort((a, b) => {
-            const ratioA = (a.precioPVP - a.precio) / a.precioPVP;
-            const ratioB = (b.precioPVP - b.precio) / b.precioPVP;
-            return ratioB - ratioA;
-          });
-        setRecommended(recomendadosPool.slice(0, 10));
+        // --- RECOMENDADOS: Prioriza marcas curadas + mejores ofertas del resto ---
+        const recomendadosBase = withImage.filter(p => p.precioPVP > 0 && p.precio < p.precioPVP && p.id !== ofertaCandidate?.id);
+        
+        const sortRecomendados = (arr: Producto[]) => [...arr].sort((a, b) => {
+          const ratioA = (a.precioPVP - a.precio) / a.precioPVP;
+          const ratioB = (b.precioPVP - b.precio) / b.precioPVP;
+          return ratioB - ratioA;
+        });
+
+        const recomendadosBranded = sortRecomendados(recomendadosBase.filter(isNovedadBrand));
+        const recomendadosExtra = sortRecomendados(recomendadosBase.filter(p => !isNovedadBrand(p)));
+        
+        setRecommendedPool([...recomendadosBranded, ...recomendadosExtra]);
 
       } catch (e: any) {
         setError(e.message ?? "Error al cargar productos");
@@ -234,7 +239,19 @@ const HomePage: React.FC = () => {
         <section className="py-12 border-y border-white/5 bg-charcoal/75 overflow-hidden relative">
           <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-charcoal to-transparent z-10"></div>
           <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-charcoal to-transparent z-10"></div>
-          <div className="flex w-max items-center animate-infinite-scroll gap-16">
+          
+          <motion.div 
+            className="flex w-max items-center gap-16"
+            animate={{ x: [0, -1500] }}
+            transition={{
+              x: {
+                repeat: Infinity,
+                repeatType: "loop",
+                duration: 25,
+                ease: "linear",
+              },
+            }}
+          >
             {[
               "ADOLFO DOMINGUEZ", "KILIAN", "4711", "CLARINS", "ROCHAS",
               "LOLITA LEMPICKA", "HERMÈS", "CLINIQUE", "SLAVA ZAÏTSEV", "LOEWE",
@@ -253,7 +270,7 @@ const HomePage: React.FC = () => {
                 {brand}
               </Link>
             ))}
-          </div>
+          </motion.div>
         </section>
 
         {/* Oferta destacada - Versión más compacta */}
@@ -323,9 +340,13 @@ const HomePage: React.FC = () => {
                 Ver más <span className="material-symbols-outlined text-sm">arrow_forward</span>
               </Link>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6">
-              {!loading && !error && recommended.map((product) => (
-                <ProductCard key={product.id} product={product} />
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 lg:gap-6">
+              {!loading && !error && recommendedPool.slice(0, recommendedCount).map((product) => (
+                <ProductCard 
+                  key={product.id} 
+                  product={product} 
+                  onHide={() => setRecommendedCount(c => c + 1)}
+                />
               ))}
             </div>
           </div>

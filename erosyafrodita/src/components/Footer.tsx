@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import logoEros from "../assets/logo-eros.png";
 
 const Footer: React.FC = () => (
   <footer className="bg-charcoal border-t border-white/10 mt-auto">
@@ -8,11 +9,11 @@ const Footer: React.FC = () => (
         {/* Marca */}
         <div className="md:col-span-1">
           <div className="flex items-center gap-2 mb-3">
-            <div className="size-6 rounded-full bg-primary flex items-center justify-center">
-              <span className="material-symbols-outlined text-[18px] text-charcoal">
-                diamond
-              </span>
-            </div>
+            <img
+              src={logoEros}
+              alt="Eros & Afrodita"
+              className="size-6 rounded-full object-cover"
+            />
             <span className="font-semibold text-sm text-white">
               Erosyafrodita
             </span>

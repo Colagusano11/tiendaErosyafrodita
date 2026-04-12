@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import logoEros from '../assets/logo-eros.png';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -156,9 +157,11 @@ const Login: React.FC = () => {
     <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display min-h-screen flex flex-col antialiased selection:bg-primary selection:text-black">
       <header className="flex items-center justify-between whitespace-nowrap px-6 py-4 lg:px-10 lg:py-6 w-full absolute top-0 left-0 z-20">
         <div className="flex items-center gap-3 text-white cursor-pointer hover:opacity-80 transition-opacity" onClick={() => navigate('/')}>
-          <div className="size-8 text-primary">
-            <span className="material-symbols-outlined text-[32px]">diamond</span>
-          </div>
+          <img
+            src={logoEros}
+            alt="Eros & Afrodita"
+            className="size-8 rounded-full object-cover"
+          />
           <h2 className="text-white text-xl font-bold tracking-tight">Erosyafrodita</h2>
         </div>
         <Link to="/" className="text-white/70 hover:text-primary text-sm font-medium transition-colors hidden sm:block">
