@@ -45,6 +45,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/auth/**", "/usuarios/registro").permitAll()
                 .requestMatchers(HttpMethod.GET, "/productos/**", "/categorias/**", "/proxy-image/**", "/resenas/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/actuator/**").permitAll()
+                // Endpoints de Pedidos para Invitados
+                .requestMatchers(HttpMethod.POST, "/pedidos", "/pedidos/confirmar", "/pedidos/*/pago/revolut", "/pedidos/pago/confirmar").permitAll()
                 // Webhook de pago (llamada externa de Revolut, sin JWT)
                 .requestMatchers(HttpMethod.POST, "/pagos/revolut/webhook").permitAll()
                 // Permitir acceso a los comandos de administración e importación — solo ADMIN autenticado
