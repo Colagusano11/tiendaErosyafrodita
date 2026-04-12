@@ -52,6 +52,10 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${DB_USUARIOS_PASSWORD:-sasa1234}
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       APPLICATION_SECURITY_JWT_SECRET_KEY: ${JWT_SECRET}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
     depends_on:
       db-usuarios:
         condition: service_healthy
@@ -80,6 +84,12 @@ services:
       SPRING_CONFIG_IMPORT: "optional:configserver:"
       JWT_SECRET: ${JWT_SECRET}
       APPLICATION_SECURITY_JWT_SECRET_KEY: ${JWT_SECRET}
+      NOVAENGEL_USER: ${NOVAENGEL_USER}
+      NOVAENGEL_PASSWORD: ${NOVAENGEL_PASSWORD}
+      BTS_API_JWT: ${BTS_API_JWT}
+      REVOLUT_API_KEY: ${REVOLUT_API_KEY}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
     depends_on:
       db:
         condition: service_healthy
