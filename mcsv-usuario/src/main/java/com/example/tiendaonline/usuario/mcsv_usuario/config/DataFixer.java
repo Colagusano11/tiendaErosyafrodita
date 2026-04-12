@@ -17,13 +17,7 @@ public class DataFixer {
     @Bean
     CommandLineRunner initData(UsuarioRepository repository, PasswordEncoder passwordEncoder) {
         return args -> {
-            // 1. Quitar admin a amarlo8@hotmail.com (Ajuste de limpieza)
-            repository.findByEmail("amarlo8@hotmail.com").ifPresent(u -> {
-                if (u.isAdmin()) {
-                    u.setAdmin(false);
-                    repository.save(u);
-                }
-            });
+
 
             // 2. Asegurar existencia y contraseña del admin principal
             String adminEmail = "erosyafrodita.com@gmail.com";

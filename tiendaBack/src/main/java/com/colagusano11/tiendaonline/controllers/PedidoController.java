@@ -39,9 +39,7 @@ public class PedidoController {
             @RequestBody PedidoRequest pedidoRequest,
             @AuthenticationPrincipal UsuarioRegistroDto usuario) {
 
-        if (usuario == null) {
-            return ResponseEntity.status(401).body("Debes iniciar sesión para realizar un pedido.");
-        }
+        // Permitimos usuario null para pedidos como invitado
 
         Pedido pedido = pedidoService.createPedidoDesdeCarrito(usuario, pedidoRequest);
         PedidoSalida dto = pedidoService.mapearPedidoSalida(pedido);

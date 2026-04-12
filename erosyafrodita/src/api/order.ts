@@ -10,6 +10,8 @@ export interface PedidoRequest {
   telefono: string;
   pais: string;
   descuento?: number; // 0..1 — ej. 0.10 para -10% de lanzamiento
+  email?: string;
+  items?: { productoId: number; cantidad: number }[];
 }
 
 export interface PedidoProductoSalida {

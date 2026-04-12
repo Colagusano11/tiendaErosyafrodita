@@ -24,6 +24,24 @@ public class PedidoRequest {
             this.descuento = descuento;
         }
 
+        private String email;
+        private java.util.List<ItemRequest> items;
+
+        public static class ItemRequest {
+            private Long productoId;
+            private Integer cantidad;
+            public Long getProductoId() { return productoId; }
+            public void setProductoId(Long productoId) { this.productoId = productoId; }
+            public Integer getCantidad() { return cantidad; }
+            public void setCantidad(Integer cantidad) { this.cantidad = cantidad; }
+        }
+
+        public java.util.List<ItemRequest> getItems() { return items; }
+        public void setItems(java.util.List<ItemRequest> items) { this.items = items; }
+
+        public String getEmail() { return email; }
+        public void setEmail(String email) { this.email = email; }
+
         public String getNombre() {
             return nombre;
         }

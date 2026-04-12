@@ -16,7 +16,7 @@ public class Pedido {
     private Long id;
 
     // id del usuario en el microservicio de usuarios
-    @Column(name = "usuario_id", nullable = false)
+    @Column(name = "usuario_id", nullable = true)
     private Long usuarioId;
 
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)

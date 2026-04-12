@@ -64,7 +64,7 @@ public class PedidoServicieImpl implements PedidoServicie {
 
     private Long getUserIdOrDefault(UsuarioRegistroDto usuario) {
         if (usuario == null) {
-            throw new IllegalStateException("Acceso denegado: Usuario no autenticado");
+            return null;
         }
         return usuario.getId();
     }
@@ -86,24 +86,13 @@ public class PedidoServicieImpl implements PedidoServicie {
     @Override
     public Pedido createPedidoDesdeCarrito(UsuarioRegistroDto usuario, PedidoRequest pedidoRequest) {
 
-        Long usuarioId = getUserIdOrDefault(usuario);// adapta al tipo real
+        Long usuarioId = getUserIdOrDefault(usuario);
 
-        // 1. Obtener el carrito del usuario o lanzar error si no existe
-        Carrito carrito = carritoRepository.findByUsuarioId(usuarioId)
-                .orElseThrow(() -> new IllegalStateException("El usuario no tiene carrito"));
-
-        // 2. Comprobar que el carrito no esté vacío
-        if (carrito.getItems().isEmpty()) {
-            throw new IllegalStateException("El carrito está vacío");
-        }
-
-        // 3. Construir el objeto Pedido (cabecera)
         Pedido pedido = new Pedido();
-        pedido.setUsuarioId(usuarioId); // quién hace el pedido (id, no entidad)
-        pedido.setFecha(LocalDateTime.now()); // momento de creación
-        pedido.setEstado(PedidoEstado.PENDIENTE_DE_PAGO); // estado inicial (esperando pago)
+        pedido.setUsuarioId(usuarioId);
+        pedido.setFecha(LocalDateTime.now());
+        pedido.setEstado(PedidoEstado.PENDIENTE_DE_PAGO);
 
-        // Mapeo detallado de envío desde el checkout
         pedido.setNombre(pedidoRequest.getNombre());
         pedido.setApellidos(pedidoRequest.getApellidos());
         pedido.setCalle(pedidoRequest.getCalle());
@@ -113,80 +102,83 @@ public class PedidoServicieImpl implements PedidoServicie {
         pedido.setTelefono(pedidoRequest.getTelefono());
         pedido.setPais(pedidoRequest.getPais());
 
-        // Guardamos el email para notificar después del pago
-        String emailDestino = (usuario != null && usuario.getEmail() != null) ? usuario.getEmail()
-                : "info@erosyafrodita.com";
+        // Prioridad al email del Request (para Invictado) -> Luego al del Usuario -> Luego fallback
+        String emailDestino = pedidoRequest.getEmail();
+        if (emailDestino == null && usuario != null) {
+            emailDestino = usuario.getEmail();
+        }
+        if (emailDestino == null) {
+            emailDestino = "info@erosyafrodita.com";
+        }
         pedido.setEmail(emailDestino);
 
         List<PedidoProducto> lineasPedido = new ArrayList<>();
-        BigDecimal total = BigDecimal.ZERO; // acumulador del total del pedido
+        BigDecimal total = BigDecimal.ZERO;
 
-        // Factor de descuento de lanzamiento (si viene del front)
-        // descuento = 0.10 → se cobra el 90% del PVP
         BigDecimal factorPromo = BigDecimal.ONE;
         if (pedidoRequest.getDescuento() != null && pedidoRequest.getDescuento() > 0
                 && pedidoRequest.getDescuento() < 1) {
             factorPromo = BigDecimal.ONE.subtract(BigDecimal.valueOf(pedidoRequest.getDescuento()));
         }
 
-        // 4. Convertir cada CarritoItem en una línea de pedido (PedidoProducto)
-        for (CarritoItem itemCarrito : carrito.getItems()) {
+        // --- MODO REGISTRADO ---
+        if (usuarioId != null) {
+            Carrito carrito = carritoRepository.findByUsuarioId(usuarioId)
+                    .orElseThrow(() -> new IllegalStateException("El usuario no tiene carrito"));
 
-            Producto producto = itemCarrito.getProducto();
+            if (carrito.getItems().isEmpty()) {
+                throw new IllegalStateException("El carrito está vacío");
+            }
 
-            PedidoProducto pedidoProducto = new PedidoProducto();
-            pedidoProducto.setPedido(pedido); // relación con la cabecera
-            pedidoProducto.setProducto(producto); // producto original
-            pedidoProducto.setCantidad(itemCarrito.getCantidad());
-
-            // Precio de venta real (PVP) para el cliente, con descuento de lanzamiento
-            // aplicado
-            BigDecimal precioBase = producto.getPrecioPVP() != null ? producto.getPrecioPVP() : producto.getPrecio();
-            BigDecimal precioVenta = precioBase.multiply(factorPromo).setScale(2, java.math.RoundingMode.HALF_UP);
-            pedidoProducto.setPrecioUnitario(precioVenta);
-
-            // Subtotal de la línea = precio venta * cantidad
-            BigDecimal subtotal = precioVenta.multiply(
-                    BigDecimal.valueOf(itemCarrito.getCantidad()));
-            pedidoProducto.setPrecioTotalLinea(subtotal); // total de esa línea cargado al cliente
-
-            // Guardamos el coste del proveedor en el campo que antes usábamos para el PVP
-            pedidoProducto.setPrecioPVP(producto.getPrecio());
-
-            // Copiamos datos del producto para "congelarlos" en el historial
-            pedidoProducto.setSku(producto.getSku());
-            pedidoProducto.setEan(producto.getEan());
-            pedidoProducto.setNombreProducto(producto.getNombre());
-            pedidoProducto.setDistribuidor(producto.getDistribuidor());
-
-            // Sumamos al total del pedido
-            total = total.add(subtotal);
-
-            // Añadimos la línea a la lista
-            lineasPedido.add(pedidoProducto);
+            for (CarritoItem itemCarrito : carrito.getItems()) {
+                lineasPedido.add(crearLineaPedido(pedido, itemCarrito.getProducto(), itemCarrito.getCantidad(), factorPromo));
+            }
+            // Vaciar carrito DB
+            carrito.getItems().clear();
+            carritoRepository.save(carrito);
+        } 
+        // --- MODO INVITADO ---
+        else {
+            if (pedidoRequest.getItems() == null || pedidoRequest.getItems().isEmpty()) {
+                throw new IllegalStateException("No hay productos en el pedido del invitado");
+            }
+            for (PedidoRequest.ItemRequest itemReq : pedidoRequest.getItems()) {
+                Producto p = productoRepository.findById(itemReq.getProductoId())
+                    .orElseThrow(() -> new RuntimeException("Producto no encontrado: " + itemReq.getProductoId()));
+                lineasPedido.add(crearLineaPedido(pedido, p, itemReq.getCantidad(), factorPromo));
+            }
         }
 
-        // 5. Asociar líneas y total al pedido
+        // Calcular total
+        for(PedidoProducto lp : lineasPedido) {
+            total = total.add(lp.getPrecioTotalLinea());
+        }
+
         pedido.setLineas(lineasPedido);
         pedido.setTotal(total);
 
-        // 6. Guardar el pedido en la base de datos
-        Pedido pedidoGuardado = pedidoRepository.save(pedido);
+        return pedidoRepository.save(pedido);
+    }
 
-        // 7. Vaciar el carrito del usuario (ya se ha convertido en pedido)
-        carrito.getItems().clear();
-        carritoRepository.save(carrito);
+    private PedidoProducto crearLineaPedido(Pedido pedido, Producto producto, int cantidad, BigDecimal factorPromo) {
+        PedidoProducto lp = new PedidoProducto();
+        lp.setPedido(pedido);
+        lp.setProducto(producto);
+        lp.setCantidad(cantidad);
 
-        // ELIMINADO: No enviar email hasta que el pago esté confirmado
-        /*
-         * try {
-         * emailService.enviarEmailPedido(pedidoGuardado, emailDestino);
-         * } catch (Exception e) {
-         * System.err.println("Error enviando email inicial: " + e.getMessage());
-         * }
-         */
+        BigDecimal precioBase = producto.getPrecioPVP() != null ? producto.getPrecioPVP() : producto.getPrecio();
+        BigDecimal precioVenta = precioBase.multiply(factorPromo).setScale(2, java.math.RoundingMode.HALF_UP);
+        lp.setPrecioUnitario(precioVenta);
 
-        return pedidoGuardado;
+        BigDecimal subtotal = precioVenta.multiply(BigDecimal.valueOf(cantidad));
+        lp.setPrecioTotalLinea(subtotal);
+
+        lp.setPrecioPVP(producto.getPrecio()); // Mantenemos la lógica de guardar el coste aquí
+        lp.setSku(producto.getSku());
+        lp.setEan(producto.getEan());
+        lp.setNombreProducto(producto.getNombre());
+        lp.setDistribuidor(producto.getDistribuidor());
+        return lp;
     }
 
     public PedidoSalida mapearPedidoSalida(Pedido pedido) {

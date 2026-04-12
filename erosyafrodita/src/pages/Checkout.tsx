@@ -51,6 +51,7 @@ const Checkout: React.FC = () => {
     codigoPostal: "",
     telefono: "",
     pais: "España",
+    email: "",
     saveToProfile: false
   });
 
@@ -100,8 +101,13 @@ const Checkout: React.FC = () => {
       pais: tempAddress.pais
     };
 
-    if (!isUsingSavedAddress && (!tempAddress.calle.trim() || !tempAddress.nombre.trim() || !tempAddress.telefono.trim())) {
+    if (!isUsingSavedAddress && (!tempAddress.calle.trim() || !tempAddress.nombre.trim() || !tempAddress.telefono.trim() || (!userEmail && !tempAddress.email.trim()))) {
       setError("Por favor, completa todos los campos obligatorios de envío.");
+      return;
+    }
+
+    if (!userEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(tempAddress.email)) {
+      setError("Por favor, introduce un correo electrónico válido.");
       return;
     }
 
@@ -113,7 +119,8 @@ const Checkout: React.FC = () => {
       codigoPostal: userProfile.codigoPostal || "",
       provincia: userProfile.provincia || "",
       telefono: userProfile.phone || (userProfile as any).telefono || "",
-      pais: userProfile.pais || "España"
+      pais: userProfile.pais || "España",
+      email: userEmail || ""
     } : {
       nombre: tempAddress.nombre,
       apellidos: tempAddress.apellidos,
@@ -122,7 +129,8 @@ const Checkout: React.FC = () => {
       codigoPostal: tempAddress.codigoPostal,
       provincia: tempAddress.provincia,
       telefono: tempAddress.telefono,
-      pais: tempAddress.pais
+      pais: tempAddress.pais,
+      email: tempAddress.email
     };
 
     if (items.length === 0) {
@@ -155,7 +163,8 @@ const Checkout: React.FC = () => {
       const { iniciarPagoRevolut } = await import("../api/order");
       const pedido = await crearPedido({
         ...payload,
-        ...(LAUNCH_PROMO_ACTIVE ? { descuento: LAUNCH_DISCOUNT } : {})
+        ...(LAUNCH_PROMO_ACTIVE ? { descuento: LAUNCH_DISCOUNT } : {}),
+        ...(!userEmail ? { items: items.map(i => ({ productoId: i.product.id, cantidad: i.quantity })) } : {})
       });
       setCreatedPedido(pedido);
       
@@ -291,7 +300,7 @@ const Checkout: React.FC = () => {
       // cardField.submit inicia el flujo. El resultado se maneja en los callbacks onSuccess y onError definidos arriba.
       await cardField.submit({
         name: cardholderName,
-        email: userEmail ? userEmail.trim() : "soporte@erosyafrodita.com"
+        email: userEmail ? userEmail.trim() : (createdPedido?.email || tempAddress.email.trim() || "soporte@erosyafrodita.com")
       });
       
     } catch (err: any) {
@@ -395,6 +404,16 @@ const Checkout: React.FC = () => {
                             <input className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-white focus:bg-background-dark transition-all" placeholder="TELÉFONO MÓVIL" value={tempAddress.telefono} onChange={e => setTempAddress({...tempAddress, telefono: e.target.value})} />
                             <input className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-white focus:bg-background-dark transition-all" placeholder="PAÍS" value={tempAddress.pais} onChange={e => setTempAddress({...tempAddress, pais: e.target.value})} />
                           </div>
+                          {!userEmail && (
+                            <input 
+                              type="email"
+                              className="w-full bg-primary/10 border border-primary/20 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-white focus:bg-background-dark transition-all placeholder:text-primary/40" 
+                              placeholder="CORREO ELECTRÓNICO (OBLIGATORIO PARA PAGAR)" 
+                              value={tempAddress.email} 
+                              onChange={e => setTempAddress({...tempAddress, email: e.target.value})} 
+                              required
+                            />
+                          )}
                         </div>
                       )}
                     </div>
