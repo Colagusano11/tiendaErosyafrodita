@@ -50,6 +50,7 @@ import AddToCartModal from "./components/AddToCartModal";
 import AlertModal from "./components/AlertModal";
 import WhatsAppButton from "./components/WhatsAppButton";
 import LaunchModal from "./components/LaunchModal";
+import CookieBanner from "./components/CookieBanner";
 
 const App: React.FC = () => {
   return (
@@ -62,6 +63,7 @@ const App: React.FC = () => {
               <AddToCartModal />
               <WhatsAppButton />
               <LaunchModal />
+              <CookieBanner />
               <Suspense fallback={<PageLoader />}>
                 <Routes>
                   <Route path="/" element={<HomePage />} />
