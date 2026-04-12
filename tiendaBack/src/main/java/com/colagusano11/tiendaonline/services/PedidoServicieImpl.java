@@ -142,6 +142,20 @@ public class PedidoServicieImpl implements PedidoServicie {
             if (pedidoRequest.getItems() == null || pedidoRequest.getItems().isEmpty()) {
                 throw new IllegalStateException("No hay productos en el pedido del invitado");
             }
+            // Intentar vincular con un usuario existente por el email del formulario
+            if (pedidoRequest.getEmail() != null && !pedidoRequest.getEmail().isBlank()) {
+                try {
+                    UsuarioRegistroDto existente = usuarioFeignClient.verUser(pedidoRequest.getEmail());
+                    if (existente != null) {
+                        pedido.setUsuarioId(existente.getId());
+                        System.out.println(">>> Pedido de invitado vinculado a usuario existente: " + existente.getEmail());
+                    }
+                } catch (Exception e) {
+                    // Si falla (ej. 404), simplemente sigue como invitado puro
+                    System.out.println(">>> No se encontró usuario para vincular el pedido de invitado: " + pedidoRequest.getEmail());
+                }
+            }
+
             for (PedidoRequest.ItemRequest itemReq : pedidoRequest.getItems()) {
                 Producto p = productoRepository.findById(itemReq.getProductoId())
                     .orElseThrow(() -> new RuntimeException("Producto no encontrado: " + itemReq.getProductoId()));
