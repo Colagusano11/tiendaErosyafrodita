@@ -102,6 +102,7 @@ services:
       SPRING_MAIL_USERNAME: ${MAIL_USERNAME}
       SPRING_MAIL_PASSWORD: ${MAIL_PASSWORD}
       REVOLUT_API_URL: "https://merchant.revolut.com/api/1.0"
+      FRONTEND_URL: ${FRONTEND_URL:-https://erosyafrodita.com}
       CONFIG_BASEURL_ENDPOINT_MCSV_USUARIO: "http://mcsv-usuario:8080"
       SPRING_CLOUD_LOADBALANCER_ENABLED: "true"
       SPRING_CLOUD_DISCOVERY_CLIENT_SIMPLE_INSTANCES_MCSV-USUARIOS_0_URI: "http://mcsv-usuario:8080"
