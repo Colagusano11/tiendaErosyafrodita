@@ -101,8 +101,18 @@ const Checkout: React.FC = () => {
       pais: tempAddress.pais
     };
 
-    if (!isUsingSavedAddress && (!tempAddress.calle.trim() || !tempAddress.nombre.trim() || !tempAddress.telefono.trim() || (!userEmail && !tempAddress.email.trim()))) {
-      setError("Por favor, completa todos los campos obligatorios de envío.");
+    if (!isUsingSavedAddress && (
+      !tempAddress.nombre.trim() || 
+      !tempAddress.apellidos.trim() || 
+      !tempAddress.calle.trim() || 
+      !tempAddress.poblacion.trim() || 
+      !tempAddress.codigoPostal.trim() || 
+      !tempAddress.provincia.trim() || 
+      !tempAddress.telefono.trim() || 
+      (!userEmail && !tempAddress.email.trim())
+    )) {
+      setError("Por favor, completa todos los campos de envío. Son necesarios para la entrega.");
+      showAlert("Campos incompletos", "Todos los campos marcados son obligatorios para poder realizar el envío correctamente.", "warning");
       return;
     }
 
@@ -110,6 +120,7 @@ const Checkout: React.FC = () => {
       setError("Por favor, introduce un correo electrónico válido.");
       return;
     }
+ Riverside
 
     const payload = isUsingSavedAddress && userProfile ? {
       nombre: userProfile.name || (userProfile as any).nombre || "Usuario",
@@ -130,8 +141,13 @@ const Checkout: React.FC = () => {
       provincia: tempAddress.provincia,
       telefono: tempAddress.telefono,
       pais: tempAddress.pais,
-      email: tempAddress.email
+      email: tempAddress.email.trim()
     };
+
+    if (payload.telefono.length < 9) {
+      setError("El teléfono no parece válido. Por favor, revísalo.");
+      return;
+    }
 
     if (items.length === 0) {
       setError("Tu carrito está vacío.");
@@ -388,21 +404,17 @@ const Checkout: React.FC = () => {
                       {(!isUsingSavedAddress || !userProfile?.direccionPrimaria) && (
                         <div className="grid grid-cols-1 gap-4 p-6 rounded-2xl border border-white/10 bg-white/5 animate-fade-in mt-2 mb-4">
                           <div className="grid grid-cols-2 gap-4">
-                            <input className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-white focus:bg-background-dark transition-all" placeholder="NOMBRE" value={tempAddress.nombre} onChange={e => setTempAddress({...tempAddress, nombre: e.target.value})} />
-                            <input className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-white focus:bg-background-dark transition-all" placeholder="APELLIDOS" value={tempAddress.apellidos} onChange={e => setTempAddress({...tempAddress, apellidos: e.target.value})} />
+                            <input required className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-white focus:bg-background-dark transition-all" placeholder="NOMBRE*" value={tempAddress.nombre} onChange={e => setTempAddress({...tempAddress, nombre: e.target.value})} />
+                            <input required className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-white focus:bg-background-dark transition-all" placeholder="APELLIDOS*" value={tempAddress.apellidos} onChange={e => setTempAddress({...tempAddress, apellidos: e.target.value})} />
                           </div>
-                          <input className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-white focus:bg-background-dark transition-all" placeholder="CALLE / AVENIDA" value={tempAddress.calle} onChange={e => setTempAddress({...tempAddress, calle: e.target.value})} />
+                          <input required className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-white focus:bg-background-dark transition-all" placeholder="CALLE / AVENIDA / NÚMERO*" value={tempAddress.calle} onChange={e => setTempAddress({...tempAddress, calle: e.target.value})} />
                           <div className="grid grid-cols-2 gap-4">
-                            <input className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-white focus:bg-background-dark transition-all" placeholder="NÚMERO" value={tempAddress.numero} onChange={e => setTempAddress({...tempAddress, numero: e.target.value})} />
-                            <input className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-white focus:bg-background-dark transition-all" placeholder="POBLACIÓN" value={tempAddress.poblacion} onChange={e => setTempAddress({...tempAddress, poblacion: e.target.value})} />
-                          </div>
-                          <div className="grid grid-cols-2 gap-4">
-                            <input className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-white focus:bg-background-dark transition-all" placeholder="CÓDIGO POSTAL" value={tempAddress.codigoPostal} onChange={e => setTempAddress({...tempAddress, codigoPostal: e.target.value})} />
-                            <input className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-white focus:bg-background-dark transition-all" placeholder="PROVINCIA / ESTADO" value={tempAddress.provincia} onChange={e => setTempAddress({...tempAddress, provincia: e.target.value})} />
+                            <input required className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-white focus:bg-background-dark transition-all" placeholder="POBLACIÓN*" value={tempAddress.poblacion} onChange={e => setTempAddress({...tempAddress, poblacion: e.target.value})} />
+                            <input required className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-white focus:bg-background-dark transition-all" placeholder="CÓDIGO POSTAL*" value={tempAddress.codigoPostal} onChange={e => setTempAddress({...tempAddress, codigoPostal: e.target.value})} />
                           </div>
                           <div className="grid grid-cols-2 gap-4">
-                            <input className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-white focus:bg-background-dark transition-all" placeholder="TELÉFONO MÓVIL" value={tempAddress.telefono} onChange={e => setTempAddress({...tempAddress, telefono: e.target.value})} />
-                            <input className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-white focus:bg-background-dark transition-all" placeholder="PAÍS" value={tempAddress.pais} onChange={e => setTempAddress({...tempAddress, pais: e.target.value})} />
+                            <input required className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-white focus:bg-background-dark transition-all" placeholder="PROVINCIA*" value={tempAddress.provincia} onChange={e => setTempAddress({...tempAddress, provincia: e.target.value})} />
+                            <input required className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-white focus:bg-background-dark transition-all" placeholder="TELÉFONO MÓVIL*" value={tempAddress.telefono} onChange={e => setTempAddress({...tempAddress, telefono: e.target.value})} />
                           </div>
                           {!userEmail && (
                             <input 
