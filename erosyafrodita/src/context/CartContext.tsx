@@ -43,17 +43,36 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   const [loading, setLoading] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [lastAddedProduct, setLastAddedProduct] = useState<Producto | null>(null);
+  const LOCAL_CART_KEY = "eros_guest_cart";
 
   const { showAlert } = useAlert();
   const { isAuthenticated } = useAuth();
 
   const closeModal = () => setIsModalOpen(false);
 
-  // Cargar carrito inicial desde el backend o limpiar si no está autenticado
+  // Calcular total para invitados
+  const calculateGuestTotal = (cartItems: CartItem[]) => {
+    const rawTotal = cartItems.reduce((sum, item) => {
+        const price = item.product.precioUnitario || item.product.precioPVP || item.product.precio;
+        return sum + (price * item.quantity);
+    }, 0);
+    setTotal(LAUNCH_PROMO_ACTIVE ? Math.round(rawTotal * (1 - LAUNCH_DISCOUNT) * 100) / 100 : rawTotal);
+  };
+
+  // Cargar carrito inicial
   useEffect(() => {
     if (!isAuthenticated) {
-      setItems([]);
-      setTotal(0);
+      // Cargar de localStorage si es invitado
+      const savedCart = localStorage.getItem(LOCAL_CART_KEY);
+      if (savedCart) {
+        try {
+          const parsed = JSON.parse(savedCart) as CartItem[];
+          setItems(parsed);
+          calculateGuestTotal(parsed);
+        } catch (e) {
+          setItems([]);
+        }
+      }
       setLoading(false);
       return;
     }
@@ -97,6 +116,28 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   // Añadir 1 unidad de un producto
   const addItem = async (product: Producto, showModal: boolean = true) => {
     setLoading(true);
+    
+    // --- MODO INVITADO ---
+    if (!isAuthenticated) {
+      const newItems = [...items];
+      const existing = newItems.find(i => i.product.id === product.id);
+      if (existing) {
+        existing.quantity += 1;
+      } else {
+        newItems.push({ product, quantity: 1 });
+      }
+      setItems(newItems);
+      localStorage.setItem(LOCAL_CART_KEY, JSON.stringify(newItems));
+      calculateGuestTotal(newItems);
+      if (showModal) {
+        setLastAddedProduct(product);
+        setIsModalOpen(true);
+      }
+      setLoading(false);
+      return;
+    }
+
+    // --- MODO REGISTRADO ---
     try {
       const data = await apiAgregarAlCarrito({
         idProducto: Number(product.id),
@@ -120,20 +161,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
       const addRaw = Number(data.total);
       setTotal(LAUNCH_PROMO_ACTIVE ? Math.round(addRaw * (1 - LAUNCH_DISCOUNT) * 100) / 100 : addRaw);
 
-      // Mostrar modal solo si se solicita
       if (showModal) {
         setLastAddedProduct(product);
         setIsModalOpen(true);
       }
-
-      console.log("Producto añadido:", product.nombre);
     } catch (e: any) {
       console.error("Error al añadir al carrito:", e);
-      showAlert(
-        "Acción requerida",
-        "Debes iniciar sesión para añadir productos al carrito.",
-        "warning"
-      );
     } finally {
       setLoading(false);
     }
@@ -142,10 +175,22 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   // Eliminar un producto completo del carrito (todas sus unidades)
   const removeItem = async (productId: number) => {
     setLoading(true);
+
+    // --- MODO INVITADO ---
+    if (!isAuthenticated) {
+      const newItems = items.filter(i => i.product.id !== productId);
+      setItems(newItems);
+      localStorage.setItem(LOCAL_CART_KEY, JSON.stringify(newItems));
+      calculateGuestTotal(newItems);
+      setLoading(false);
+      return;
+    }
+
+    // --- MODO REGISTRADO ---
     try {
       await apiEliminarProducto(productId);
       const data = await apiGetCarrito();
-
+      // ... mapeo omitido por brevedad pero incluido en la lógica real
       const mapped: CartItem[] = data.items.map((i) => ({
         product: {
           id: i.idProducto,
@@ -170,6 +215,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   // Vaciar carrito completo
   const clearCart = async () => {
     setLoading(true);
+
+    if (!isAuthenticated) {
+        setItems([]);
+        setTotal(0);
+        localStorage.removeItem(LOCAL_CART_KEY);
+        setLoading(false);
+        return;
+    }
+
     try {
       await apiVaciarCarrito();
       setItems([]);
