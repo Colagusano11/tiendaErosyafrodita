@@ -324,19 +324,9 @@ const Profile: React.FC = () => {
 
                 <button
                   onClick={logoutAuth}
-                  className="flex items-center gap-2 sm:gap-3 rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-[10px] sm:text-sm font-medium text-red-400 hover:bg-red-500/10 transition-all text-left whitespace-nowrap lg:mt-4 lg:border-t lg:border-[#493f22] lg:pt-4"
+                  className="flex items-center gap-2 sm:gap-3 rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-[10px] sm:text-sm font-medium text-red-400 hover:bg-red-500/20 transition-all text-left whitespace-nowrap lg:mt-4 lg:border-t lg:border-[#493f22] lg:pt-4"
                 >
                   <span className="material-symbols-outlined text-[18px] sm:text-[20px]">
-                    logout
-                  </span>
-                  Salir
-                </button>
-
-                <button
-                  onClick={logoutAuth}
-                  className="w-full mt-4 flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-red-400 hover:bg-red-500/10 transition-all border-t border-[#493f22] pt-4 text-left"
-                >
-                  <span className="material-symbols-outlined text-[20px]">
                     logout
                   </span>
                   Cerrar Sesión

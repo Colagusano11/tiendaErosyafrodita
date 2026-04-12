@@ -21,6 +21,7 @@ import java.util.Optional;
 
 import com.colagusano11.tiendaonline.config.BtsApiClient;
 import com.colagusano11.tiendaonline.config.NovaApiClient;
+import com.colagusano11.tiendaonline.client.UsuarioFeignClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -38,6 +39,7 @@ public class PedidoServicieImpl implements PedidoServicie {
     private final NovaApiClient novaApiClient;
     private final ObjectMapper objectMapper;
     private final EmailService emailService;
+    private final UsuarioFeignClient usuarioFeignClient;
 
     public PedidoServicieImpl(
             PedidoRepository pedidoRepository,
@@ -49,7 +51,8 @@ public class PedidoServicieImpl implements PedidoServicie {
             BtsApiClient btsApiClient,
             NovaApiClient novaApiClient,
             ObjectMapper objectMapper,
-            EmailService emailService) {
+            EmailService emailService,
+            UsuarioFeignClient usuarioFeignClient) {
         this.pedidoRepository = pedidoRepository;
         this.productoRepository = productoRepository;
         this.carritoRepository = carritoRepository;
@@ -60,6 +63,7 @@ public class PedidoServicieImpl implements PedidoServicie {
         this.novaApiClient = novaApiClient;
         this.objectMapper = objectMapper;
         this.emailService = emailService;
+        this.usuarioFeignClient = usuarioFeignClient;
     }
 
     private Long getUserIdOrDefault(UsuarioRegistroDto usuario) {
