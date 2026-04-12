@@ -203,7 +203,7 @@ const Profile: React.FC = () => {
     try {
       setPassLoading(true);
       setPassError(null);
-      await userService.changePassword(userEmail, currentPassword, passData.newPass);
+      await userService.changePassword(userEmail, currentPassword.trim(), passData.newPass.trim());
       setShowPassChangeModal(false);
       setShowSuccessModal(true);
       setCurrentPassword("");

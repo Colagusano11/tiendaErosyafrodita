@@ -143,6 +143,7 @@ public class ProductoController {
                 filters.get("minPrecio") != null ? new BigDecimal(filters.get("minPrecio").toString()) : null,
                 filters.get("maxPrecio") != null ? new BigDecimal(filters.get("maxPrecio").toString()) : null,
                 (String) filters.get("categoria"),
+                (String) filters.get("gender"),
                 (String) filters.get("status")
             );
         }
@@ -200,6 +201,7 @@ public class ProductoController {
                 filters.get("minPrecio") != null ? new BigDecimal(filters.get("minPrecio").toString()) : null,
                 filters.get("maxPrecio") != null ? new BigDecimal(filters.get("maxPrecio").toString()) : null,
                 (String) filters.get("categoria"),
+                (String) filters.get("gender"),
                 (String) filters.get("status")
             );
         }

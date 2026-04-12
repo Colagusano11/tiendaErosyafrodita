@@ -68,17 +68,17 @@ public class SecurityConfig {
                 // OAuth2 callback público
                 .requestMatchers("/auth/oauth2/success", "/error").permitAll()
                 // GET perfil propio — permitimos acceso para comunicación entre microservicios
-                .requestMatchers(HttpMethod.GET, "/usuarios/{email}").permitAll()
+                .requestMatchers(HttpMethod.GET, "/usuarios/{email:.+}").permitAll()
                 // Listado completo de usuarios — solo ADMIN
                 .requestMatchers(HttpMethod.GET, "/usuarios", "/usuarios/").hasRole("ADMIN")
                 // Actualizar perfil propio — requiere JWT
-                .requestMatchers(HttpMethod.PUT, "/usuarios/{email}").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/usuarios/{email:.+}").authenticated()
                 // Cambio de contraseña — requiere JWT
-                .requestMatchers(HttpMethod.PUT, "/usuarios/{email}/password").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/usuarios/{email:.+}/password").authenticated()
                 // Métodos de pago — requiere JWT
                 .requestMatchers("/usuarios/{email}/pagos/**").authenticated()
                 // Borrar usuario — solo ADMIN
-                .requestMatchers(HttpMethod.DELETE, "/usuarios/{email}").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/usuarios/{email:.+}").hasRole("ADMIN")
                 // Cualquier otra cosa requiere auth
                 .anyRequest().authenticated()
             )

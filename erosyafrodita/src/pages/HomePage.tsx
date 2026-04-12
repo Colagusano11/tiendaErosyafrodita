@@ -198,19 +198,9 @@ const HomePage: React.FC = () => {
         {/* Novedades */}
         <section className="px-4 lg:px-20 py-16 bg-charcoal/75">
           <div className="max-w-[1440px] mx-auto">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-white">
+              <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-white uppercase italic">
                 Novedades
               </h2>
-              <Link
-                to="/catalog"
-                className="text-xs font-medium text-white/60 hover:text-primary flex items-center gap-1"
-              >
-                Ver todo
-                <span className="material-symbols-outlined text-[16px]">
-                  arrow_forward
-                </span>
-              </Link>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 lg:gap-6">
               {loading && (
@@ -231,6 +221,21 @@ const HomePage: React.FC = () => {
                   />
                 ))}
             </div>
+
+            {/* Botón Ver Más */}
+            {novedadesPool.length > novedadesCount && (
+              <div className="mt-12 flex justify-center">
+                <button
+                  onClick={() => setNovedadesCount(c => c + 10)}
+                  className="group flex flex-col items-center gap-2 transition-all hover:scale-105"
+                >
+                  <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40 group-hover:text-primary transition-colors">Ver más</span>
+                  <div className="size-10 rounded-full border border-white/10 flex items-center justify-center group-hover:border-primary/50 group-hover:bg-primary/5 transition-all">
+                    <span className="material-symbols-outlined text-white/20 group-hover:text-primary transition-colors">expand_more</span>
+                  </div>
+                </button>
+              </div>
+            )}
           </div>
         </section>
 

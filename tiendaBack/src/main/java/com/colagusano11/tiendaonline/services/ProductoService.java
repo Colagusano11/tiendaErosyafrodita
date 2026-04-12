@@ -58,11 +58,11 @@ public interface ProductoService{
     Producto save(Producto producto);
     Producto update(Long id, Producto producto);
     void updateBulkStatus(List<Long> ids, boolean activo);
-    void updateBulkStatusByFilters(boolean activo, String manufacturer, String nombre, String sku, String distribuidor, BigDecimal minPrecio, BigDecimal maxPrecio, String categoria, String status);
+    void updateBulkStatusByFilters(boolean activo, String manufacturer, String nombre, String sku, String distribuidor, BigDecimal minPrecio, BigDecimal maxPrecio, String categoria, String gender, String status);
     void updatePricingConfig(Configuracion config, List<Long> ids, Distribuidor distribuidor);
     Configuracion getConfiguracion();
     void updateBulkOffer(List<Long> ids, boolean enOferta, BigDecimal descuento);
-    void updateBulkOfferByFilters(boolean enOferta, BigDecimal descuento, String manufacturer, String nombre, String sku, String distribuidor, BigDecimal minPrecio, BigDecimal maxPrecio, String categoria, String status);
+    void updateBulkOfferByFilters(boolean enOferta, BigDecimal descuento, String manufacturer, String nombre, String sku, String distribuidor, BigDecimal minPrecio, BigDecimal maxPrecio, String categoria, String gender, String status);
     void delete(Long id);
     List<String> getAllCategorias();
     List<String> getAllManufacturers();

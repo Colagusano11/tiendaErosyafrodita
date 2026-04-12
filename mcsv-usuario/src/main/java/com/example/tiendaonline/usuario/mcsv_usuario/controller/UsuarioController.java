@@ -75,9 +75,14 @@ UsuarioRegistroDto userActualizado = service.actualizarPerfil(email, datos);
     
   }
 
-  @PutMapping("/{email}/password")
-  public ResponseEntity<?> changePassword(@PathVariable String email, @RequestBody Map<String, String> body) {
-      service.changePassword(email, body.get("oldPassword"), body.get("newPassword"));
+  @PutMapping("/{email:.+}/password")
+  public ResponseEntity<?> changePassword(@PathVariable("email") String email, @RequestBody Map<String, String> body) {
+      String oldPassword = body.get("oldPassword") != null ? body.get("oldPassword").trim() : null;
+      String newPassword = body.get("newPassword") != null ? body.get("newPassword").trim() : null;
+      
+      System.out.println("Solicitud de cambio de contraseña para: " + email);
+      
+      service.changePassword(email, oldPassword, newPassword);
       return ResponseEntity.ok("Contraseña actualizada correctamente");
   }
 

@@ -137,7 +137,7 @@ public class ProductoServiceImpl implements ProductoService {
             }
         }
 
-        return productoRepository.searchAdvanced(nombre, categoria, distEnum, manufacturer, sku, status, minPrecio, maxPrecio, pageable);
+        return productoRepository.searchAdvanced(nombre, categoria, gender, distEnum, manufacturer, sku, status, minPrecio, maxPrecio, pageable);
     }
 
     @Override
@@ -154,7 +154,7 @@ public class ProductoServiceImpl implements ProductoService {
         // Por consistencia y simplicidad ahora, pediremos una página muy grande o implementaremos un método específico.
         // Dado el volumen (60k), mejor un método específico en el repo para IDs si es crítico, 
         // pero searchAdvanced ya está optimizado en el repo.
-        return productoRepository.searchAdvanced(nombre, categoria, distEnum, manufacturer, sku, status, minPrecio, maxPrecio, Pageable.unpaged())
+        return productoRepository.searchAdvanced(nombre, categoria, gender, distEnum, manufacturer, sku, status, minPrecio, maxPrecio, Pageable.unpaged())
                 .getContent()
                 .stream()
                 .map(Producto::getId)
@@ -235,19 +235,20 @@ public class ProductoServiceImpl implements ProductoService {
     }
 
     @Override
-    public void updateBulkStatusByFilters(boolean activo, String manufacturer, String nombre, String sku, String distribuidor, BigDecimal minPrecio, BigDecimal maxPrecio, String categoria, String status) {
+    public void updateBulkStatusByFilters(boolean activo, String manufacturer, String nombre, String sku, String distribuidor, BigDecimal minPrecio, BigDecimal maxPrecio, String categoria, String gender, String status) {
         manufacturer = sanitize(manufacturer);
         nombre = sanitize(nombre);
         sku = sanitize(sku);
         categoria = sanitize(categoria);
         distribuidor = sanitize(distribuidor);
+        gender = sanitize(gender);
         
         Distribuidor distEnum = null;
         if (distribuidor != null) {
             try { distEnum = Distribuidor.valueOf(distribuidor.toUpperCase()); } catch (Exception e) {}
         }
         
-        List<Long> ids = productoRepository.searchIds(manufacturer, nombre, sku, distEnum, minPrecio, maxPrecio, categoria, status);
+        List<Long> ids = productoRepository.searchIds(manufacturer, nombre, sku, distEnum, minPrecio, maxPrecio, categoria, gender, status);
         
         System.out.println("BULK STATUS: Encontrados " + (ids != null ? ids.size() : 0) + " productos para actualizar.");
         
@@ -307,19 +308,20 @@ public class ProductoServiceImpl implements ProductoService {
     }
 
     @Override
-    public void updateBulkOfferByFilters(boolean enOferta, BigDecimal descuento, String manufacturer, String nombre, String sku, String distribuidor, BigDecimal minPrecio, BigDecimal maxPrecio, String categoria, String status) {
+    public void updateBulkOfferByFilters(boolean enOferta, BigDecimal descuento, String manufacturer, String nombre, String sku, String distribuidor, BigDecimal minPrecio, BigDecimal maxPrecio, String categoria, String gender, String status) {
         manufacturer = sanitize(manufacturer);
         nombre = sanitize(nombre);
         sku = sanitize(sku);
         categoria = sanitize(categoria);
         distribuidor = sanitize(distribuidor);
+        gender = sanitize(gender);
 
         Distribuidor distEnum = null;
         if (distribuidor != null) {
             try { distEnum = Distribuidor.valueOf(distribuidor.toUpperCase()); } catch (Exception e) {}
         }
         
-        List<Long> ids = productoRepository.searchIds(manufacturer, nombre, sku, distEnum, minPrecio, maxPrecio, categoria, status);
+        List<Long> ids = productoRepository.searchIds(manufacturer, nombre, sku, distEnum, minPrecio, maxPrecio, categoria, gender, status);
         
         if (ids == null || ids.isEmpty()) return;
         

@@ -50,6 +50,7 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>{
     @org.springframework.data.jpa.repository.Query("UPDATE Producto p SET p.activo = :activo WHERE " +
             "(:nombre IS NULL OR LOWER(p.nombre) LIKE LOWER(CONCAT('%', :nombre, '%'))) AND " +
             "(:categoria IS NULL OR p.categoria = :categoria) AND " +
+            "(:gender IS NULL OR p.gender = :gender) AND " +
             "(:distribuidor IS NULL OR p.distribuidor = :distribuidor) AND " +
             "(:manufacturador IS NULL OR p.manufacturer = :manufacturador) AND " +
             "(:sku IS NULL OR p.sku LIKE CONCAT('%', :sku, '%') OR p.ean LIKE CONCAT('%', :sku, '%')) AND " +
@@ -64,6 +65,7 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>{
             @org.springframework.data.repository.query.Param("activo") boolean activo,
             @org.springframework.data.repository.query.Param("nombre") String nombre,
             @org.springframework.data.repository.query.Param("categoria") String categoria,
+            @org.springframework.data.repository.query.Param("gender") String gender,
             @org.springframework.data.repository.query.Param("distribuidor") Distribuidor distribuidor,
             @org.springframework.data.repository.query.Param("manufacturador") String manufacturador,
             @org.springframework.data.repository.query.Param("sku") String sku,
@@ -75,6 +77,7 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>{
     @org.springframework.data.jpa.repository.Query("UPDATE Producto p SET p.enOferta = :enOferta, p.descuentoOferta = :descuento, p.precioOferta = p.precioPVP * (1.0 - :descuento / 100.0) WHERE p.precioPVP IS NOT NULL AND (" +
             "(:nombre IS NULL OR LOWER(p.nombre) LIKE LOWER(CONCAT('%', :nombre, '%'))) AND " +
             "(:categoria IS NULL OR p.categoria = :categoria) AND " +
+            "(:gender IS NULL OR p.gender = :gender) AND " +
             "(:distribuidor IS NULL OR p.distribuidor = :distribuidor) AND " +
             "(:manufacturador IS NULL OR p.manufacturer = :manufacturador) AND " +
             "(:sku IS NULL OR p.sku LIKE CONCAT('%', :sku, '%') OR p.ean LIKE CONCAT('%', :sku, '%')) AND " +
@@ -90,6 +93,7 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>{
             @org.springframework.data.repository.query.Param("descuento") java.math.BigDecimal descuento,
             @org.springframework.data.repository.query.Param("nombre") String nombre,
             @org.springframework.data.repository.query.Param("categoria") String categoria,
+            @org.springframework.data.repository.query.Param("gender") String gender,
             @org.springframework.data.repository.query.Param("distribuidor") Distribuidor distribuidor,
             @org.springframework.data.repository.query.Param("manufacturador") String manufacturador,
             @org.springframework.data.repository.query.Param("sku") String sku,
@@ -102,6 +106,7 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>{
     @org.springframework.data.jpa.repository.Query("SELECT p.id FROM Producto p WHERE " +
             "(:nombre IS NULL OR LOWER(p.nombre) LIKE LOWER(CONCAT('%', :nombre, '%'))) AND " +
             "(:categoria IS NULL OR p.categoria = :categoria) AND " +
+            "(:gender IS NULL OR p.gender = :gender) AND " +
             "(:distribuidor IS NULL OR p.distribuidor = :distribuidor) AND " +
             "(:manufacturador IS NULL OR p.manufacturer = :manufacturador) AND " +
             "(:sku IS NULL OR p.sku LIKE CONCAT('%', :sku, '%') OR p.ean LIKE CONCAT('%', :sku, '%')) AND " +
@@ -120,6 +125,7 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>{
             @org.springframework.data.repository.query.Param("minPrecio") java.math.BigDecimal minPrecio,
             @org.springframework.data.repository.query.Param("maxPrecio") java.math.BigDecimal maxPrecio,
             @org.springframework.data.repository.query.Param("categoria") String categoria,
+            @org.springframework.data.repository.query.Param("gender") String gender,
             @org.springframework.data.repository.query.Param("status") String status);
     
     @org.springframework.data.jpa.repository.Query(value = "SELECT * FROM productos WHERE id IN (" +
@@ -136,6 +142,7 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>{
     @org.springframework.data.jpa.repository.Query("SELECT p FROM Producto p WHERE " +
             "(:nombre IS NULL OR LOWER(p.nombre) LIKE LOWER(CONCAT('%', :nombre, '%'))) AND " +
             "(:categoria IS NULL OR p.categoria = :categoria) AND " +
+            "(:gender IS NULL OR p.gender = :gender) AND " +
             "(:distribuidor IS NULL OR p.distribuidor = :distribuidor) AND " +
             "(:manufacturador IS NULL OR p.manufacturer = :manufacturador) AND " +
             "(:sku IS NULL OR p.sku LIKE CONCAT('%', :sku, '%') OR p.ean LIKE CONCAT('%', :sku, '%')) AND " +
@@ -149,6 +156,7 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>{
     Page<Producto> searchAdvanced(
             @org.springframework.data.repository.query.Param("nombre") String nombre,
             @org.springframework.data.repository.query.Param("categoria") String categoria,
+            @org.springframework.data.repository.query.Param("gender") String gender,
             @org.springframework.data.repository.query.Param("distribuidor") Distribuidor distribuidor,
             @org.springframework.data.repository.query.Param("manufacturador") String manufacturador,
             @org.springframework.data.repository.query.Param("sku") String sku,

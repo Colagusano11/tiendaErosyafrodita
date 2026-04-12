@@ -36,8 +36,8 @@ const Header: React.FC = () => {
   return (
     <header className="sticky top-0 z-50 w-full bg-charcoal border-b border-white/10">
       <div className="max-w-[1440px] mx-auto flex items-center justify-between px-5 lg:px-10 py-3">
-        {/* Logo + menú */}
-        <div className="flex items-center gap-8">
+        {/* Logo */}
+        <div className="flex items-center">
           <Link
             to="/"
             className="flex items-center gap-3 text-white group"
@@ -56,9 +56,17 @@ const Header: React.FC = () => {
           </Link>
         </div>
 
+        {/* Navegación Central (Desktop) */}
+        <nav className="hidden xl:flex items-center gap-10">
+          <Link to="/catalog?genero=HOMBRE" className="text-[11px] font-black uppercase tracking-[0.2em] text-white/50 hover:text-primary transition-colors">Hombre</Link>
+          <Link to="/catalog?genero=MUJER" className="text-[11px] font-black uppercase tracking-[0.2em] text-white/50 hover:text-primary transition-colors">Mujer</Link>
+          <Link to="/catalog?orden=fechaDesc" className="text-[11px] font-black uppercase tracking-[0.2em] text-white/50 hover:text-primary transition-colors">Novedades</Link>
+          <Link to="/catalog?maxPrecio=50" className="text-[11px] font-black uppercase tracking-[0.2em] text-primary hover:text-white transition-colors italic">Ofertas</Link>
+        </nav>
+
         {/* Buscador + iconos */}
-        <div className="flex items-center gap-4">
-          <div className="hidden lg:flex items-center bg-surface-dark border border-white/5 rounded-full px-5 py-2.5 text-xs text-white/50 w-72 focus-within:border-primary/40 focus-within:shadow-[0_0_15px_rgba(242,185,13,0.1)] transition-all group">
+        <div className="flex items-center gap-6">
+          <div className="hidden lg:flex items-center bg-surface-dark border border-white/5 rounded-full px-5 py-2.5 text-xs text-white/50 w-64 focus-within:border-primary/40 focus-within:shadow-[0_0_15px_rgba(242,185,13,0.1)] transition-all group">
             <button
               onClick={() => searchTerm.trim() && navigate(`/catalog?search=${encodeURIComponent(searchTerm.trim())}`)}
               className="material-symbols-outlined text-[18px] mr-3 text-primary/60 group-focus-within:text-primary hover:scale-110 transition-transform"
@@ -74,56 +82,65 @@ const Header: React.FC = () => {
             />
           </div>
 
-          <div className="flex items-center gap-3">
-            {/* Wishlist con contador rojo */}
+          <div className="flex items-center gap-6">
+            {/* Favoritos */}
             <Link
               to="/wishlist"
-              className="size-14 rounded-full bg-charcoal-lighter flex items-center justify-center text-white/80 hover:bg-primary hover:text-charcoal transition-colors relative"
+              className="flex flex-col items-center gap-1 group"
             >
-              <span className="material-symbols-outlined text-[22px]">
-                favorite
-              </span>
-              {wishlistCount > 0 && (
-                <span className="absolute top-2 right-2 size-4 rounded-full bg-primary border-2 border-charcoal text-[8px] font-black text-background-dark flex items-center justify-center animate-bounce">
-                  {wishlistCount}
+              <div className="size-10 rounded-full bg-charcoal-lighter flex items-center justify-center text-white/80 group-hover:bg-primary group-hover:text-charcoal transition-all relative">
+                <span className="material-symbols-outlined text-[20px]">
+                  favorite
                 </span>
-              )}
+                {wishlistCount > 0 && (
+                  <span className="absolute -top-1 -right-1 size-4 rounded-full bg-primary border-2 border-charcoal text-[8px] font-black text-background-dark flex items-center justify-center animate-bounce">
+                    {wishlistCount}
+                  </span>
+                )}
+              </div>
+              <span className="text-[9px] font-bold uppercase tracking-widest text-white/40 group-hover:text-primary transition-colors">Favoritos</span>
             </Link>
 
-            {/* Carrito */}
+            {/* Bolsa */}
             <Link
               to="/cart"
-              className="size-14 rounded-full bg-charcoal-lighter flex items-center justify-center text-white/80 hover:bg-primary hover:text-charcoal transition-colors relative"
+              className="flex flex-col items-center gap-1 group"
             >
-              <span className="material-symbols-outlined text-[22px]">
-                shopping_bag
-              </span>
-
-              {itemCount > 0 && (
-                <span className="absolute top-2 right-2 size-4 rounded-full bg-primary border-2 border-charcoal text-[8px] font-black text-background-dark flex items-center justify-center scale-110">
-                  {itemCount}
+              <div className="size-10 rounded-full bg-charcoal-lighter flex items-center justify-center text-white/80 group-hover:bg-primary group-hover:text-charcoal transition-all relative">
+                <span className="material-symbols-outlined text-[20px]">
+                  shopping_bag
                 </span>
-              )}
+                {itemCount > 0 && (
+                  <span className="absolute -top-1 -right-1 size-4 rounded-full bg-primary border-2 border-charcoal text-[8px] font-black text-background-dark flex items-center justify-center">
+                    {itemCount}
+                  </span>
+                )}
+              </div>
+              <span className="text-[9px] font-bold uppercase tracking-widest text-white/40 group-hover:text-primary transition-colors">Bolsa</span>
             </Link>
 
-            {/* Usuario */}
+            {/* Cuenta */}
             <Link
               to={isAuthenticated
                 ? (isAdmin ? "/admin/orders" : "/profile?tab=datos")
                 : "/login"
               }
-              className={`size-12 rounded-full flex items-center justify-center transition-all ${isAuthenticated
-                  ? "bg-primary text-background-dark font-black text-sm border-2 border-primary/20 hover:scale-110 shadow-lg shadow-primary/10"
-                  : "bg-charcoal-lighter text-white/80 hover:bg-primary hover:text-charcoal"
-                }`}
+              className="flex flex-col items-center gap-1 group"
             >
-              {isAuthenticated ? (
-                <span>{getInitials()}</span>
-              ) : (
-                <span className="material-symbols-outlined text-[20px]">
-                  person
-                </span>
-              )}
+              <div className={`size-10 rounded-full flex items-center justify-center transition-all ${isAuthenticated
+                  ? "bg-primary text-background-dark font-black text-xs border-2 border-primary/20 group-hover:scale-110 shadow-lg shadow-primary/10"
+                  : "bg-charcoal-lighter text-white/80 group-hover:bg-primary group-hover:text-charcoal"
+                }`}
+              >
+                {isAuthenticated ? (
+                  <span>{getInitials()}</span>
+                ) : (
+                  <span className="material-symbols-outlined text-[20px]">
+                    person
+                  </span>
+                )}
+              </div>
+              <span className="text-[9px] font-bold uppercase tracking-widest text-white/40 group-hover:text-primary transition-colors">Cuenta</span>
             </Link>
           </div>
         </div>
