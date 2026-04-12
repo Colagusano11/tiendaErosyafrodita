@@ -18,6 +18,7 @@ import com.example.tiendaonline.usuario.mcsv_usuario.dto.UsuarioRegistro;
 import com.example.tiendaonline.usuario.mcsv_usuario.dto.UsuarioRegistroDto;
 import com.example.tiendaonline.usuario.mcsv_usuario.models.Usuario;
 import com.example.tiendaonline.usuario.mcsv_usuario.repository.UsuarioRepository;
+import jakarta.transaction.Transactional;
 
 @Service
 public class UsuarioServiceImpl implements UsuarioService {
@@ -45,6 +46,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
+    @Transactional
     public UsuarioDto registrar(UsuarioRegistro user) {
         if (repository.findByEmail(user.getEmail()).isPresent()) {
             throw new RuntimeException("El correo electrónico ya está registrado");

@@ -11,7 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 public class DataFixer {
 
-    @Value("${ADMIN_INIT_PASSWORD:ErosMolaMazo}")
+    @Value("${ADMIN_INIT_PASSWORD}")
     private String adminPassword;
 
     @Bean

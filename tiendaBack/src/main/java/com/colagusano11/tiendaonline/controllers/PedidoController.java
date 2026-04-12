@@ -78,13 +78,6 @@ public class PedidoController {
         return ResponseEntity.ok(dto);
     }
 
-    @GetMapping("/detalle/{id}")
-    public ResponseEntity<PedidoSalida> obtenerPedidoPorId(@PathVariable Long id) {
-        return pedidoService.obtenerPedidoPorId(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
     // Historial de pedidos del usuario autenticado
     @GetMapping("/historial")
     public ResponseEntity<?> historialPedidos(@AuthenticationPrincipal UsuarioRegistroDto usuario) {

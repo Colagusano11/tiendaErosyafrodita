@@ -64,7 +64,7 @@ public class PedidoServicieImpl implements PedidoServicie {
 
     private Long getUserIdOrDefault(UsuarioRegistroDto usuario) {
         if (usuario == null) {
-            return 1L; // usuario de pruebas mientras no hay login
+            throw new IllegalStateException("Acceso denegado: Usuario no autenticado");
         }
         return usuario.getId();
     }

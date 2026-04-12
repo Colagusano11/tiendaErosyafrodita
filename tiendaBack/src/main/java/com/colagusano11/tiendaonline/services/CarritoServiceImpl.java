@@ -22,12 +22,11 @@ public class CarritoServiceImpl implements CarritoService {
 
 
     private Long getUserIdOrDefault(UsuarioRegistroDto usuario) {
-    // Mientras desarrollas sin login real, usa el usuario 1 cuando venga null.
-    if (usuario == null) {
-        return 1L;
+        if (usuario == null) {
+            throw new IllegalStateException("Acceso denegado: Usuario no autenticado");
+        }
+        return usuario.getId();
     }
-    return usuario.getId();
-}
 
 
     @Override
