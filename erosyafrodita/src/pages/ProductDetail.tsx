@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { getProductoById, getVariantes, getNuevos, type Producto } from "../api/products";
+import { getProductoById, getVariantes, getNuevos, type Producto, getProductos } from "../api/products";
 import { getResenas, crearResena, checkPurchaseStatus, type Resena } from "../api/reviews";
 import ProductCard from "../components/ProductCard";
 import { useCart } from "../context/CartContext";
@@ -12,6 +12,24 @@ import { motion } from "framer-motion";
 import SEO from "../components/SEO";
 import { LAUNCH_PROMO_ACTIVE, LAUNCH_DISCOUNT, applyPromo } from "../config/promo";
 import { useImageGallery } from "../hooks/useImageGallery";
+
+// Marcas curadas de Novedades (Sincronizado con Home)
+const NOVEDADES_BRANDS = [
+  "CALVIN KLEIN", "HOLLISTER", "KARL LAGERFELD", "L'OCCITANE EN PROVENCE",
+  "MOSCHINO", "ABERCROMOBIE AND FITCH", "LATTAFA", "MAISON ALHAMBRA",
+  "ARD AL ZAAFARAN", "ANGEL SCHLESSER", "LOLITA LEMPICKA", "LORENZO VILLORESI",
+  "LOEWE", "HERMÈS", "CHANEL", "CAROLINA HERRERA", "PILEXIL", "DOLCE & GABBANA",
+  "DONNA KARAN", "VERSACE", "PRADA", "JIMMY CHOO", "MYRURGIA", "POLICE",
+];
+
+function shuffleArray<T>(arr: T[]): T[] {
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -60,9 +78,23 @@ const ProductDetail: React.FC = () => {
         const v = await getVariantes(data);
         setVariantes(v);
 
-        // Cargar recomendados (Novedades)
-        const n = await getNuevos(0, 8);
-        setRecomendados(n.content.filter(p => p.id !== data.id));
+        // Cargar recomendados (Lógica NOVEDADES_BRANDS de la Home)
+        const resNovedades = await getProductos(0, 100); // Traemos un pool
+        const isNovedadBrand = (p: Producto) =>
+            !!p.manufacturer &&
+            NOVEDADES_BRANDS.some((b: string) =>
+              p.manufacturer!.toUpperCase().includes(b)
+            );
+        
+        let filtered = resNovedades.content.filter(p => isNovedadBrand(p) && p.id !== data.id && p.stock > 0);
+        
+        // Si no hay suficientes marcas curadas, rellenamos con productos normales
+        if (filtered.length < 4) {
+            const extra = resNovedades.content.filter(p => !isNovedadBrand(p) && p.id !== data.id && p.stock > 0);
+            filtered = [...filtered, ...extra];
+        }
+        
+        setRecomendados(shuffleArray(filtered).slice(0, 8));
         
       } catch (e: any) {
         setError(e.message ?? "No se pudo cargar el producto");
@@ -287,19 +319,15 @@ const ProductDetail: React.FC = () => {
                 )}
               </div>
 
-              <p className="text-white/50 text-xs leading-relaxed mb-8 max-w-lg font-light">
-                {product.descripcion || "Una obra maestra olfativa diseñada para aquellos que buscan dejar una huella divina. Ingredientes seleccionados para garantizar la máxima pureza y longevidad en la piel."}
-              </p>
-
-              {/* Selector de Tamaños (Variantes) */}
+              {/* Selector de Tamaños (Variantes) - AHORA ENCIMA DE LA DESCRIPCIÓN */}
               {variantes.length > 0 && (
-                <div className="mb-10">
-                  <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-4 flex items-center gap-2">
-                    <span className="material-symbols-outlined !text-[14px]">Straighten</span> Tamaños disponibles:
+                <div className="mb-6">
+                  <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-white/30 mb-3 flex items-center gap-2">
+                    <span className="material-symbols-outlined !text-[12px]">Straighten</span> Selección de Tamaño:
                   </h4>
-                  <div className="flex flex-wrap gap-3">
+                  <div className="flex flex-wrap gap-2">
                     {/* El actual */}
-                    <div className="px-6 py-3 rounded-full bg-primary text-charcoal text-[10px] font-black border border-primary shadow-lg shadow-primary/20 cursor-default">
+                    <div className="px-4 py-2 rounded-xl bg-primary text-charcoal text-[9px] font-black border border-primary shadow-lg shadow-primary/10 cursor-default">
                       {product.nombre.match(/\d+\s*ml/i)?.[0] || "Actual"}
                     </div>
                     {/* Los otros */}
@@ -307,7 +335,7 @@ const ProductDetail: React.FC = () => {
                       <Link 
                         key={v.id} 
                         to={`/product/${v.id}`}
-                        className="px-6 py-3 rounded-full border border-white/10 text-white/40 text-[10px] font-black hover:border-primary hover:text-white transition-all bg-white/5"
+                        className="px-4 py-2 rounded-xl border border-white/5 text-white/30 text-[9px] font-black hover:border-primary hover:text-white transition-all bg-white/5"
                       >
                         {v.nombre.match(/\d+\s*ml/i)?.[0] || "Ver opción"}
                       </Link>
@@ -315,6 +343,10 @@ const ProductDetail: React.FC = () => {
                   </div>
                 </div>
               )}
+
+              <p className="text-white/40 text-[11px] leading-relaxed mb-8 max-w-lg font-light">
+                {product.descripcion || "Una obra maestra olfativa diseñada para aquellos que buscan dejar una huella divina. Ingredientes seleccionados para garantizar la máxima pureza y longevidad en la piel."}
+              </p>
 
               <div className="flex flex-wrap gap-4 mb-10">
                 <button
@@ -355,9 +387,9 @@ const ProductDetail: React.FC = () => {
               <Link to="/catalog?status=NUEVOS" className="text-[10px] font-black uppercase tracking-widest text-primary hover:text-white transition-colors underline underline-offset-8">Ver todas las novedades</Link>
             </div>
             
-            <div className="flex gap-6 overflow-x-auto no-scrollbar pb-10 -mx-4 px-4 mask-fade-edges">
+            <div className="flex gap-6 overflow-x-auto pb-10 -mx-4 px-4 scrollbar-hide">
               {recomendados.map(p => (
-                <div key={p.id} className="min-w-[240px] max-w-[280px]">
+                <div key={p.id} className="min-w-[200px] md:min-w-[240px] max-w-[240px]">
                   <ProductCard product={p} />
                 </div>
               ))}
