@@ -120,7 +120,6 @@ const Checkout: React.FC = () => {
       setError("Por favor, introduce un correo electrónico válido.");
       return;
     }
- Riverside
 
     const payload = isUsingSavedAddress && userProfile ? {
       nombre: userProfile.name || (userProfile as any).nombre || "Usuario",
