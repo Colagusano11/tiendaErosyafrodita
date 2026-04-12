@@ -51,6 +51,7 @@ services:
       SPRING_DATASOURCE_USERNAME: ${DB_USERNAME:-root}
       SPRING_DATASOURCE_PASSWORD: ${DB_USUARIOS_PASSWORD:-sasa1234}
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      APPLICATION_SECURITY_JWT_SECRET_KEY: ${JWT_SECRET}
     depends_on:
       db-usuarios:
         condition: service_healthy
@@ -77,6 +78,8 @@ services:
       SPRING_CLOUD_CONFIG_ENABLED: "false"
       SPRING_CLOUD_CONFIG_IMPORT-CHECK_ENABLED: "false"
       SPRING_CONFIG_IMPORT: "optional:configserver:"
+      JWT_SECRET: ${JWT_SECRET}
+      APPLICATION_SECURITY_JWT_SECRET_KEY: ${JWT_SECRET}
     depends_on:
       db:
         condition: service_healthy
