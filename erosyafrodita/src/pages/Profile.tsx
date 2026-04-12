@@ -4,6 +4,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { getHistorial, PedidoSalida } from "../api/order";
 import { useAuth } from "../context/AuthContext";
+import { useAlert } from "../context/AlertContext";
 import { userService, UserProfile as UserProfileType } from "../api/userService";
 import { paymentService } from "../api/paymentService";
 
@@ -1010,26 +1011,6 @@ const Profile: React.FC = () => {
         </div>
       )}
 
-      {/* MODAL DE ÉXITO PREMIUM */}
-      {showSuccessModal && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 animate-fadeIn">
-          {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-charcoal/80 backdrop-blur-md"
-            onClick={() => setShowSuccessModal(false)}
-          ></div>
-
-          {/* Modal Container */}
-          <div className="relative bg-surface-dark border-2 border-primary/20 rounded-[2.5rem] p-10 max-w-sm w-full text-center shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5),0_0_40px_rgba(242,185,13,0.1)] transform animate-scaleIn">
-            {/* Glow effect */}
-            <div className="absolute -top-24 left-1/2 -translate-x-1/2 size-48 bg-primary/20 rounded-full blur-[80px]"></div>
-
-            <div className="relative z-10">
-              <div className="size-24 rounded-full bg-primary/10 flex items-center justify-center text-primary mx-auto mb-8 border border-primary/20 shadow-[0_0_30px_rgba(242,185,13,0.1)]">
-                <span className="material-symbols-outlined text-[48px] font-black">
-                  check_circle
-                </span>
-              </div>
 
       {/* Modal Detalle de Dirección */}
       {showAddressModal && selectedAddress && (
