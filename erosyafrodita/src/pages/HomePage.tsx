@@ -160,18 +160,18 @@ const HomePage: React.FC = () => {
       <main className="flex-grow">
 
         {/* Home Header Banner */}
-        <div className="w-full px-4 lg:px-20 pb-6">
+        <div className="w-full px-4 lg:px-20 pb-4 sm:pb-6">
           <div className="max-w-[1440px] mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
-              className="w-full overflow-hidden rounded-2xl shadow-2xl shadow-black/40 border border-white/5"
+              className="w-full overflow-hidden rounded-2xl shadow-2xl shadow-black/40 border border-white/5 bg-charcoal-lighter"
             >
               <img
                 src={homeHeader}
                 alt="Eros & Afrodita — Colección"
-                className="w-full h-auto object-cover max-h-[520px]"
+                className="w-full h-[220px] sm:h-[400px] lg:h-auto object-cover"
                 style={{ objectPosition: "center top" }}
               />
             </motion.div>
@@ -179,9 +179,9 @@ const HomePage: React.FC = () => {
         </div>
 
         {/* Categories Strip */}
-        <div className="px-4 lg:px-20 py-6 lg:py-8">
+        <div className="px-4 lg:px-20 py-4 lg:py-8">
           <div className="max-w-[1440px] mx-auto">
-            <div className="flex gap-3 overflow-x-auto pb-4 no-scrollbar sm:justify-center">
+            <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-4 no-scrollbar">
               <Link
                 to="/catalog"
                 className="flex h-10 whitespace-nowrap items-center justify-center gap-2 rounded-full bg-surface-dark text-gray-200 border border-white/10 hover:border-primary hover:text-primary px-6 transition-all hover:bg-white/5"
@@ -321,46 +321,46 @@ const HomePage: React.FC = () => {
                 initial={{ opacity: 0, scale: 0.98 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
-                className="rounded-[2.5rem] overflow-hidden bg-charcoal-surface border border-white/5 flex flex-col lg:flex-row shadow-2xl glass-panel"
+                className="rounded-[1.5rem] lg:rounded-[2.5rem] overflow-hidden bg-charcoal-surface border border-white/5 flex flex-col lg:flex-row shadow-2xl glass-panel"
               >
-                <div className="w-full lg:w-[400px] h-64 lg:h-[400px] bg-white flex items-center justify-center relative overflow-hidden group/img">
+                <div className="w-full lg:w-[400px] h-64 sm:h-80 lg:h-[400px] bg-white flex items-center justify-center relative overflow-hidden group/img">
                   <div className="absolute inset-0 bg-gradient-to-tr from-charcoal/5 to-transparent pointer-events-none" />
                   <img
                     src={featuredProduct.imagen || ""}
                     alt={featuredProduct.nombre}
-                    className="max-w-[75%] max-h-[75%] object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.12)] transition-transform duration-700 group-hover/img:scale-110"
+                    className="max-w-[70%] lg:max-w-[75%] max-h-[70%] lg:max-h-[75%] object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.12)] transition-transform duration-700 group-hover/img:scale-110"
                   />
                 </div>
-                <div className="flex-1 p-8 lg:p-12 flex flex-col justify-center">
-                  <span className="text-[12px] font-black tracking-[0.3em] uppercase text-primary mb-4">Oferta de la semana</span>
-                  <h3 className="text-3xl lg:text-4xl font-black mb-4 text-white leading-tight">
+                <div className="flex-1 p-6 sm:p-8 lg:p-12 flex flex-col justify-center">
+                  <span className="text-[10px] sm:text-[12px] font-black tracking-[0.3em] uppercase text-primary mb-2 sm:mb-4">Oferta de la semana</span>
+                  <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black mb-3 sm:mb-4 text-white leading-tight">
                     {featuredProduct.nombre}
                   </h3>
-                  <p className="text-sm text-white/50 mb-8 max-w-md font-light leading-relaxed">
+                  <p className="text-xs sm:text-sm text-white/50 mb-6 sm:mb-8 max-w-md font-light leading-relaxed">
                     Descubre la esencia exclusiva de {featuredProduct.manufacturer}.
                     Una oportunidad única para elevar tu colección personal.
                   </p>
-                  <div className="flex items-baseline gap-6 mb-8">
-                    <span className="text-3xl font-black text-emerald-400">
+                  <div className="flex items-baseline gap-4 sm:gap-6 mb-6 sm:mb-8">
+                    <span className="text-2xl sm:text-3xl font-black text-emerald-400">
                       {(featuredProduct.precioPVP || featuredProduct.precio || 0).toFixed(2)} €
                     </span>
-                    <span className="text-lg text-white/20 line-through">
+                    <span className="text-base sm:text-lg text-white/20 line-through">
                       {((featuredProduct.precioPVP || featuredProduct.precio || 0) * 1.35).toFixed(2)} €
                     </span>
-                    <span className="text-xs font-black text-emerald-400 bg-emerald-400/10 px-3 py-1 rounded-full border border-emerald-400/20">
+                    <span className="text-[10px] sm:text-xs font-black text-emerald-400 bg-emerald-400/10 px-2 sm:px-3 py-1 rounded-full border border-emerald-400/20">
                       -35%
                     </span>
                   </div>
-                  <div className="flex flex-wrap gap-4">
+                  <div className="flex flex-wrap gap-3 sm:gap-4">
                     <button
                       onClick={() => addItem(featuredProduct)}
-                      className="h-12 px-10 rounded-full bg-primary text-charcoal text-xs font-black uppercase tracking-widest hover:bg-white hover:scale-105 transition-all shadow-xl shadow-primary/20"
+                      className="flex-1 sm:flex-none h-11 sm:h-12 px-6 sm:px-10 rounded-full bg-primary text-charcoal text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-white transition-all shadow-xl shadow-primary/20"
                     >
-                      Añadir al carrito
+                      Añadir
                     </button>
                     <Link
                       to={`/product/${featuredProduct.id}`}
-                      className="h-12 px-8 rounded-full border border-white/10 text-white text-xs font-black uppercase tracking-widest hover:bg-white/5 transition-all flex items-center justify-center"
+                      className="flex-1 sm:flex-none h-11 sm:h-12 px-6 sm:px-8 rounded-full border border-white/10 text-white text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-white/5 transition-all flex items-center justify-center"
                     >
                       Detalles
                     </Link>

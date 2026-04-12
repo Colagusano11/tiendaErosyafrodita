@@ -6,7 +6,9 @@ import { useWishlist } from "../context/WishlistContext";
 import { motion } from "framer-motion";
 import { LAUNCH_PROMO_ACTIVE, LAUNCH_DISCOUNT, applyPromo } from "../config/promo";
 
-import { useImageGallery } from "../hooks/useImageGallery";
+import { useAuth } from "../context/AuthContext";
+import { useAlert } from "../context/AlertContext";
+import { suscribirAvisoStock } from "../api/stock";
 
 interface ProductCardProps {
   product: Producto;
@@ -16,6 +18,8 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product, onHide }) => {
   const { addItem } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
+  const { isAuthenticated, user: userEmail } = useAuth();
+  const { showAlert } = useAlert();
   
   // Usamos el hook para obtener solo las imágenes que funcionan
   const { validUrls, loading: imgLoading } = useImageGallery([
@@ -44,9 +48,26 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onHide }) => {
   // Si la imagen no carga, no mostrar la tarjeta en la web
   if (!image) return null;
 
-  const handleHeartClick = (e: React.MouseEvent) => {
+  const handleNotify = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    toggleWishlist(product);        // solo añade / quita, no navega
+    if (!isAuthenticated) {
+      showAlert(
+        "¿No quieres perdertelo?",
+        "Regístrate o Inicia sesión para que podamos avisarte en cuanto este tesoro vuelva al Olimpo.",
+        "info"
+      );
+    } else if (userEmail) {
+      try {
+        await suscribirAvisoStock({ email: userEmail, productoId: product.id });
+        showAlert(
+          "Aviso Creado",
+          `Te enviaremos un correo en cuanto tengamos stock de ${product.nombre}.`,
+          "success"
+        );
+      } catch (err) {
+        showAlert("Error", "No pudimos crear el aviso. Inténtalo más tarde.", "error");
+      }
+    }
   };
 
   return (
@@ -56,19 +77,19 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onHide }) => {
       viewport={{ once: true }}
       whileHover={{ y: -8 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
-      className="group relative flex flex-col gap-4 rounded-2xl bg-charcoal-surface p-4 border border-white/5 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300"
+      className="group relative flex flex-col gap-2 sm:gap-4 rounded-xl sm:rounded-2xl bg-charcoal-surface p-2 sm:p-4 border border-white/5 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300"
     >
       {outOfStock && (
-        <div className="absolute top-4 left-4 z-20">
-          <span className="bg-red-700 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg uppercase tracking-wider">
+        <div className="absolute top-2 left-2 sm:top-4 sm:left-4 z-20">
+          <span className="bg-red-700 text-white text-[8px] sm:text-[10px] font-black px-2 sm:px-3 py-1 rounded-full shadow-lg uppercase tracking-wider">
             Próximamente
           </span>
         </div>
       )}
 
       {!outOfStock && product.enOferta && (
-        <div className="absolute top-4 left-4 z-20">
-          <span className="bg-rose-500 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg shadow-rose-500/20 uppercase italic tracking-wider animate-pulse">
+        <div className="absolute top-2 left-2 sm:top-4 sm:left-4 z-20">
+          <span className="bg-rose-500 text-white text-[8px] sm:text-[10px] font-black px-2 sm:px-3 py-1 rounded-full shadow-lg shadow-rose-500/20 uppercase italic tracking-wider animate-pulse">
             Oferta
           </span>
         </div>
@@ -77,14 +98,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onHide }) => {
 
       <button
         onClick={handleHeartClick}
-        className={`absolute top-4 right-4 z-10 p-2 rounded-full backdrop-blur-sm border transition-all duration-300
+        className={`absolute top-2 right-2 sm:top-4 sm:right-4 z-10 p-1.5 sm:p-2 rounded-full backdrop-blur-sm border transition-all duration-300
           ${
             inWishlist
               ? "bg-primary text-background-dark shadow-[0_0_15px_rgba(242,185,13,0.5)] border-primary"
               : "bg-charcoal/50 hover:bg-white text-gray-300 hover:text-red-500 border-white/10"
           }`}
       >
-        <span className="material-symbols-outlined text-[18px]">
+        <span className="material-symbols-outlined text-[16px] sm:text-[18px]">
           {inWishlist ? "favorite" : "favorite_border"}
         </span>
       </button>
@@ -108,7 +129,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onHide }) => {
           </p>
         )}
         <Link to={`/product/${product.id}`}>
-          <h3 className={`text-xs font-bold leading-tight mt-1 transition-colors ${outOfStock ? "text-white/60" : "text-white group-hover:text-primary"}`}>
+          <h3 className={`text-[11px] sm:text-xs font-bold leading-tight mt-1 transition-colors ${outOfStock ? "text-white/60" : "text-white group-hover:text-primary"} line-clamp-2 min-h-[2.2rem]`}>
             {name}
           </h3>
         </Link>
@@ -130,11 +151,19 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onHide }) => {
             </span>
           </div>
           <button
-            className={`size-9 rounded-full flex items-center justify-center transition-colors ${outOfStock ? "bg-white/5 text-gray-600 cursor-not-allowed" : "bg-white/10 hover:bg-primary text-white hover:text-charcoal"}`}
-            onClick={() => !outOfStock && addItem(product)}
-            disabled={outOfStock}
+            className={`size-8 sm:size-9 rounded-full flex items-center justify-center transition-all duration-300 ${
+              outOfStock 
+                ? "bg-primary/20 text-primary hover:bg-primary hover:text-charcoal border border-primary/20" 
+                : "bg-white/10 hover:bg-primary text-white hover:text-charcoal border border-white/5"
+            }`}
+            onClick={(e) => {
+              e.stopPropagation();
+              outOfStock ? handleNotify(e) : addItem(product);
+            }}
           >
-            <span className="material-symbols-outlined !text-[18px]">{outOfStock ? 'block' : 'add_shopping_cart'}</span>
+            <span className="material-symbols-outlined !text-[16px] sm:text-[18px]">
+              {outOfStock ? 'notifications' : 'add_shopping_cart'}
+            </span>
           </button>
         </div>
       </div>

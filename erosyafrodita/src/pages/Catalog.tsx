@@ -46,6 +46,7 @@ const Catalog: React.FC = () => {
   const [marcas, setMarcas] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   // Carga inicial y reacción a cambios en la URL
   useEffect(() => {
@@ -171,10 +172,25 @@ const Catalog: React.FC = () => {
       />
       <Header />
       
-      <div className="flex-1 flex flex-col lg:flex-row max-w-[1440px] mx-auto w-full px-4 lg:px-20 py-10 gap-10">
+      <div className="flex-1 flex flex-col lg:flex-row max-w-[1440px] mx-auto w-full px-4 lg:px-20 py-6 lg:py-10 gap-6 lg:gap-10">
+        {/* Mobile Filter Toggle */}
+        <div className="lg:hidden flex items-center justify-between bg-surface-dark p-4 rounded-2xl border border-white/5">
+           <div className="flex flex-col">
+             <span className="text-[10px] font-black uppercase tracking-widest text-primary">Filtros</span>
+             <span className="text-[10px] text-gray-400 font-bold uppercase">{paginacion.totalElements} Productos</span>
+           </div>
+           <button 
+             onClick={() => setShowMobileFilters(!showMobileFilters)}
+             className="flex items-center gap-2 bg-primary text-background-dark px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20"
+           >
+             {showMobileFilters ? 'Ocultar' : 'Filtrar'}
+             <span className="material-symbols-outlined text-sm">{showMobileFilters ? 'expand_less' : 'tune'}</span>
+           </button>
+        </div>
+
         {/* Sidebar de Filtros */}
-        <aside className="w-full lg:w-[240px] shrink-0">
-          <div className="bg-surface-dark rounded-2xl p-5 border border-white/5 sticky top-28 shadow-2xl overflow-hidden relative group">
+        <aside className={`${showMobileFilters ? 'block' : 'hidden'} lg:block w-full lg:w-[240px] shrink-0 animate-in fade-in slide-in-from-top-4 duration-300`}>
+          <div className="bg-surface-dark rounded-2xl p-5 border border-white/5 lg:sticky lg:top-28 shadow-2xl overflow-hidden relative group">
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-primary/10 transition-colors"></div>
 
             <div className="flex justify-between items-center mb-5 relative z-10">
@@ -291,20 +307,20 @@ const Catalog: React.FC = () => {
         <main className="flex-1">
           <div className="flex flex-col sm:flex-row justify-between items-end mb-10 gap-6">
             <div>
-              <nav className="mb-2 flex items-center gap-2 text-[10px] text-primary/60 font-black uppercase tracking-widest">
+              <nav className="mb-2 hidden sm:flex items-center gap-2 text-[10px] text-primary/60 font-black uppercase tracking-widest">
                 <Link to="/" className="hover:text-primary transition-colors">Inicio</Link>
                 <span className="material-symbols-outlined !text-[12px]">chevron_right</span>
                 <span>Catálogo</span>
               </nav>
-              <h1 className="text-4xl md:text-5xl font-black text-white tracking-tighter">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tighter">
                 Nuestra <span className="text-primary italic font-serif">Colección</span>
               </h1>
             </div>
             
-            <div className="flex items-center gap-4 bg-surface-dark pl-6 pr-2 py-2 rounded-full border border-white/5 shadow-xl">
+            <div className="flex items-center gap-4 bg-surface-dark pl-4 sm:pl-6 pr-2 py-1.5 sm:py-2 rounded-full border border-white/5 shadow-xl w-full sm:w-auto mt-4 sm:mt-0">
               <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">Ordenar:</span>
               <select
-                className="bg-transparent border-none text-xs font-bold text-white focus:ring-0 cursor-pointer pr-10"
+                className="bg-transparent border-none text-[10px] sm:text-xs font-bold text-white focus:ring-0 cursor-pointer pr-8 sm:pr-10 grow"
                 value={filtros.orden || ""}
                 onChange={(e) => handleFilterChange("orden", e.target.value || undefined)}
               >

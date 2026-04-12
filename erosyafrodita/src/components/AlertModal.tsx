@@ -1,82 +1,94 @@
 import React from "react";
 import { useAlert } from "../context/AlertContext";
+import { motion, AnimatePresence } from "framer-motion";
 
 const AlertModal: React.FC = () => {
     const { alertState, hideAlert } = useAlert();
 
-    if (!alertState.isOpen) return null;
-
     const getIcon = () => {
         switch (alertState.type) {
-            case "success":
-                return "check_circle";
-            case "error":
-                return "error";
-            case "warning":
-                return "warning";
+            case "success": return "verified";
+            case "error": return "error_meditate";
+            case "warning": return "warning";
             case "info":
-            default:
-                return "info";
+            default: return "info";
         }
     };
 
-    const getIconColor = () => {
+    const getColorClass = () => {
         switch (alertState.type) {
-            case "success":
-                return "text-emerald-400";
-            case "error":
-                return "text-red-400";
-            case "warning":
-                return "text-amber-400";
+            case "success": return "from-emerald-500/20 to-emerald-500/5 text-emerald-400 border-emerald-500/20";
+            case "error": return "from-rose-500/20 to-rose-500/5 text-rose-400 border-rose-500/20";
+            case "warning": return "from-amber-500/20 to-amber-500/5 text-amber-400 border-amber-500/20";
             case "info":
-            default:
-                return "text-primary";
+            default: return "from-primary/20 to-primary/5 text-primary border-primary/20";
         }
     };
 
     return (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="bg-charcoal-surface w-full max-w-sm rounded-[2rem] border border-white/10 p-8 shadow-2xl shadow-black/80 overflow-hidden relative">
-                
-                <div className="flex flex-col items-center text-center">
-                    <div className={`size-16 rounded-full bg-white/5 flex items-center justify-center mb-6 border border-white/10 ${getIconColor()}`}>
-                        <span className="material-symbols-outlined text-4xl">{getIcon()}</span>
-                    </div>
+        <AnimatePresence>
+            {alertState.isOpen && (
+                <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={hideAlert}
+                        className="absolute inset-0 bg-charcoal/80 backdrop-blur-md"
+                    />
                     
-                    <h2 className="text-xl font-bold text-white mb-2">{alertState.title}</h2>
-                    <p className="text-gray-400 text-sm mb-8 leading-relaxed">
-                        {alertState.message}
-                    </p>
-                    
-                    {alertState.onConfirm ? (
-                        <div className="flex flex-col sm:flex-row gap-3 w-full">
-                            <button 
-                                onClick={hideAlert}
-                                className="flex-1 h-12 bg-white/5 hover:bg-white/10 text-white font-bold rounded-full flex items-center justify-center transition-all active:scale-95 border border-white/10"
-                            >
-                                Cancelar
-                            </button>
-                            <button 
-                                onClick={() => {
-                                    alertState.onConfirm?.();
-                                    hideAlert();
-                                }}
-                                className="flex-1 h-12 bg-primary hover:bg-white text-charcoal font-bold rounded-full flex items-center justify-center transition-all active:scale-95 shadow-lg shadow-primary/20"
-                            >
-                                {alertState.confirmText || "Confirmar"}
-                            </button>
+                    <motion.div 
+                        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                        animate={{ scale: 1, opacity: 1, y: 0 }}
+                        exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                        className="relative bg-charcoal-surface w-full max-w-sm rounded-[2.5rem] border border-white/10 p-8 shadow-[0_40px_80px_-15px_rgba(0,0,0,0.8)] overflow-hidden"
+                    >
+                        {/* Glow effect */}
+                        <div className={`absolute -top-24 left-1/2 -translate-x-1/2 size-48 rounded-full blur-[80px] opacity-30 bg-gradient-to-b ${getColorClass().split(' ').slice(0,1)}`} />
+                        
+                        <div className="relative z-10 flex flex-col items-center text-center">
+                            <div className={`size-20 rounded-full bg-gradient-to-tr flex items-center justify-center mb-6 border shadow-inner ${getColorClass()}`}>
+                                <span className="material-symbols-outlined text-[40px] font-light">{getIcon()}</span>
+                            </div>
+                            
+                            <h2 className="text-2xl font-black text-white mb-2 tracking-tighter uppercase">
+                                {alertState.title}
+                            </h2>
+                            <p className="text-white/50 text-[13px] mb-8 leading-relaxed font-light">
+                                {alertState.message}
+                            </p>
+                            
+                            {alertState.onConfirm ? (
+                                <div className="flex gap-3 w-full">
+                                    <button 
+                                        onClick={hideAlert}
+                                        className="flex-1 h-14 bg-white/5 hover:bg-white/10 text-white/40 hover:text-white font-black text-[10px] uppercase tracking-widest rounded-2xl border border-white/5 transition-all active:scale-95"
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button 
+                                        onClick={() => {
+                                            alertState.onConfirm?.();
+                                            hideAlert();
+                                        }}
+                                        className="flex-1 h-14 bg-primary hover:bg-white text-charcoal font-black text-[10px] uppercase tracking-widest rounded-2xl transition-all active:scale-95 shadow-xl shadow-primary/20"
+                                    >
+                                        {alertState.confirmText || "Confirmar"}
+                                    </button>
+                                </div>
+                            ) : (
+                                <button 
+                                    onClick={hideAlert}
+                                    className="w-full h-14 bg-primary hover:bg-white text-charcoal font-black text-[10px] uppercase tracking-widest rounded-2xl transition-all hover:shadow-2xl shadow-xl shadow-primary/20 active:scale-95"
+                                >
+                                    Continuar
+                                </button>
+                            )}
                         </div>
-                    ) : (
-                        <button 
-                            onClick={hideAlert}
-                            className="w-full h-12 bg-primary hover:bg-white text-charcoal font-bold rounded-full flex items-center justify-center transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-primary/20"
-                        >
-                            Entendido
-                        </button>
-                    )}
+                    </motion.div>
                 </div>
-            </div>
-        </div>
+            )}
+        </AnimatePresence>
     );
 };
 

@@ -16,9 +16,9 @@ const Cart: React.FC = () => {
     <div className="bg-background-dark font-display text-white min-h-screen flex flex-col">
       <Header />
       <main className="flex-grow w-full max-w-[1440px] mx-auto px-4 md:px-10 py-10">
-        <h1 className="text-4xl font-extrabold mb-8">
+        <h1 className="text-2xl sm:text-4xl font-extrabold mb-6 sm:mb-8">
           Tu Carrito{" "}
-          <span className="text-primary text-2xl font-medium ml-2">
+          <span className="text-primary text-lg sm:text-2xl font-medium ml-2">
             ({itemCount} artículos)
           </span>
         </h1>
@@ -40,9 +40,9 @@ const Cart: React.FC = () => {
               {items.map(({ product, quantity }) => (
                 <div
                   key={product.id}
-                  className="flex flex-col sm:flex-row items-center gap-6 p-5 rounded-[2rem] bg-surface-dark border border-border-dark"
+                  className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 p-4 sm:p-5 rounded-[1.5rem] sm:rounded-[2rem] bg-surface-dark border border-border-dark"
                 >
-                  <div className="w-full sm:w-32 aspect-square shrink-0 rounded-2xl overflow-hidden bg-white p-2">
+                  <div className="w-24 sm:w-32 aspect-square shrink-0 rounded-xl sm:rounded-2xl overflow-hidden bg-white p-2">
                     <div
                       className="w-full h-full bg-contain bg-center bg-no-repeat"
                       style={{ backgroundImage: `url('${product.imagen}')` }}
@@ -51,13 +51,13 @@ const Cart: React.FC = () => {
                   <div className="flex-1 w-full text-center sm:text-left">
                     <div className="flex justify-between mb-2">
                       <div>
-                        <h3 className={`text-lg font-bold ${product.stock === 0 ? "text-red-500 line-through" : "text-white"}`}>
+                        <h3 className={`text-base sm:text-lg font-bold ${product.stock === 0 ? "text-red-500 line-through" : "text-white"}`}>
                           {product.nombre}
                         </h3>
                         {product.stock === 0 && (
-                          <span className="text-xs text-red-400 font-semibold">Próximamente</span>
+                          <span className="text-[10px] text-red-400 font-semibold">Próximamente</span>
                         )}
-                        <p className="text-sm text-gray-400">
+                        <p className="text-xs sm:text-sm text-gray-400">
                           {product.manufacturer}
                         </p>
                       </div>

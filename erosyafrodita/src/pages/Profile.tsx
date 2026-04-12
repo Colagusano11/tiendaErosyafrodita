@@ -14,6 +14,7 @@ const Profile: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<Tab>("datos");
+  const { showAlert } = useAlert();
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -33,7 +34,6 @@ const Profile: React.FC = () => {
   // auth
   const { user: userEmail, logout: logoutAuth, name, apellidos } = useAuth();
   const [profile, setProfile] = useState<UserProfileType | null>(null);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   // Form states for "Datos Personales"
   const [formData, setFormData] = useState({
@@ -169,7 +169,7 @@ const Profile: React.FC = () => {
         ...formData
       });
       setProfile(updated);
-      setShowSuccessModal(true);
+      showAlert("Perfil Actualizado", "Tus datos han sido guardados con éxito en el Olimpo.", "success");
     } catch (err: any) {
       setError(err.message ?? "Error al actualizar el perfil.");
     } finally {
@@ -205,7 +205,7 @@ const Profile: React.FC = () => {
       setPassError(null);
       await userService.changePassword(userEmail, currentPassword.trim(), passData.newPass.trim());
       setShowPassChangeModal(false);
-      setShowSuccessModal(true);
+      showAlert("Llave Cambiada", "Tu contraseña ha sido actualizada correctamente.", "success");
       setCurrentPassword("");
       setPassData({ newPass: "", confirmPass: "" });
     } catch (err: any) {
@@ -240,12 +240,12 @@ const Profile: React.FC = () => {
           </span>
         </nav>
 
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar */}
-          <aside className="w-full lg:w-64 shrink-0">
-            <div className="sticky top-24 rounded-xl bg-surface-dark p-6 border border-[#493f22]">
-              {/* User */}
-              <div className="mb-8 flex items-center gap-4 border-b border-[#493f22] pb-6">
+        <div className="flex flex-col lg:flex-row gap-6 sm:gap-8">
+          {/* Sidebar / Navigation Tabs */}
+          <aside className="w-full lg:w-64 shrink-0 overflow-x-auto no-scrollbar lg:overflow-visible">
+            <div className="flex lg:flex-col gap-2 min-w-max lg:min-w-0 lg:sticky lg:top-24 rounded-xl bg-surface-dark p-2 sm:p-4 lg:p-6 border border-[#493f22]">
+              {/* User - Hidden on mobile nav to save space */}
+              <div className="hidden lg:flex mb-8 items-center gap-4 border-b border-[#493f22] pb-6">
                 <div
                   className="h-12 w-12 shrink-0 overflow-hidden rounded-full bg-primary/20"
                   style={{
@@ -270,8 +270,8 @@ const Profile: React.FC = () => {
               <nav className="flex flex-col gap-2">
                 <button
                   onClick={() => setActiveTab("datos")}
-                  className={`flex items-center gap-3 rounded-lg px-4 py-3 text-sm text-left transition-all ${activeTab === "datos"
-                      ? "bg-primary/10 text-primary font-bold ring-1 ring-primary/20"
+                  className={`flex items-center gap-2 sm:gap-3 rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-[10px] sm:text-sm text-left transition-all whitespace-nowrap ${activeTab === "datos"
+                      ? "bg-primary text-background-dark font-black"
                       : "font-medium text-white/80 hover:bg-[#493f22] hover:text-white"
                     }`}
                 >
@@ -283,8 +283,8 @@ const Profile: React.FC = () => {
 
                 <button
                   onClick={() => setActiveTab("direcciones")}
-                  className={`flex items-center gap-3 rounded-lg px-4 py-3 text-sm text-left transition-all ${activeTab === "direcciones"
-                      ? "bg-primary/10 text-primary font-bold ring-1 ring-primary/20"
+                  className={`flex items-center gap-2 sm:gap-3 rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-[10px] sm:text-sm text-left transition-all whitespace-nowrap ${activeTab === "direcciones"
+                      ? "bg-primary text-background-dark font-black"
                       : "font-medium text-white/80 hover:bg-[#493f22] hover:text-white"
                     }`}
                 >
@@ -296,8 +296,8 @@ const Profile: React.FC = () => {
 
                 <button
                   onClick={() => setActiveTab("pedidos")}
-                  className={`flex items-center gap-3 rounded-lg px-4 py-3 text-sm text-left transition-all ${activeTab === "pedidos"
-                      ? "bg-primary/10 text-primary font-bold ring-1 ring-primary/20"
+                  className={`flex items-center gap-2 sm:gap-3 rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-[10px] sm:text-sm text-left transition-all whitespace-nowrap ${activeTab === "pedidos"
+                      ? "bg-primary text-background-dark font-black"
                       : "font-medium text-white/80 hover:bg-[#493f22] hover:text-white"
                     }`}
                 >
@@ -310,15 +310,25 @@ const Profile: React.FC = () => {
 
                 <button
                   onClick={() => setActiveTab("wishlist")}
-                  className={`flex items-center gap-3 rounded-lg px-4 py-3 text-sm text-left transition-all ${activeTab === "wishlist"
-                      ? "bg-primary/10 text-primary font-bold ring-1 ring-primary/20"
+                  className={`flex items-center gap-2 sm:gap-3 rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-[10px] sm:text-sm text-left transition-all whitespace-nowrap ${activeTab === "wishlist"
+                      ? "bg-primary text-background-dark font-black"
                       : "font-medium text-white/80 hover:bg-[#493f22] hover:text-white"
                     }`}
                 >
-                  <span className="material-symbols-outlined text-[20px]">
+                  <span className="material-symbols-outlined text-[18px] sm:text-[20px]">
                     favorite
                   </span>
-                  Lista de Deseos
+                  Favoritos
+                </button>
+
+                <button
+                  onClick={logoutAuth}
+                  className="flex items-center gap-2 sm:gap-3 rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-[10px] sm:text-sm font-medium text-red-400 hover:bg-red-500/10 transition-all text-left whitespace-nowrap lg:mt-4 lg:border-t lg:border-[#493f22] lg:pt-4"
+                >
+                  <span className="material-symbols-outlined text-[18px] sm:text-[20px]">
+                    logout
+                  </span>
+                  Salir
                 </button>
 
                 <button
@@ -342,11 +352,11 @@ const Profile: React.FC = () => {
                 {/* Cabecera */}
                 <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
-                    <h1 className="text-3xl font-bold text-white tracking-tight">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
                       Direcciones de Envío
                     </h1>
-                    <p className="mt-1 text-sm text-yellow-300/80">
-                      {isEditingAddress ? (editingAddressType === "primaria" ? "Edita los detalles de tu dirección principal." : "Edita tu dirección secundaria.") : "Gestiona dónde recibirás tus tesoros de Erosyafrodita."}
+                    <p className="mt-1 text-xs sm:text-sm text-yellow-300/80">
+                      {isEditingAddress ? (editingAddressType === "primaria" ? "Edita los detalles de tu dirección principal." : "Edita tu dirección secundaria.") : "Gestiona dónde recibirás tus tesoros."}
                     </p>
                   </div>
                 </div>
@@ -379,7 +389,7 @@ const Profile: React.FC = () => {
 
                         const updated = await userService.updateUserProfile(userEmail, payload);
                         setProfile(updated);
-                        setShowSuccessModal(true);
+                        showAlert("Dirección Guardada", "Tu santiamén de entrega ha sido configurado.", "success");
                         setIsEditingAddress(false);
                       } catch (err: any) {
                         setError(err.message ?? "Error al actualizar la dirección.");
@@ -670,13 +680,12 @@ const Profile: React.FC = () => {
               <div className="animate-fadeIn">
                 <div className="max-w-4xl">
                   {/* Cabecera */}
-                  <div className="flex flex-col gap-3 mb-10">
-                    <h1 className="text-white tracking-tight text-3xl md:text-4xl font-bold">
+                  <div className="flex flex-col gap-2 sm:gap-3 mb-6 sm:mb-10">
+                    <h1 className="text-white tracking-tight text-2xl sm:text-3xl md:text-4xl font-bold">
                       Mis Datos Personales
                     </h1>
-                    <p className="text-text-gold text-base font-normal max-w-2xl">
-                      Actualiza tu información personal para recibir una experiencia
-                      personalizada en Erosyafrodita.
+                    <p className="text-text-gold text-sm sm:text-base font-normal max-w-2xl">
+                      Actualiza tu información personal para una experiencia premium.
                     </p>
                   </div>
 
@@ -823,7 +832,7 @@ const Profile: React.FC = () => {
             {activeTab === "pedidos" && (
               <div className="animate-fadeIn">
                 <div className="w-full max-w-5xl">
-                  <h1 className="text-3xl font-black mb-6 uppercase tracking-tighter">Mis pedidos</h1>
+                  <h1 className="text-2xl sm:text-3xl font-black mb-6 uppercase tracking-tighter">Mis pedidos</h1>
 
                   {loading && (
                     <div className="flex items-center gap-3 text-sm text-gray-400">
@@ -1021,25 +1030,6 @@ const Profile: React.FC = () => {
                   check_circle
                 </span>
               </div>
-
-              <h2 className="text-white text-3xl font-black tracking-tighter mb-4 uppercase">
-                ¡Éxito Total!
-              </h2>
-
-              <p className="text-text-muted text-base font-medium leading-relaxed mb-10">
-                Tu perfil ha sido actualizado con los estándares de excelencia de <span className="text-primary font-bold">Erosyafrodita</span>.
-              </p>
-
-              <button
-                onClick={() => setShowSuccessModal(false)}
-                className="w-full bg-primary hover:bg-yellow-400 text-background-dark font-black py-5 rounded-2xl shadow-[0_10px_25px_-5px_rgba(242,185,13,0.4)] hover:shadow-[0_15px_35px_-5px_rgba(242,185,13,0.6)] hover:-translate-y-1 active:translate-y-0 transition-all duration-300 uppercase tracking-widest text-sm"
-              >
-                Continuar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Modal Detalle de Dirección */}
       {showAddressModal && selectedAddress && (

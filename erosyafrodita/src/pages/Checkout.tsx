@@ -357,14 +357,14 @@ const Checkout: React.FC = () => {
     <div className="bg-background-dark text-white font-display antialiased min-h-screen flex flex-col">
       <Header />
 
-      <main className="flex-grow layout-container flex flex-col items-center py-8 px-4 sm:px-6 lg:px-8">
-        <div className="w-full max-w-7xl">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4 border-b border-white/5 pb-6">
+      <main className="flex-grow w-full max-w-[1440px] mx-auto py-6 sm:py-10 px-4 sm:px-10">
+        <div className="w-full">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 sm:mb-8 gap-4 border-b border-white/5 pb-6">
             <div>
-              <h1 className="text-white text-3xl md:text-4xl font-black leading-tight tracking-tight mb-2">
+              <h1 className="text-white text-2xl sm:text-3xl md:text-4xl font-black leading-tight tracking-tight mb-1 sm:mb-2">
                 Finalizar Ritual
               </h1>
-              <p className="text-primary text-sm font-black uppercase tracking-widest opacity-60">
+              <p className="text-primary text-[10px] sm:text-sm font-black uppercase tracking-widest opacity-60">
                 Asegura tu adquisición divina
               </p>
             </div>
@@ -636,12 +636,6 @@ const Checkout: React.FC = () => {
                         <span className="material-symbols-outlined text-primary text-lg">local_shipping</span>
                         <span className="text-[8px] font-black uppercase text-white/60 tracking-widest">Envíos VIP 24/48h</span>
                       </div>
-                    </div>
-                    <div className="flex items-center justify-center gap-2 opacity-30 grayscale contrast-125">
-                      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/2560px-Visa_Inc._logo.svg.png" className="h-2 object-contain" alt="Visa" />
-                      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/1000px-Mastercard-logo.svg.png" className="h-4 object-contain" alt="Mastercard" />
-                      <div className="w-px h-3 bg-white mx-1" />
-                      <span className="text-[7px] font-black tracking-widest uppercase">PCI Compliance</span>
                     </div>
                   </div>
               </div>

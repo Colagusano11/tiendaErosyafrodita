@@ -13,6 +13,7 @@ const Header: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && searchTerm.trim()) {
@@ -34,24 +35,34 @@ const Header: React.FC = () => {
   const wishlistCount = wishlist.length;
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-charcoal border-b border-white/10">
-      <div className="max-w-[1440px] mx-auto flex items-center justify-between px-5 lg:px-10 py-3">
+    <header className="sticky top-0 z-50 w-full bg-charcoal border-b border-white/10 backdrop-blur-md bg-charcoal/95">
+      <div className="max-w-[1440px] mx-auto flex items-center justify-between px-4 lg:px-10 py-3">
+        {/* Navigation / Burger (Mobile) */}
+        <div className="flex xl:hidden">
+          <button 
+            onClick={() => setIsMobileMenuOpen(true)}
+            className="size-10 rounded-full bg-white/5 flex items-center justify-center text-white"
+          >
+            <span className="material-symbols-outlined">menu</span>
+          </button>
+        </div>
+
         {/* Logo */}
         <div className="flex items-center">
           <Link
             to="/"
-            className="flex items-center gap-3 text-white group"
+            className="flex items-center gap-2 sm:gap-3 text-white group"
           >
             <img
               src={logoEros}
               alt="Eros & Afrodita logo"
-              className="size-10 rounded-full object-cover shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform duration-500"
+              className="size-8 sm:size-10 rounded-full object-cover shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform duration-500"
             />
             <div className="flex flex-col -gap-1">
-              <span className="font-black text-lg tracking-tighter leading-none uppercase">
+              <span className="font-black text-sm sm:text-lg tracking-tighter leading-none uppercase">
                 Eros<span className="text-primary italic font-serif">&</span>Afrodita
               </span>
-              <span className="text-[8px] font-black uppercase tracking-[0.3em] text-primary/60">LA ESENCIA DIVINA</span>
+              <span className="text-[7px] sm:text-[8px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-primary/60">LA ESENCIA DIVINA</span>
             </div>
           </Link>
         </div>
@@ -64,87 +75,104 @@ const Header: React.FC = () => {
           <Link to="/catalog?status=OFERTAS" className="text-[11px] font-black uppercase tracking-[0.2em] text-primary hover:text-white transition-colors italic">Ofertas</Link>
         </nav>
 
-        {/* Buscador + iconos */}
-        <div className="flex items-center gap-6">
-          <div className="hidden lg:flex items-center bg-surface-dark border border-white/5 rounded-full px-5 py-2.5 text-xs text-white/50 w-64 focus-within:border-primary/40 focus-within:shadow-[0_0_15px_rgba(242,185,13,0.1)] transition-all group">
-            <button
-              onClick={() => searchTerm.trim() && navigate(`/catalog?search=${encodeURIComponent(searchTerm.trim())}`)}
-              className="material-symbols-outlined text-[18px] mr-3 text-primary/60 group-focus-within:text-primary hover:scale-110 transition-transform"
-            >
-              search
-            </button>
-            <input
-              className="bg-transparent outline-none border-none text-xs flex-1 placeholder-white/30 font-medium"
-              placeholder={t('header.searchPlaceholder')}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onKeyDown={handleSearch}
-            />
-          </div>
-
-          <div className="flex items-center gap-6">
-            {/* Favoritos */}
-            <Link
-              to="/wishlist"
-              className="flex flex-col items-center gap-1 group"
-            >
-              <div className="size-10 rounded-full bg-charcoal-lighter flex items-center justify-center text-white/80 group-hover:bg-primary group-hover:text-charcoal transition-all relative">
-                <span className="material-symbols-outlined text-[20px]">
-                  favorite
+        {/* Icons */}
+        <div className="flex items-center gap-3 sm:gap-6">
+          {/* Favoritos */}
+          <Link
+            to="/wishlist"
+            className="flex flex-col items-center gap-1 group"
+          >
+            <div className="size-9 sm:size-10 rounded-full bg-charcoal-lighter flex items-center justify-center text-white/80 group-hover:bg-primary group-hover:text-charcoal transition-all relative">
+              <span className="material-symbols-outlined text-[18px] sm:text-[20px]">
+                favorite
+              </span>
+              {wishlistCount > 0 && (
+                <span className="absolute -top-1 -right-1 size-4 rounded-full bg-primary border-2 border-charcoal text-[8px] font-black text-background-dark flex items-center justify-center">
+                  {wishlistCount}
                 </span>
-                {wishlistCount > 0 && (
-                  <span className="absolute -top-1 -right-1 size-4 rounded-full bg-primary border-2 border-charcoal text-[8px] font-black text-background-dark flex items-center justify-center animate-bounce">
-                    {wishlistCount}
-                  </span>
-                )}
-              </div>
-              <span className="text-[9px] font-bold uppercase tracking-widest text-white/40 group-hover:text-primary transition-colors">Favoritos</span>
-            </Link>
+              )}
+            </div>
+            <span className="hidden sm:block text-[9px] font-bold uppercase tracking-widest text-white/40 group-hover:text-primary transition-colors">Favoritos</span>
+          </Link>
 
-            {/* Bolsa */}
-            <Link
-              to="/cart"
-              className="flex flex-col items-center gap-1 group"
-            >
-              <div className="size-10 rounded-full bg-charcoal-lighter flex items-center justify-center text-white/80 group-hover:bg-primary group-hover:text-charcoal transition-all relative">
-                <span className="material-symbols-outlined text-[20px]">
-                  shopping_bag
+          {/* Bolsa */}
+          <Link
+            to="/cart"
+            className="flex flex-col items-center gap-1 group"
+          >
+            <div className="size-9 sm:size-10 rounded-full bg-charcoal-lighter flex items-center justify-center text-white/80 group-hover:bg-primary group-hover:text-charcoal transition-all relative">
+              <span className="material-symbols-outlined text-[18px] sm:text-[20px]">
+                shopping_bag
+              </span>
+              {itemCount > 0 && (
+                <span className="absolute -top-1 -right-1 size-4 rounded-full bg-primary border-2 border-charcoal text-[8px] font-black text-background-dark flex items-center justify-center">
+                  {itemCount}
                 </span>
-                {itemCount > 0 && (
-                  <span className="absolute -top-1 -right-1 size-4 rounded-full bg-primary border-2 border-charcoal text-[8px] font-black text-background-dark flex items-center justify-center">
-                    {itemCount}
-                  </span>
-                )}
-              </div>
-              <span className="text-[9px] font-bold uppercase tracking-widest text-white/40 group-hover:text-primary transition-colors">Bolsa</span>
-            </Link>
+              )}
+            </div>
+            <span className="hidden sm:block text-[9px] font-bold uppercase tracking-widest text-white/40 group-hover:text-primary transition-colors">Bolsa</span>
+          </Link>
 
-            {/* Cuenta */}
-            <Link
-              to={isAuthenticated
-                ? (isAdmin ? "/admin/orders" : "/profile?tab=datos")
-                : "/login"
-              }
-              className="flex flex-col items-center gap-1 group"
+          {/* Cuenta */}
+          <Link
+            to={isAuthenticated
+              ? (isAdmin ? "/admin/orders" : "/profile?tab=datos")
+              : "/login"
+            }
+            className="flex flex-col items-center gap-1 group"
+          >
+            <div className={`size-9 sm:size-10 rounded-full flex items-center justify-center transition-all ${isAuthenticated
+                ? "bg-primary text-background-dark font-black text-[10px] sm:text-xs border-2 border-primary/20 group-hover:scale-110 shadow-lg shadow-primary/10"
+                : "bg-charcoal-lighter text-white/80 group-hover:bg-primary group-hover:text-charcoal"
+              }`}
             >
-              <div className={`size-10 rounded-full flex items-center justify-center transition-all ${isAuthenticated
-                  ? "bg-primary text-background-dark font-black text-xs border-2 border-primary/20 group-hover:scale-110 shadow-lg shadow-primary/10"
-                  : "bg-charcoal-lighter text-white/80 group-hover:bg-primary group-hover:text-charcoal"
-                }`}
-              >
-                {isAuthenticated ? (
-                  <span>{getInitials()}</span>
-                ) : (
-                  <span className="material-symbols-outlined text-[20px]">
-                    person
-                  </span>
-                )}
-              </div>
-              <span className="text-[9px] font-bold uppercase tracking-widest text-white/40 group-hover:text-primary transition-colors">Cuenta</span>
-            </Link>
-          </div>
+              {isAuthenticated ? (
+                <span>{getInitials()}</span>
+              ) : (
+                <span className="material-symbols-outlined text-[18px] sm:text-[20px]">
+                  person
+                </span>
+              )}
+            </div>
+            <span className="hidden sm:block text-[9px] font-bold uppercase tracking-widest text-white/40 group-hover:text-primary transition-colors">Perfil</span>
+          </Link>
         </div>
       </div>
+
+      {/* Mobile Drawer */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm lg:hidden animate-fade-in">
+          <div className="absolute right-0 top-0 h-full w-[280px] bg-charcoal p-8 shadow-2xl animate-slide-left border-l border-white/5">
+            <div className="flex justify-between items-center mb-10">
+              <span className="text-[10px] font-black tracking-[0.4em] text-primary uppercase italic">Menú</span>
+              <button 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="size-10 rounded-full bg-white/5 flex items-center justify-center text-white/50"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            
+            <nav className="flex flex-col gap-6">
+              <Link to="/catalog?genero=HOMBRE" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-black uppercase tracking-widest text-white hover:text-primary transition-colors">Hombre</Link>
+              <Link to="/catalog?genero=MUJER" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-black uppercase tracking-widest text-white hover:text-primary transition-colors">Mujer</Link>
+              <Link to="/catalog?orden=idDesc" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-black uppercase tracking-widest text-white hover:text-primary transition-colors">Novedades</Link>
+              <Link to="/catalog?status=OFERTAS" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-black uppercase tracking-widest text-primary italic">Ofertas</Link>
+              <div className="h-px bg-white/5 my-4" />
+              <Link to="/wishlist" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 text-white/60 hover:text-white transition-colors">
+                <span className="material-symbols-outlined">favorite</span> Mis Favoritos
+              </Link>
+              <Link to="/cart" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 text-white/60 hover:text-white transition-colors">
+                <span className="material-symbols-outlined">shopping_bag</span> Mi Bolsa
+              </Link>
+            </nav>
+          </div>
+          <div 
+            className="flex-grow h-full" 
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+        </div>
+      )}
     </header>
   );
 };
