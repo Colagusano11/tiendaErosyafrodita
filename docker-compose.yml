@@ -1,0 +1,107 @@
+services:
+  # Base de Datos para Tienda Principal
+  db:
+    image: mysql:8.0
+    container_name: tienda-mysql-db
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
+      MYSQL_DATABASE: tienda_db
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - app-net
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # Base de Datos para Microservicio de Usuarios
+  db-usuarios:
+    image: mysql:8.0
+    container_name: db-usuarios
+    ports:
+      - "3308:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-sasa1234}
+      MYSQL_DATABASE: tienda_usuarios
+    volumes:
+      - db_usuarios_data:/var/lib/mysql
+    networks:
+      - app-net
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # Microservicio de Usuarios
+  mcsv-usuario:
+    build:
+      context: ./mcsv-usuario
+      dockerfile: Dockerfile
+    image: mcsv-usuario:latest
+    container_name: mcsv-usuario
+    ports:
+      - "8081:8080"
+    env_file:
+      - .env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db-usuarios:3306/tienda_usuarios
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME:-root}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-sasa1234}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      db-usuarios:
+        condition: service_healthy
+    networks:
+      - app-net
+
+  # Backend Principal (Tienda)
+  app:
+    build:
+      context: ./tiendaBack
+      dockerfile: Dockerfile
+    image: tiendaonline:latest
+    container_name: tienda-app-server
+    ports:
+      - "${BACKEND_PORT:-8082}:8080"
+    env_file:
+      - .env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/tienda_db
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME:-root}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-root}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      CONFIG_BASEURL_ENDPOINT_MCSV_USUARIO: http://mcsv-usuario:8080
+    depends_on:
+      db:
+        condition: service_healthy
+      mcsv-usuario:
+        condition: service_started
+    networks:
+      - app-net
+
+  # Frontend (Vite + React + Nginx)
+  frontend:
+    build:
+      context: ./erosyafrodita
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=${VITE_API_URL:-/api}
+    image: eros-front:latest
+    container_name: eros-frontend
+    ports:
+      - "${FRONTEND_PORT:-81}:80"
+    depends_on:
+      - app
+    networks:
+      - app-net
+
+volumes:
+  db_data:
+  db_usuarios_data:
+
+networks:
+  app-net:
+    driver: bridge

@@ -1,0 +1,3 @@
+[submodule "microservicios/mcsv-usuario"]
+	path = microservicios/mcsv-usuario
+	url = git@github.com:Colagusano11/mcsv-usuario.git

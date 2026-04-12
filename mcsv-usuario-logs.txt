@@ -1,0 +1,50 @@
+mcsv-usuario  |  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+mcsv-usuario  | ( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+mcsv-usuario  |  \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+mcsv-usuario  |   '  |____| .__|_| |_|_| |_\__, | / / / /
+mcsv-usuario  |  =========|_|==============|___/=/_/_/_/
+mcsv-usuario  | 
+mcsv-usuario  |  :: Spring Boot ::                (v4.0.1)
+mcsv-usuario  | 
+mcsv-usuario  | 2026-04-03T14:54:39.614Z  INFO 1 --- [mcsv-usuario] [           main] c.e.t.u.m.McsvUsuarioApplication         : Starting McsvUsuarioApplication v0.0.1-SNAPSHOT using Java 21.0.10 with PID 1 (/app/app.jar started by root in /app)
+mcsv-usuario  | 2026-04-03T14:54:39.618Z  INFO 1 --- [mcsv-usuario] [           main] c.e.t.u.m.McsvUsuarioApplication         : The following 1 profile is active: "local"
+mcsv-usuario  | 2026-04-03T14:54:40.125Z  INFO 1 --- [mcsv-usuario] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+mcsv-usuario  | 2026-04-03T14:54:40.188Z  INFO 1 --- [mcsv-usuario] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 57 ms. Found 2 JPA repository interfaces.
+mcsv-usuario  | 2026-04-03T14:54:40.339Z  INFO 1 --- [mcsv-usuario] [           main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=922f8114-f314-3be4-92d0-a431f06a11ae
+mcsv-usuario  | 2026-04-03T14:54:40.686Z  INFO 1 --- [mcsv-usuario] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8080 (http)
+mcsv-usuario  | 2026-04-03T14:54:40.692Z  INFO 1 --- [mcsv-usuario] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+mcsv-usuario  | 2026-04-03T14:54:40.692Z  INFO 1 --- [mcsv-usuario] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.15]
+mcsv-usuario  | 2026-04-03T14:54:40.701Z  INFO 1 --- [mcsv-usuario] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 1036 ms
+mcsv-usuario  | 2026-04-03T14:54:40.832Z  INFO 1 --- [mcsv-usuario] [           main] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+mcsv-usuario  | 2026-04-03T14:54:40.866Z  INFO 1 --- [mcsv-usuario] [           main] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.2.0.Final
+mcsv-usuario  | 2026-04-03T14:54:41.101Z  INFO 1 --- [mcsv-usuario] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+mcsv-usuario  | 2026-04-03T14:54:41.119Z  INFO 1 --- [mcsv-usuario] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+mcsv-usuario  | 2026-04-03T14:54:41.273Z  INFO 1 --- [mcsv-usuario] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@5d957cf0
+mcsv-usuario  | 2026-04-03T14:54:41.276Z  INFO 1 --- [mcsv-usuario] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+mcsv-usuario  | 2026-04-03T14:54:41.341Z  INFO 1 --- [mcsv-usuario] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+mcsv-usuario  | 	Database JDBC URL [jdbc:mysql://db-usuarios:3306/tienda_usuarios]
+mcsv-usuario  | 	Database driver: MySQL Connector/J
+mcsv-usuario  | 	Database dialect: MySQLDialect
+mcsv-usuario  | 	Database version: 8.0.45
+mcsv-usuario  | 	Default catalog/schema: tienda_usuarios/undefined
+mcsv-usuario  | 	Autocommit mode: undefined/unknown
+mcsv-usuario  | 	Isolation level: REPEATABLE_READ [default REPEATABLE_READ]
+mcsv-usuario  | 	JDBC fetch size: none
+mcsv-usuario  | 	Pool: DataSourceConnectionProvider
+mcsv-usuario  | 	Minimum pool size: undefined/unknown
+mcsv-usuario  | 	Maximum pool size: undefined/unknown
+mcsv-usuario  | 2026-04-03T14:54:41.919Z  INFO 1 --- [mcsv-usuario] [           main] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+mcsv-usuario  | 2026-04-03T14:54:41.952Z  INFO 1 --- [mcsv-usuario] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+mcsv-usuario  | 2026-04-03T14:54:42.047Z  INFO 1 --- [mcsv-usuario] [           main] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+mcsv-usuario  | 2026-04-03T14:54:42.298Z  WARN 1 --- [mcsv-usuario] [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+mcsv-usuario  | 2026-04-03T14:54:42.381Z  INFO 1 --- [mcsv-usuario] [           main] eAuthenticationProviderManagerConfigurer : Global AuthenticationManager configured with AuthenticationProvider bean with name authenticationProvider
+mcsv-usuario  | 2026-04-03T14:54:42.381Z  WARN 1 --- [mcsv-usuario] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with an AuthenticationProvider bean. UserDetailsService beans will not be used by Spring Security for automatically configuring username/password login. Consider removing the AuthenticationProvider bean. Alternatively, consider using the UserDetailsService in a manually instantiated DaoAuthenticationProvider. If the current configuration is intentional, to turn off this warning, increase the logging level of 'org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer' to ERROR
+mcsv-usuario  | 2026-04-03T14:54:42.998Z  WARN 1 --- [mcsv-usuario] [           main] iguration$LoadBalancerCaffeineWarnLogger : Spring Cloud LoadBalancer is currently working with the default cache. While this cache implementation is useful for development and tests, it's recommended to use Caffeine cache in production.You can switch to using Caffeine cache, by adding it and org.springframework.cache.caffeine.CaffeineCacheManager to the classpath.
+mcsv-usuario  | 2026-04-03T14:54:43.029Z  INFO 1 --- [mcsv-usuario] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8080 (http) with context path '/'
+mcsv-usuario  | 2026-04-03T14:54:43.039Z  INFO 1 --- [mcsv-usuario] [           main] c.e.t.u.m.McsvUsuarioApplication         : Started McsvUsuarioApplication in 3.631 seconds (process running for 3.926)
+mcsv-usuario  | 2026-04-03T14:54:47.386Z  INFO 1 --- [mcsv-usuario] [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+mcsv-usuario  | 2026-04-03T14:54:47.387Z  INFO 1 --- [mcsv-usuario] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+mcsv-usuario  | 2026-04-03T14:54:47.387Z  INFO 1 --- [mcsv-usuario] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+mcsv-usuario  | Hibernate: select u1_0.id,u1_0.admin,u1_0.apellidos,u1_0.avatar_url,u1_0.codigo_expira,u1_0.codigo_postal,u1_0.codigo_verifacion,u1_0.created_at,u1_0.direccion_primaria,u1_0.direccion_secundaria,u1_0.email,u1_0.name,u1_0.pais,u1_0.password,u1_0.phone,u1_0.provincia,u1_0.verificacion_token,u1_0.verificado from usuarios u1_0 where u1_0.email=?
+mcsv-usuario  | Hibernate: select u1_0.id,u1_0.admin,u1_0.apellidos,u1_0.avatar_url,u1_0.codigo_expira,u1_0.codigo_postal,u1_0.codigo_verifacion,u1_0.created_at,u1_0.direccion_primaria,u1_0.direccion_secundaria,u1_0.email,u1_0.name,u1_0.pais,u1_0.password,u1_0.phone,u1_0.provincia,u1_0.verificacion_token,u1_0.verificado from usuarios u1_0 where u1_0.email=?
+mcsv-usuario  | Hibernate: select u1_0.id,u1_0.admin,u1_0.apellidos,u1_0.avatar_url,u1_0.codigo_expira,u1_0.codigo_postal,u1_0.codigo_verifacion,u1_0.created_at,u1_0.direccion_primaria,u1_0.direccion_secundaria,u1_0.email,u1_0.name,u1_0.pais,u1_0.password,u1_0.phone,u1_0.provincia,u1_0.verificacion_token,u1_0.verificado from usuarios u1_0 where u1_0.email=?
