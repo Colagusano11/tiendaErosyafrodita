@@ -243,6 +243,12 @@ const ProductDetail: React.FC = () => {
                 </span>
               </div>
 
+              {/* Tag EAN */}
+              <div className="flex items-center gap-2 mb-6 text-[10px] uppercase tracking-widest text-white/30 font-bold">
+                <span>ean:</span>
+                <span className="text-white/60">{product.ean || "—"}</span>
+              </div>
+
               <div className="flex items-center gap-6 mb-8">
                 <div className="flex items-baseline gap-4">
                   <span className={`text-2xl font-black text-emerald-400`}>
