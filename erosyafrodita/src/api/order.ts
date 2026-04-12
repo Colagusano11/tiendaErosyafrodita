@@ -57,6 +57,7 @@ export interface PedidoSalida {
   provincia: string;
   telefono: string;
   pais: string;
+  email: string;
   paymentId?: string;
 }
 

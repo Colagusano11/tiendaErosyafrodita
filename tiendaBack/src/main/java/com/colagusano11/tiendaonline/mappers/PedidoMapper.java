@@ -39,6 +39,7 @@ public class PedidoMapper {
         salida.setPedidoProveedorId(pedido.getPedidoProveedorId());
         salida.setEstadoProveedor(pedido.getEstadoProveedor());
         salida.setPaymentId(pedido.getPaymentId());
+        salida.setEmail(pedido.getEmail());
 
         // líneas
         List<PedidoProductoSalida> productosSalida = new ArrayList<>();

@@ -18,11 +18,20 @@ public class PedidoSalida {
         private String provincia;
         private String telefono;
         private String pais;
+        private String email;
         private List<PedidoProductoSalida> productos;
         private String paymentId;
 
 
         public PedidoSalida(){}
+
+        public String getEmail() {
+            return email;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
+        }
 
 
     public Long getIdPedido() {
