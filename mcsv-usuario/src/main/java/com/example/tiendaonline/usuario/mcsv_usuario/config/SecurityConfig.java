@@ -47,7 +47,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, 
+                                                   java.util.Optional<org.springframework.security.oauth2.client.registration.ClientRegistrationRepository> clientRegistrationRepository) throws Exception {
 
         http
             .csrf(csrf -> csrf.disable())
@@ -82,11 +83,15 @@ public class SecurityConfig {
                 // Cualquier otra cosa requiere auth
                 .anyRequest().authenticated()
             )
-            .oauth2Login(oauth -> oauth
-                .defaultSuccessUrl("/auth/oauth2/success", true)
-            )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
             .userDetailsService(usuarioDetailsService);
+
+        // Solo habilitar OAuth2 si hay un repositorio configurado
+        if (clientRegistrationRepository.isPresent()) {
+            http.oauth2Login(oauth -> oauth
+                .defaultSuccessUrl("/auth/oauth2/success", true)
+            );
+        }
 
         return http.build();
     }
