@@ -48,7 +48,13 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>{
 
     @org.springframework.data.jpa.repository.Modifying(clearAutomatically = true)
     @org.springframework.data.jpa.repository.Query("UPDATE Producto p SET p.activo = :activo WHERE " +
-            "(:nombre IS NULL OR LOWER(p.nombre) LIKE LOWER(CONCAT('%', :nombre, '%'))) AND " +
+            "(:nombre IS NULL OR (" +
+            "  LOWER(p.nombre) LIKE LOWER(CONCAT('%', :nombre, '%')) OR " +
+            "  LOWER(p.manufacturer) LIKE LOWER(CONCAT('%', :nombre, '%')) OR " +
+            "  LOWER(p.categoria) LIKE LOWER(CONCAT('%', :nombre, '%')) OR " +
+            "  LOWER(p.sku) LIKE LOWER(CONCAT('%', :nombre, '%')) OR " +
+            "  LOWER(p.ean) LIKE LOWER(CONCAT('%', :nombre, '%'))" +
+            ")) AND " +
             "(:categoria IS NULL OR p.categoria = :categoria) AND " +
             "(:gender IS NULL OR UPPER(p.gender) = UPPER(:gender)) AND " +
             "(:distribuidor IS NULL OR p.distribuidor = :distribuidor) AND " +
@@ -75,7 +81,13 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>{
 
     @org.springframework.data.jpa.repository.Modifying(clearAutomatically = true)
     @org.springframework.data.jpa.repository.Query("UPDATE Producto p SET p.enOferta = :enOferta, p.descuentoOferta = :descuento, p.precioOferta = p.precioPVP * (1.0 - :descuento / 100.0) WHERE p.precioPVP IS NOT NULL AND (" +
-            "(:nombre IS NULL OR LOWER(p.nombre) LIKE LOWER(CONCAT('%', :nombre, '%'))) AND " +
+            "(:nombre IS NULL OR (" +
+            "  LOWER(p.nombre) LIKE LOWER(CONCAT('%', :nombre, '%')) OR " +
+            "  LOWER(p.manufacturer) LIKE LOWER(CONCAT('%', :nombre, '%')) OR " +
+            "  LOWER(p.categoria) LIKE LOWER(CONCAT('%', :nombre, '%')) OR " +
+            "  LOWER(p.sku) LIKE LOWER(CONCAT('%', :nombre, '%')) OR " +
+            "  LOWER(p.ean) LIKE LOWER(CONCAT('%', :nombre, '%'))" +
+            ")) AND " +
             "(:categoria IS NULL OR p.categoria = :categoria) AND " +
             "(:gender IS NULL OR UPPER(p.gender) = UPPER(:gender)) AND " +
             "(:distribuidor IS NULL OR p.distribuidor = :distribuidor) AND " +
@@ -104,7 +116,13 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>{
     List<Producto> findByDistribuidorAndImagenIsNull(Distribuidor distribuidor);
     
     @org.springframework.data.jpa.repository.Query("SELECT p.id FROM Producto p WHERE " +
-            "(:nombre IS NULL OR LOWER(p.nombre) LIKE LOWER(CONCAT('%', :nombre, '%'))) AND " +
+            "(:nombre IS NULL OR (" +
+            "  LOWER(p.nombre) LIKE LOWER(CONCAT('%', :nombre, '%')) OR " +
+            "  LOWER(p.manufacturer) LIKE LOWER(CONCAT('%', :nombre, '%')) OR " +
+            "  LOWER(p.categoria) LIKE LOWER(CONCAT('%', :nombre, '%')) OR " +
+            "  LOWER(p.sku) LIKE LOWER(CONCAT('%', :nombre, '%')) OR " +
+            "  LOWER(p.ean) LIKE LOWER(CONCAT('%', :nombre, '%'))" +
+            ")) AND " +
             "(:categoria IS NULL OR p.categoria = :categoria) AND " +
             "(:gender IS NULL OR UPPER(p.gender) = UPPER(:gender)) AND " +
             "(:distribuidor IS NULL OR p.distribuidor = :distribuidor) AND " +
@@ -140,7 +158,13 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>{
             nativeQuery = true)
     Page<Producto> findBestPriceActiveProducts(Pageable pageable);
     @org.springframework.data.jpa.repository.Query("SELECT p FROM Producto p WHERE " +
-            "(:nombre IS NULL OR LOWER(p.nombre) LIKE LOWER(CONCAT('%', :nombre, '%'))) AND " +
+            "(:nombre IS NULL OR (" +
+            "  LOWER(p.nombre) LIKE LOWER(CONCAT('%', :nombre, '%')) OR " +
+            "  LOWER(p.manufacturer) LIKE LOWER(CONCAT('%', :nombre, '%')) OR " +
+            "  LOWER(p.categoria) LIKE LOWER(CONCAT('%', :nombre, '%')) OR " +
+            "  LOWER(p.sku) LIKE LOWER(CONCAT('%', :nombre, '%')) OR " +
+            "  LOWER(p.ean) LIKE LOWER(CONCAT('%', :nombre, '%'))" +
+            ")) AND " +
             "(:categoria IS NULL OR p.categoria = :categoria) AND " +
             "(:gender IS NULL OR UPPER(p.gender) = UPPER(:gender)) AND " +
             "(:distribuidor IS NULL OR p.distribuidor = :distribuidor) AND " +
