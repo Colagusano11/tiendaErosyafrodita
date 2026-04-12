@@ -25,20 +25,33 @@ public class DataFixer {
                 }
             });
 
-            // 2. Asegurar existencia del admin principal
+            // 2. Asegurar existencia y contraseña del admin principal
             String adminEmail = "erosyafrodita.com@gmail.com";
-            if (repository.findByEmail(adminEmail).isEmpty()) {
-                Usuario admin = new Usuario();
-                admin.setEmail(adminEmail);
-                admin.setPassword(passwordEncoder.encode(adminPassword));
-                admin.setName("Admin");
-                admin.setApellidos("Eros & Afrodita");
-                admin.setAdmin(true);
-                admin.setVerificado(true);
-                repository.save(admin);
-                // Log genérico sin contraseña
-                System.out.println(">>> Usuario administrador inicial creado.");
+            if (adminPassword == null || adminPassword.isBlank()) {
+                System.err.println(">>> ERROR: ADMIN_INIT_PASSWORD no está definida!");
+                return;
             }
+
+            repository.findByEmail(adminEmail).ifPresentOrElse(
+                admin -> {
+                    admin.setPassword(passwordEncoder.encode(adminPassword));
+                    admin.setAdmin(true);
+                    admin.setVerificado(true);
+                    repository.save(admin);
+                    System.out.println(">>> Usuario administrador sincronizado.");
+                },
+                () -> {
+                    Usuario admin = new Usuario();
+                    admin.setEmail(adminEmail);
+                    admin.setPassword(passwordEncoder.encode(adminPassword));
+                    admin.setName("Admin");
+                    admin.setApellidos("Eros & Afrodita");
+                    admin.setAdmin(true);
+                    admin.setVerificado(true);
+                    repository.save(admin);
+                    System.out.println(">>> Usuario administrador inicial creado.");
+                }
+            );
         };
     }
 }
