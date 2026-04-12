@@ -55,6 +55,17 @@ const Checkout: React.FC = () => {
     saveToProfile: false
   });
 
+  const validatePhone = (phone: string) => {
+    // Regex para España: Empieza por 6, 7, 8 o 9, seguido de 8 dígitos
+    return /^[6789]\d{8}$/.test(phone.replace(/\s/g, ""));
+  };
+
+  const validateCP = (cp: string) => {
+    // Regex para España: 5 dígitos
+    return /^\d{5}$/.test(cp.trim());
+  };
+ 
+
   // Cargar datos del usuario
   React.useEffect(() => {
     if (!userEmail) return;
@@ -116,6 +127,16 @@ const Checkout: React.FC = () => {
       return;
     }
 
+    if (!validatePhone(tempAddress.telefono)) {
+      setError("El número de teléfono no es válido. Debe tener 9 dígitos y empezar por 6, 7, 8 o 9.");
+      return;
+    }
+
+    if (!validateCP(tempAddress.codigoPostal)) {
+      setError("El Código Postal debe tener exactamente 5 dígitos.");
+      return;
+    }
+
     if (!userEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(tempAddress.email)) {
       setError("Por favor, introduce un correo electrónico válido.");
       return;
@@ -142,11 +163,6 @@ const Checkout: React.FC = () => {
       pais: tempAddress.pais,
       email: tempAddress.email.trim()
     };
-
-    if (payload.telefono.length < 9) {
-      setError("El teléfono no parece válido. Por favor, revísalo.");
-      return;
-    }
 
     if (items.length === 0) {
       setError("Tu carrito está vacío.");
@@ -406,7 +422,10 @@ const Checkout: React.FC = () => {
                             <input required className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-white focus:bg-background-dark transition-all" placeholder="NOMBRE*" value={tempAddress.nombre} onChange={e => setTempAddress({...tempAddress, nombre: e.target.value})} />
                             <input required className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-white focus:bg-background-dark transition-all" placeholder="APELLIDOS*" value={tempAddress.apellidos} onChange={e => setTempAddress({...tempAddress, apellidos: e.target.value})} />
                           </div>
-                          <input required className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-white focus:bg-background-dark transition-all" placeholder="CALLE / AVENIDA / NÚMERO*" value={tempAddress.calle} onChange={e => setTempAddress({...tempAddress, calle: e.target.value})} />
+                          <div className="relative">
+                             <input required className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-white focus:bg-background-dark transition-all pr-12" placeholder="CALLE / AVENIDA / NÚMERO*" value={tempAddress.calle} onChange={e => setTempAddress({...tempAddress, calle: e.target.value})} />
+                             <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-primary opacity-30 text-base">location_on</span>
+                          </div>
                           <div className="grid grid-cols-2 gap-4">
                             <input required className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-white focus:bg-background-dark transition-all" placeholder="POBLACIÓN*" value={tempAddress.poblacion} onChange={e => setTempAddress({...tempAddress, poblacion: e.target.value})} />
                             <input required className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-white focus:bg-background-dark transition-all" placeholder="CÓDIGO POSTAL*" value={tempAddress.codigoPostal} onChange={e => setTempAddress({...tempAddress, codigoPostal: e.target.value})} />
