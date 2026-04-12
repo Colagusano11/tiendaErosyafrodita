@@ -12,6 +12,17 @@ import SEO from "../components/SEO";
 import homeBg from "../assets/home-background.png";
 import homeHeader from "../assets/home-header.png";
 
+// Marcas curadas para la sección Recomendados — perfumes clásicos distintos de Novedades
+const RECOMENDADOS_BRANDS = [
+  "DIOR",
+  "GUCCI",
+  "ARMANI",
+  "GIVENCHY",
+  "HUGO BOSS",
+  "BURBERRY",
+  "DAVIDOFF",
+];
+
 // Marcas curadas para la sección Novedades — basadas en el catálogo real
 const NOVEDADES_BRANDS = [
   "CALVIN KLEIN",
@@ -94,22 +105,27 @@ const HomePage: React.FC = () => {
           .sort((a, b) => (b.precioPVP - b.precio) - (a.precioPVP - a.precio))[0] ?? null;
         setFeaturedProduct(ofertaCandidate);
 
-        // --- RECOMENDADOS: excluye productos ya en novedades y la oferta destacada ---
+        const isRecomendadoBrand = (p: Producto) =>
+          !!p.manufacturer &&
+          RECOMENDADOS_BRANDS.some((b: string) =>
+            p.manufacturer!.toUpperCase().includes(b)
+          );
+
+        // --- RECOMENDADOS: marcas curadas primero, luego resto del catálogo como reserva ---
+        // Excluye productos ya en novedades (marcas curadas) y la oferta destacada
         const recomendadosBase = withImage.filter(p =>
-          p.precioPVP > 0 &&
-          p.precio < p.precioPVP &&
           p.id !== ofertaCandidate?.id &&
           !novedadesIds.has(p.id)
         );
 
         const sortRecomendados = (arr: Producto[]) => [...arr].sort((a, b) => {
-          const ratioA = (a.precioPVP - a.precio) / a.precioPVP;
-          const ratioB = (b.precioPVP - b.precio) / b.precioPVP;
+          const ratioA = a.precioPVP > 0 ? (a.precioPVP - a.precio) / a.precioPVP : 0;
+          const ratioB = b.precioPVP > 0 ? (b.precioPVP - b.precio) / b.precioPVP : 0;
           return ratioB - ratioA;
         });
 
-        const recomendadosBranded = sortRecomendados(recomendadosBase.filter(isNovedadBrand));
-        const recomendadosExtra = sortRecomendados(recomendadosBase.filter(p => !isNovedadBrand(p)));
+        const recomendadosBranded = shuffleArray(recomendadosBase.filter(isRecomendadoBrand));
+        const recomendadosExtra = shuffleArray(recomendadosBase.filter(p => !isRecomendadoBrand(p)));
 
         setRecommendedPool([...recomendadosBranded, ...recomendadosExtra]);
 
