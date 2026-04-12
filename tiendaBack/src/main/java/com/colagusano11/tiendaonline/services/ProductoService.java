@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 
 public interface ProductoService{
@@ -67,4 +68,10 @@ public interface ProductoService{
     List<String> getAllCategorias();
     List<String> getAllManufacturers();
     List<String> getAllDistribuidores();
+    Map<String, Integer> normalizeAllGenders();
+
+    // Nuevos productos
+    org.springframework.data.domain.Page<Producto> getNuevos(int page, int size);
+    long countNuevos();
+    void marcarRevisados(List<Long> ids);
 }

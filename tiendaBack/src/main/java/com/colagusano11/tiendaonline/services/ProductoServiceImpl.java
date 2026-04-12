@@ -2,6 +2,7 @@ package com.colagusano11.tiendaonline.services;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.math.RoundingMode;
 
 import org.springframework.data.domain.Page;
@@ -125,6 +126,8 @@ public class ProductoServiceImpl implements ProductoService {
             sort = Sort.by(Sort.Direction.DESC, "precio");
         } else if ("precioAsc".equalsIgnoreCase(orden)) {
             sort = Sort.by(Sort.Direction.ASC, "precio");
+        } else if ("idDesc".equalsIgnoreCase(orden) || "fechaDesc".equalsIgnoreCase(orden)) {
+            sort = Sort.by(Sort.Direction.DESC, "id");
         }
 
         Pageable pageable = PageRequest.of(page, size, sort);
@@ -357,6 +360,31 @@ public class ProductoServiceImpl implements ProductoService {
     @Override
     public List<String> getAllDistribuidores() {
         return productoRepository.findAllDistinctDistribuidores();
+    }
+
+    @Override
+    public Page<Producto> getNuevos(int page, int size) {
+        return productoRepository.findByNuevoTrue(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id")));
+    }
+
+    @Override
+    public long countNuevos() {
+        return productoRepository.countByNuevoTrue();
+    }
+
+    @Override
+    public void marcarRevisados(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) return;
+        productoRepository.marcarRevisados(ids);
+    }
+
+    @Override
+    public Map<String, Integer> normalizeAllGenders() {
+        int hombre = productoRepository.normalizeGenderHombre();
+        int mujer  = productoRepository.normalizeGenderMujer();
+        int unisex = productoRepository.normalizeGenderUnisex();
+        int empty  = productoRepository.normalizeGenderEmpty();
+        return Map.of("HOMBRE", hombre, "MUJER", mujer, "UNISEX", unisex, "VACIADOS", empty);
     }
 
     private String sanitize(String s) {

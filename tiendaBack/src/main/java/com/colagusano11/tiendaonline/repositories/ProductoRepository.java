@@ -50,7 +50,7 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>{
     @org.springframework.data.jpa.repository.Query("UPDATE Producto p SET p.activo = :activo WHERE " +
             "(:nombre IS NULL OR LOWER(p.nombre) LIKE LOWER(CONCAT('%', :nombre, '%'))) AND " +
             "(:categoria IS NULL OR p.categoria = :categoria) AND " +
-            "(:gender IS NULL OR p.gender = :gender) AND " +
+            "(:gender IS NULL OR UPPER(p.gender) = UPPER(:gender)) AND " +
             "(:distribuidor IS NULL OR p.distribuidor = :distribuidor) AND " +
             "(:manufacturador IS NULL OR p.manufacturer = :manufacturador) AND " +
             "(:sku IS NULL OR p.sku LIKE CONCAT('%', :sku, '%') OR p.ean LIKE CONCAT('%', :sku, '%')) AND " +
@@ -77,7 +77,7 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>{
     @org.springframework.data.jpa.repository.Query("UPDATE Producto p SET p.enOferta = :enOferta, p.descuentoOferta = :descuento, p.precioOferta = p.precioPVP * (1.0 - :descuento / 100.0) WHERE p.precioPVP IS NOT NULL AND (" +
             "(:nombre IS NULL OR LOWER(p.nombre) LIKE LOWER(CONCAT('%', :nombre, '%'))) AND " +
             "(:categoria IS NULL OR p.categoria = :categoria) AND " +
-            "(:gender IS NULL OR p.gender = :gender) AND " +
+            "(:gender IS NULL OR UPPER(p.gender) = UPPER(:gender)) AND " +
             "(:distribuidor IS NULL OR p.distribuidor = :distribuidor) AND " +
             "(:manufacturador IS NULL OR p.manufacturer = :manufacturador) AND " +
             "(:sku IS NULL OR p.sku LIKE CONCAT('%', :sku, '%') OR p.ean LIKE CONCAT('%', :sku, '%')) AND " +
@@ -106,7 +106,7 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>{
     @org.springframework.data.jpa.repository.Query("SELECT p.id FROM Producto p WHERE " +
             "(:nombre IS NULL OR LOWER(p.nombre) LIKE LOWER(CONCAT('%', :nombre, '%'))) AND " +
             "(:categoria IS NULL OR p.categoria = :categoria) AND " +
-            "(:gender IS NULL OR p.gender = :gender) AND " +
+            "(:gender IS NULL OR UPPER(p.gender) = UPPER(:gender)) AND " +
             "(:distribuidor IS NULL OR p.distribuidor = :distribuidor) AND " +
             "(:manufacturador IS NULL OR p.manufacturer = :manufacturador) AND " +
             "(:sku IS NULL OR p.sku LIKE CONCAT('%', :sku, '%') OR p.ean LIKE CONCAT('%', :sku, '%')) AND " +
@@ -142,7 +142,7 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>{
     @org.springframework.data.jpa.repository.Query("SELECT p FROM Producto p WHERE " +
             "(:nombre IS NULL OR LOWER(p.nombre) LIKE LOWER(CONCAT('%', :nombre, '%'))) AND " +
             "(:categoria IS NULL OR p.categoria = :categoria) AND " +
-            "(:gender IS NULL OR p.gender = :gender) AND " +
+            "(:gender IS NULL OR UPPER(p.gender) = UPPER(:gender)) AND " +
             "(:distribuidor IS NULL OR p.distribuidor = :distribuidor) AND " +
             "(:manufacturador IS NULL OR p.manufacturer = :manufacturador) AND " +
             "(:sku IS NULL OR p.sku LIKE CONCAT('%', :sku, '%') OR p.ean LIKE CONCAT('%', :sku, '%')) AND " +
@@ -164,6 +164,30 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>{
             @org.springframework.data.repository.query.Param("minPrecio") java.math.BigDecimal minPrecio,
             @org.springframework.data.repository.query.Param("maxPrecio") java.math.BigDecimal maxPrecio,
             Pageable pageable);
+
+    // --- Nuevos productos ---
+    org.springframework.data.domain.Page<Producto> findByNuevoTrue(org.springframework.data.domain.Pageable pageable);
+    long countByNuevoTrue();
+
+    @org.springframework.data.jpa.repository.Modifying(clearAutomatically = true)
+    @org.springframework.data.jpa.repository.Query("UPDATE Producto p SET p.nuevo = false WHERE p.id IN :ids")
+    void marcarRevisados(@org.springframework.data.repository.query.Param("ids") List<Long> ids);
+
+    @org.springframework.data.jpa.repository.Modifying(clearAutomatically = true)
+    @org.springframework.data.jpa.repository.Query("UPDATE Producto p SET p.gender = 'HOMBRE' WHERE p.gender IS NOT NULL AND UPPER(p.gender) IN ('HOMBRE','MAN','MEN','MALE','MASCULINO','MASCULIN','H','1')")
+    int normalizeGenderHombre();
+
+    @org.springframework.data.jpa.repository.Modifying(clearAutomatically = true)
+    @org.springframework.data.jpa.repository.Query("UPDATE Producto p SET p.gender = 'MUJER' WHERE p.gender IS NOT NULL AND UPPER(p.gender) IN ('MUJER','WOMAN','WOMEN','FEMALE','FEMENINO','FEMININ','F','2')")
+    int normalizeGenderMujer();
+
+    @org.springframework.data.jpa.repository.Modifying(clearAutomatically = true)
+    @org.springframework.data.jpa.repository.Query("UPDATE Producto p SET p.gender = 'UNISEX' WHERE p.gender IS NOT NULL AND UPPER(p.gender) IN ('UNISEX','BOTH','AMBOS','U','3','MIXTO')")
+    int normalizeGenderUnisex();
+
+    @org.springframework.data.jpa.repository.Modifying(clearAutomatically = true)
+    @org.springframework.data.jpa.repository.Query("UPDATE Producto p SET p.gender = NULL WHERE p.gender = ''")
+    int normalizeGenderEmpty();
 
     @org.springframework.data.jpa.repository.Query("SELECT DISTINCT p.categoria FROM Producto p WHERE p.categoria IS NOT NULL AND p.categoria <> '' ORDER BY p.categoria ASC")
     List<String> findAllDistinctCategorias();

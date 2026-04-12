@@ -212,4 +212,28 @@ public class ProductoController {
         productoService.delete(id);
     }
 
+    @PostMapping("/admin/normalize-gender")
+    public ResponseEntity<Map<String, Integer>> normalizeGenders() {
+        return ResponseEntity.ok(productoService.normalizeAllGenders());
+    }
+
+    // --- Nuevos productos ---
+    @GetMapping("/nuevos")
+    public org.springframework.data.domain.Page<Producto> getNuevos(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return productoService.getNuevos(page, size);
+    }
+
+    @GetMapping("/nuevos/count")
+    public ResponseEntity<Long> countNuevos() {
+        return ResponseEntity.ok(productoService.countNuevos());
+    }
+
+    @PostMapping("/nuevos/revisar")
+    public ResponseEntity<Void> marcarRevisados(@RequestBody List<Long> ids) {
+        productoService.marcarRevisados(ids);
+        return ResponseEntity.ok().build();
+    }
+
 }

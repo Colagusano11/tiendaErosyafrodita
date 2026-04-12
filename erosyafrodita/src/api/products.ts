@@ -20,6 +20,7 @@ export interface Producto {
   distribuidor: string | null;
   activo: boolean;
   enOferta: boolean;
+  nuevo: boolean;
   descuentoOferta: number;
   precioOferta: number;
   precioOriginal?: number;

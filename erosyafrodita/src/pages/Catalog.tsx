@@ -52,31 +52,28 @@ const Catalog: React.FC = () => {
     const search = searchParams.get("search") || searchParams.get("nombre") || undefined;
     const cat = searchParams.get("categoria") || searchParams.get("category") || undefined;
     const gender = searchParams.get("gender") || searchParams.get("genero") || undefined;
-    const order = searchParams.get("orden") || searchParams.get("order") || "fechaDesc";
-    const maxPrecioParam = searchParams.get("maxPrecio");
-    const manufacturer = searchParams.get("manufacturer") || undefined;
+    const order = searchParams.get("orden") || searchParams.get("order") || "idDesc";
+    const maxP = searchParams.get("maxPrecio");
+    const status = searchParams.get("status") || "ACTIVOS";
+    const manufacturer = searchParams.get("manufacturer") || searchParams.get("marca") || undefined;
 
     const syncFiltros: FiltroProductos = {
       ...filtros,
-      maxPrecio: maxPrecioParam ? parseInt(maxPrecioParam) : 500,
+      maxPrecio: maxP ? parseInt(maxP) : 500,
       page: 0,
       nombre: search,
       categoria: cat,
       gender: gender,
       orden: order,
+      status: status,
       manufacturer: manufacturer,
     };
     
     setFiltros(syncFiltros);
 
-    // Si tenemos filtros en la URL, aplicamos filtros en lugar de carga genérica
-    if (search || cat || gender || order || maxPrecioParam || manufacturer) {
-      aplicarFiltros(syncFiltros);
-    } else {
-      fetchInitial();
-    }
+    // Aplicar filtros basados en la URL
+    aplicarFiltros(syncFiltros);
     
-    // Solo cargar cats/marcas si no se han cargado (optimizacion)
     if (categorias.length === 0) fetchCategorias();
     if (marcas.length === 0) fetchMarcas();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -184,7 +181,7 @@ const Catalog: React.FC = () => {
               <h3 className="text-base font-black text-white tracking-tight">Filtros</h3>
               <button
                 onClick={clearFilters}
-                className="text-[10px] font-bold text-primary uppercase tracking-widest hover:underline transition-all"
+                className="text-[10px] font-bold text-gray-500 uppercase tracking-widest hover:text-primary transition-all underline decoration-white/10 underline-offset-4"
               >
                 Limpiar
               </button>
@@ -311,7 +308,7 @@ const Catalog: React.FC = () => {
                 value={filtros.orden || ""}
                 onChange={(e) => handleFilterChange("orden", e.target.value || undefined)}
               >
-                <option value="fechaDesc" className="bg-surface-dark text-white">Novedades</option>
+                <option value="idDesc" className="bg-surface-dark text-white">Novedades</option>
                 <option value="" className="bg-surface-dark text-white">Recomendados</option>
                 <option value="precioAsc" className="bg-surface-dark text-white">Precio: Menor a Mayor</option>
                 <option value="precioDesc" className="bg-surface-dark text-white">Precio: Mayor a Menor</option>

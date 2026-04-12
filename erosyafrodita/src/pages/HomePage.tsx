@@ -20,14 +20,25 @@ const NOVEDADES_BRANDS = [
   "KARL LAGERFELD",
   "L'OCCITANE EN PROVENCE",
   "MOSCHINO",
-  "ELIZABETH ARDEN",
+  "ABERCROMOBIE AND FITCH",
   "LATTAFA",
   "MAISON ALHAMBRA",
   "ARD AL ZAAFARAN",
+  "ANGEL SCHLESSER",
+  "LOLITA LEMPICKA",
+  "LORENZO VILLORESI",
+  "LOEWE",
+  "HERMÈS",
+  "CHANEL",
+  "CAROLINA HERRERA",
+  "PILEXIL",
+  "DOLCE & GABBANA",
+  "DONNA KARAN",
+  "VERSACE",
+  "PRADA",
+  "JIMMY CHOO",
   "MYRURGIA",
   "POLICE",
-  "DUPONT",
-
   "DEVOTA & LOMBA",
 ];
 
@@ -67,7 +78,12 @@ const HomePage: React.FC = () => {
         // --- NOVEDADES: marcas curadas primero, luego resto del catálogo como reserva ---
         const novedadesBranded = shuffleArray(withImage.filter(isNovedadBrand));
         const novedadesExtra = shuffleArray(withImage.filter(p => !isNovedadBrand(p)));
-        setNovedadesPool([...novedadesBranded, ...novedadesExtra]);
+        const novedadesAll = [...novedadesBranded, ...novedadesExtra];
+        setNovedadesPool(novedadesAll);
+
+        // IDs de novedades para excluirlos de recomendados
+        // Solo excluimos las marcas curadas; los extras siguen disponibles para recomendados
+        const novedadesIds = new Set(novedadesBranded.map(p => p.id));
 
         // --- OFERTA DE LA SEMANA: mayor ahorro absoluto (PVP − precio) ---
         // Prioriza marcas curadas si las hay con descuento, si no usa todo el catálogo
@@ -78,9 +94,14 @@ const HomePage: React.FC = () => {
           .sort((a, b) => (b.precioPVP - b.precio) - (a.precioPVP - a.precio))[0] ?? null;
         setFeaturedProduct(ofertaCandidate);
 
-        // --- RECOMENDADOS: Prioriza marcas curadas + mejores ofertas del resto ---
-        const recomendadosBase = withImage.filter(p => p.precioPVP > 0 && p.precio < p.precioPVP && p.id !== ofertaCandidate?.id);
-        
+        // --- RECOMENDADOS: excluye productos ya en novedades y la oferta destacada ---
+        const recomendadosBase = withImage.filter(p =>
+          p.precioPVP > 0 &&
+          p.precio < p.precioPVP &&
+          p.id !== ofertaCandidate?.id &&
+          !novedadesIds.has(p.id)
+        );
+
         const sortRecomendados = (arr: Producto[]) => [...arr].sort((a, b) => {
           const ratioA = (a.precioPVP - a.precio) / a.precioPVP;
           const ratioB = (b.precioPVP - b.precio) / b.precioPVP;
@@ -89,7 +110,7 @@ const HomePage: React.FC = () => {
 
         const recomendadosBranded = sortRecomendados(recomendadosBase.filter(isNovedadBrand));
         const recomendadosExtra = sortRecomendados(recomendadosBase.filter(p => !isNovedadBrand(p)));
-        
+
         setRecommendedPool([...recomendadosBranded, ...recomendadosExtra]);
 
       } catch (e: any) {
@@ -123,58 +144,6 @@ const HomePage: React.FC = () => {
       />
       <Header />
       <main className="flex-grow">
-        {/* Categories Strip */}
-        <div className="px-4 lg:px-20 py-6 lg:py-8">
-          <div className="max-w-[1440px] mx-auto">
-            <div className="flex gap-3 overflow-x-auto pb-4 no-scrollbar sm:justify-center">
-              <Link
-                to="/catalog"
-                className="flex h-10 whitespace-nowrap items-center justify-center gap-2 rounded-full bg-primary text-charcoal px-6 transition-transform active:scale-95 shadow-lg shadow-primary/20"
-              >
-                <span className="material-symbols-outlined text-[18px]">
-                  temp_preferences_custom
-                </span>
-                <span className="text-sm font-bold">Todo</span>
-              </Link>
-              <Link
-                to="/catalog?genero=HOMBRE"
-                className="flex h-10 whitespace-nowrap items-center justify-center gap-2 rounded-full bg-surface-dark text-gray-200 border border-white/10 hover:border-blue-400 hover:text-blue-300 px-6 transition-all hover:bg-white/5"
-              >
-                <span className="material-symbols-outlined text-[18px] text-blue-400">
-                  male
-                </span>
-                <span className="text-sm font-medium">Hombre</span>
-              </Link>
-              <Link
-                to="/catalog?genero=MUJER"
-                className="flex h-10 whitespace-nowrap items-center justify-center gap-2 rounded-full bg-surface-dark text-gray-200 border border-white/10 hover:border-pink-400 hover:text-pink-300 px-6 transition-all hover:bg-white/5"
-              >
-                <span className="material-symbols-outlined text-[18px] text-pink-400">
-                  female
-                </span>
-                <span className="text-sm font-medium">Mujer</span>
-              </Link>
-              <Link
-                to="/catalog?orden=fechaDesc"
-                className="flex h-10 whitespace-nowrap items-center justify-center gap-2 rounded-full bg-surface-dark text-gray-200 border border-white/10 hover:border-purple-400 hover:text-purple-300 px-6 transition-all hover:bg-white/5"
-              >
-                <span className="material-symbols-outlined text-[18px] text-purple-400">
-                  new_releases
-                </span>
-                <span className="text-sm font-medium">Novedades</span>
-              </Link>
-              <Link
-                to="/catalog?maxPrecio=50"
-                className="flex h-10 whitespace-nowrap items-center justify-center gap-2 rounded-full bg-surface-dark text-primary border border-primary/30 hover:border-primary hover:bg-primary/10 px-6 transition-all"
-              >
-                <span className="material-symbols-outlined text-[18px]">
-                  local_offer
-                </span>
-                <span className="text-sm font-bold italic">Ofertas</span>
-              </Link>
-            </div>
-          </div>
-        </div>
 
         {/* Home Header Banner */}
         <div className="w-full px-4 lg:px-20 pb-6">
@@ -195,13 +164,65 @@ const HomePage: React.FC = () => {
           </div>
         </div>
 
+        {/* Categories Strip */}
+        <div className="px-4 lg:px-20 py-6 lg:py-8">
+          <div className="max-w-[1440px] mx-auto">
+            <div className="flex gap-3 overflow-x-auto pb-4 no-scrollbar sm:justify-center">
+              <Link
+                to="/catalog"
+                className="flex h-10 whitespace-nowrap items-center justify-center gap-2 rounded-full bg-surface-dark text-gray-200 border border-white/10 hover:border-primary hover:text-primary px-6 transition-all hover:bg-white/5"
+              >
+                <span className="material-symbols-outlined text-[18px]">
+                  apps
+                </span>
+                <span className="text-sm font-medium">Todo</span>
+              </Link>
+              <Link
+                to="/catalog?genero=HOMBRE"
+                className="flex h-10 whitespace-nowrap items-center justify-center gap-2 rounded-full bg-surface-dark text-gray-200 border border-white/10 hover:border-blue-400 hover:text-blue-300 px-6 transition-all hover:bg-white/5"
+              >
+                <span className="material-symbols-outlined text-[18px] text-blue-400">
+                  male
+                </span>
+                <span className="text-sm font-medium">Hombre</span>
+              </Link>
+              <Link
+                to="/catalog?genero=MUJER"
+                className="flex h-10 whitespace-nowrap items-center justify-center gap-2 rounded-full bg-surface-dark text-gray-200 border border-white/10 hover:border-pink-400 hover:text-pink-300 px-6 transition-all hover:bg-white/5"
+              >
+                <span className="material-symbols-outlined text-[18px] text-pink-400">
+                  female
+                </span>
+                <span className="text-sm font-medium">Mujer</span>
+              </Link>
+              <Link
+                to="/catalog?orden=idDesc"
+                className="flex h-10 whitespace-nowrap items-center justify-center gap-2 rounded-full bg-surface-dark text-gray-200 border border-white/10 hover:border-purple-400 hover:text-purple-300 px-6 transition-all hover:bg-white/5"
+              >
+                <span className="material-symbols-outlined text-[18px] text-purple-400">
+                  new_releases
+                </span>
+                <span className="text-sm font-medium">Novedades</span>
+              </Link>
+              <Link
+                to="/catalog?status=OFERTAS"
+                className="flex h-10 whitespace-nowrap items-center justify-center gap-2 rounded-full bg-surface-dark text-primary border border-primary/30 hover:border-primary hover:bg-primary/10 px-6 transition-all"
+              >
+                <span className="material-symbols-outlined text-[18px]">
+                  local_offer
+                </span>
+                <span className="text-sm font-bold italic">Ofertas</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+
         {/* Novedades */}
         <section className="px-4 lg:px-20 py-16 bg-charcoal/75">
           <div className="max-w-[1440px] mx-auto">
-              <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-white uppercase italic">
-                Novedades
-              </h2>
-            </div>
+            <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-white uppercase italic mb-8">
+              Novedades
+            </h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 lg:gap-6">
               {loading && (
                 <p className="text-white/60 col-span-full">
@@ -244,8 +265,8 @@ const HomePage: React.FC = () => {
         <section className="py-12 border-y border-white/5 bg-charcoal/75 overflow-hidden relative">
           <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-charcoal to-transparent z-10"></div>
           <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-charcoal to-transparent z-10"></div>
-          
-          <motion.div 
+
+          <motion.div
             className="flex w-max items-center gap-16"
             animate={{ x: [0, -1500] }}
             transition={{
@@ -347,9 +368,9 @@ const HomePage: React.FC = () => {
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 lg:gap-6">
               {!loading && !error && recommendedPool.slice(0, recommendedCount).map((product) => (
-                <ProductCard 
-                  key={product.id} 
-                  product={product} 
+                <ProductCard
+                  key={product.id}
+                  product={product}
                   onHide={() => setRecommendedCount(c => c + 1)}
                 />
               ))}

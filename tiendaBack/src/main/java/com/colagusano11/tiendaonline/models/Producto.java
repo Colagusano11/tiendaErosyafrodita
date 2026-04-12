@@ -54,6 +54,7 @@ public class Producto {
 
     private boolean activo = true;
     private boolean enOferta = false;
+    private boolean nuevo = false;
     private BigDecimal descuentoOferta = BigDecimal.ZERO;
     private BigDecimal precioOferta;
 
@@ -235,5 +236,13 @@ public class Producto {
 
     public void setPrecioOferta(BigDecimal precioOferta) {
         this.precioOferta = precioOferta;
+    }
+
+    public boolean isNuevo() {
+        return nuevo;
+    }
+
+    public void setNuevo(boolean nuevo) {
+        this.nuevo = nuevo;
     }
 }

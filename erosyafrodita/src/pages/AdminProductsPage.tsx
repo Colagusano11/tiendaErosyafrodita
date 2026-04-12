@@ -26,8 +26,17 @@ const AdminProductsPage: React.FC = () => {
   const [isAllSelected, setIsAllSelected] = useState(false);
   const [expandedEans, setExpandedEans] = useState<string[]>([]);
 
+  // --- Pestaña Nuevos Productos ---
+  const [nuevosCount, setNuevosCount] = useState(0);
+  const [nuevosProducts, setNuevosProducts] = useState<any[]>([]);
+  const [nuevosLoading, setNuevosLoading] = useState(false);
+  const [nuevosPage, setNuevosPage] = useState(0);
+  const [nuevosTotalPages, setNuevosTotalPages] = useState(0);
+  const [nuevosPvpEdits, setNuevosPvpEdits] = useState<Record<number, string>>({});
+  const [savingPvp, setSavingPvp] = useState<Record<number, boolean>>({});
+
   // --- Pestaña Imágenes Rotas ---
-  const [activeTab, setActiveTab] = useState<"catalogo" | "imagenes">("catalogo");
+  const [activeTab, setActiveTab] = useState<"catalogo" | "imagenes" | "nuevos">("catalogo");
   const [brokenImages, setBrokenImages] = useState<Producto[]>([]);
   const [scanning, setScanning] = useState(false);
   const [scanProgress, setScanProgress] = useState(0);
@@ -53,6 +62,44 @@ const AdminProductsPage: React.FC = () => {
   // Estados para modal ofertas
   const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
   const [offerDiscount, setOfferDiscount] = useState<number>(10);
+
+  const fetchNuevosCount = async () => {
+    try {
+      const res = await api.get<number>("/productos/nuevos/count");
+      setNuevosCount(res.data);
+    } catch { /* silencioso */ }
+  };
+
+  const fetchNuevos = async (page = 0) => {
+    setNuevosLoading(true);
+    try {
+      const res = await api.get(`/productos/nuevos?page=${page}&size=20`);
+      setNuevosProducts(res.data.content ?? []);
+      setNuevosTotalPages(res.data.totalPages ?? 0);
+      setNuevosPage(page);
+    } catch { showAlert("Error", "No se pudieron cargar los productos nuevos", "error"); }
+    finally { setNuevosLoading(false); }
+  };
+
+  const savePvp = async (id: number) => {
+    const pvp = parseFloat(nuevosPvpEdits[id] ?? "");
+    if (isNaN(pvp) || pvp <= 0) { showAlert("Precio inválido", "Introduce un PVP mayor que 0", "error"); return; }
+    setSavingPvp(s => ({ ...s, [id]: true }));
+    try {
+      await api.put(`/productos/${id}`, { precioPVP: pvp });
+      showAlert("Guardado", `PVP actualizado a ${pvp.toFixed(2)} €`, "success");
+    } catch { showAlert("Error", "No se pudo actualizar el precio", "error"); }
+    finally { setSavingPvp(s => ({ ...s, [id]: false })); }
+  };
+
+  const marcarRevisados = async (ids: number[]) => {
+    try {
+      await api.post("/productos/nuevos/revisar", ids);
+      setNuevosProducts(p => p.filter(x => !ids.includes(x.id)));
+      setNuevosCount(c => Math.max(0, c - ids.length));
+      showAlert("Revisado", `${ids.length} producto${ids.length > 1 ? "s" : ""} marcado${ids.length > 1 ? "s" : ""} como revisado${ids.length > 1 ? "s" : ""}`, "success");
+    } catch { showAlert("Error", "No se pudo marcar como revisado", "error"); }
+  };
 
   const fetchProducts = async () => {
     try {
@@ -133,6 +180,7 @@ const AdminProductsPage: React.FC = () => {
     fetchBrands();
     fetchProviders();
     fetchConfig();
+    fetchNuevosCount();
   }, []);
 
   const handleDelete = (id: number, name: string) => {
@@ -373,6 +421,25 @@ const AdminProductsPage: React.FC = () => {
     }
   };
 
+  const [normalizingGender, setNormalizingGender] = useState(false);
+
+  const normalizeGenders = async () => {
+    setNormalizingGender(true);
+    try {
+      const res = await api.post<Record<string, number>>("/productos/admin/normalize-gender");
+      const d = res.data;
+      showAlert(
+        "Género normalizado",
+        `Actualizados → HOMBRE: ${d.HOMBRE}, MUJER: ${d.MUJER}, UNISEX: ${d.UNISEX}, vaciados: ${d.VACIADOS}`,
+        "success"
+      );
+    } catch {
+      showAlert("Error", "No se pudo normalizar el género de los productos", "error");
+    } finally {
+      setNormalizingGender(false);
+    }
+  };
+
   const launchImageEnricher = async () => {
     setEnricherRunning(true);
     try {
@@ -411,7 +478,7 @@ const AdminProductsPage: React.FC = () => {
                   </span>
                 </button>
                 <button
-                  onClick={() => setActiveTab("imagenes")}
+                  onClick={() => { setActiveTab("imagenes"); }}
                   className={`h-9 px-4 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${activeTab === "imagenes" ? "bg-red-500 text-white shadow-lg" : "text-slate-400 hover:text-white"}`}
                 >
                   <span className="flex items-center gap-2">
@@ -419,6 +486,20 @@ const AdminProductsPage: React.FC = () => {
                     <span className="hidden xs:inline">Imágenes Rotas</span>
                     {brokenImages.length > 0 && (
                       <span className="bg-red-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full">{brokenImages.length}</span>
+                    )}
+                  </span>
+                </button>
+                <button
+                  onClick={() => { setActiveTab("nuevos"); fetchNuevos(0); }}
+                  className={`h-9 px-4 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all relative ${activeTab === "nuevos" ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/30" : "text-slate-400 hover:text-white"}`}
+                >
+                  <span className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-sm">fiber_new</span>
+                    <span className="hidden xs:inline">Nuevos</span>
+                    {nuevosCount > 0 && (
+                      <span className={`text-[8px] font-black px-2 py-0.5 rounded-full ${activeTab === "nuevos" ? "bg-white text-emerald-600" : "bg-emerald-500 text-white animate-pulse"}`}>
+                        {nuevosCount}
+                      </span>
                     )}
                   </span>
                 </button>
@@ -968,6 +1049,130 @@ const AdminProductsPage: React.FC = () => {
           </div>
         ))}
 
+        {/* ===== PESTAÑA: NUEVOS PRODUCTOS ===== */}
+        {activeTab === "nuevos" && (
+          <div className="flex flex-col gap-6">
+            <div className="flex items-center justify-between p-6 bg-emerald-500/10 border border-emerald-500/20 rounded-[2.5rem]">
+              <div>
+                <p className="text-emerald-400 font-black text-lg uppercase tracking-tight flex items-center gap-3">
+                  <span className="material-symbols-outlined">fiber_new</span>
+                  Productos Nuevos sin Precio
+                </p>
+                <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">
+                  Productos importados en el último volcado que necesitan revisión de precio
+                </p>
+              </div>
+              {nuevosProducts.length > 0 && (
+                <button
+                  onClick={() => marcarRevisados(nuevosProducts.map((p: any) => p.id))}
+                  className="h-10 px-6 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2"
+                >
+                  <span className="material-symbols-outlined text-sm">done_all</span>
+                  Marcar todos revisados
+                </button>
+              )}
+            </div>
+
+            {nuevosLoading && (
+              <div className="h-40 flex items-center justify-center">
+                <div className="size-10 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin" />
+              </div>
+            )}
+
+            {!nuevosLoading && nuevosProducts.length === 0 && (
+              <div className="flex flex-col items-center justify-center p-16 bg-white/5 border border-white/10 rounded-[2.5rem] gap-4">
+                <span className="material-symbols-outlined text-5xl text-emerald-500">check_circle</span>
+                <p className="text-white font-black text-lg uppercase">¡Todo revisado!</p>
+                <p className="text-slate-400 text-sm">No hay productos nuevos pendientes de revisión.</p>
+              </div>
+            )}
+
+            {!nuevosLoading && nuevosProducts.length > 0 && (
+              <div className="glass-panel rounded-[2.5rem] overflow-hidden border border-emerald-500/20 bg-white/5 shadow-2xl">
+                <table className="w-full text-left border-collapse min-w-[700px]">
+                  <thead>
+                    <tr className="bg-emerald-500/10 border-b border-white/10">
+                      <th className="p-4 text-[9px] font-black text-emerald-400 uppercase tracking-widest">Imagen</th>
+                      <th className="p-4 text-[9px] font-black text-emerald-400 uppercase tracking-widest">Producto</th>
+                      <th className="p-4 text-[9px] font-black text-emerald-400 uppercase tracking-widest">Marca</th>
+                      <th className="p-4 text-[9px] font-black text-emerald-400 uppercase tracking-widest">Proveedor</th>
+                      <th className="p-4 text-[9px] font-black text-emerald-400 uppercase tracking-widest">Coste</th>
+                      <th className="p-4 text-[9px] font-black text-emerald-400 uppercase tracking-widest">PVP</th>
+                      <th className="p-4 text-[9px] font-black text-emerald-400 uppercase tracking-widest">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {nuevosProducts.map((p: any) => (
+                      <tr key={p.id} className="hover:bg-white/5 transition-colors">
+                        <td className="p-3">
+                          {p.imagen
+                            ? <img src={p.imagen} alt="" className="size-12 object-contain rounded-xl bg-white/5 border border-white/10" />
+                            : <div className="size-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center"><span className="material-symbols-outlined text-slate-600 text-sm">image_not_supported</span></div>
+                          }
+                        </td>
+                        <td className="p-4">
+                          <p className="text-[11px] font-bold text-white line-clamp-2 max-w-[220px]">{p.nombre}</p>
+                          <p className="text-[9px] text-slate-500 font-mono mt-0.5">{p.ean ?? "—"}</p>
+                        </td>
+                        <td className="p-4 text-[10px] font-bold text-slate-300">{p.manufacturer ?? "—"}</td>
+                        <td className="p-4 text-[10px] font-black text-slate-400 uppercase">{p.distribuidor ?? "—"}</td>
+                        <td className="p-4 text-[11px] font-black text-white">{(p.precio ?? 0).toFixed(2)} €</td>
+                        <td className="p-4">
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              placeholder={p.precioPVP ? p.precioPVP.toFixed(2) : "0.00"}
+                              value={nuevosPvpEdits[p.id] ?? ""}
+                              onChange={e => setNuevosPvpEdits(prev => ({ ...prev, [p.id]: e.target.value }))}
+                              className="w-24 bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 text-xs font-bold text-white focus:border-emerald-500/50 outline-none"
+                            />
+                            <span className="text-slate-500 text-xs">€</span>
+                            <button
+                              onClick={() => savePvp(p.id)}
+                              disabled={savingPvp[p.id] || !nuevosPvpEdits[p.id]}
+                              className="h-8 px-3 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all"
+                            >
+                              {savingPvp[p.id] ? "..." : "Guardar"}
+                            </button>
+                          </div>
+                        </td>
+                        <td className="p-4">
+                          <button
+                            onClick={() => marcarRevisados([p.id])}
+                            className="h-8 px-4 bg-white/5 hover:bg-emerald-500/20 border border-white/10 hover:border-emerald-500/40 text-slate-400 hover:text-emerald-400 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-1.5"
+                          >
+                            <span className="material-symbols-outlined text-sm">check</span>
+                            Revisado
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                {/* Paginación */}
+                {nuevosTotalPages > 1 && (
+                  <div className="flex items-center justify-center gap-2 p-5 border-t border-white/10">
+                    <button onClick={() => fetchNuevos(nuevosPage - 1)} disabled={nuevosPage === 0}
+                      className="size-9 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10 disabled:opacity-30 transition-all">
+                      <span className="material-symbols-outlined text-sm">chevron_left</span>
+                    </button>
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                      Página {nuevosPage + 1} de {nuevosTotalPages}
+                    </span>
+                    <button onClick={() => fetchNuevos(nuevosPage + 1)} disabled={nuevosPage >= nuevosTotalPages - 1}
+                      className="size-9 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10 disabled:opacity-30 transition-all">
+                      <span className="material-symbols-outlined text-sm">chevron_right</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* ===== PESTAÑA: IMÁGENES ROTAS ===== */}
         {activeTab === "imagenes" && (
           <div className="flex flex-col gap-6">
@@ -980,6 +1185,16 @@ const AdminProductsPage: React.FC = () => {
                 </p>
               </div>
               <div className="flex items-center gap-3">
+                <button
+                  onClick={normalizeGenders}
+                  disabled={normalizingGender}
+                  className="h-12 px-6 bg-teal-600 hover:bg-teal-500 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-3 shadow-lg shadow-teal-500/20"
+                >
+                  <span className={`material-symbols-outlined text-lg ${normalizingGender ? "animate-spin" : ""}`}>
+                    {normalizingGender ? "sync" : "wc"}
+                  </span>
+                  {normalizingGender ? "Normalizando..." : "Normalizar Género"}
+                </button>
                 <button
                   onClick={launchImageEnricher}
                   disabled={enricherRunning || scanning}

@@ -100,11 +100,12 @@ public class ProductoBTSService {
         }
 
         String image = p.hasNonNull("image") ? p.get("image").asText() : "";
-        String gender = p.hasNonNull("gender") ? p.get("gender").asText() : "";
+        String gender = NovaengelImportProcessor.normalizeGender(p.hasNonNull("gender") ? p.get("gender").asText() : null);
         
         Distribuidor distribuidor = Distribuidor.BTS;
         Optional<Producto> optProducto = productoRepository.findByEanAndDistribuidor(ean, distribuidor);
-        
+        boolean esNuevo = optProducto.isEmpty();
+
         Producto producto;
         if (optProducto.isPresent()) {
             producto = optProducto.get();
@@ -145,6 +146,7 @@ public class ProductoBTSService {
         producto.setCategoria(nombreCategoria);
         producto.setSkuProveedor(btsSku);
         producto.setSku("B" + btsSku);
+        if (esNuevo) producto.setNuevo(true);
 
         productoRepository.save(producto);
     }
@@ -158,6 +160,54 @@ public class ProductoBTSService {
         } else {
             return eanNode.asText();
         }
+    }
+
+    public void syncStockBts() {
+        int page = 1;
+        int sizePage = 200;
+        boolean hasMore = true;
+        int updated = 0;
+        log.info("🔄 Iniciando sincronización de stock BTS");
+
+        while (hasMore) {
+            try {
+                String json = btsApiClient.getProductsPage(page, sizePage);
+                JsonNode root = mapper.readTree(json);
+                JsonNode pag = root.get("pagination");
+                JsonNode products = root.get("products");
+
+                if (products == null || !products.isArray() || products.isEmpty()) {
+                    hasMore = false;
+                    break;
+                }
+
+                for (JsonNode p : products) {
+                    try {
+                        String ean = extractEan(p);
+                        int stock = p.hasNonNull("stock") ? p.get("stock").asInt() : 0;
+                        Optional<Producto> opt = productoRepository.findByEanAndDistribuidor(ean, Distribuidor.BTS);
+                        if (opt.isPresent()) {
+                            Producto prod = opt.get();
+                            prod.setStock(stock);
+                            productoRepository.save(prod);
+                            updated++;
+                        }
+                    } catch (Exception e) {
+                        log.error("❌ Error stock BTS producto: {}", e.getMessage());
+                    }
+                }
+
+                int currentPage = pag.get("current_page").asInt();
+                int totalPages  = pag.get("total_pages").asInt();
+                hasMore = currentPage < totalPages;
+                if (hasMore) page++;
+
+            } catch (Exception e) {
+                log.error("💥 Error en sync stock BTS: {}", e.getMessage());
+                hasMore = false;
+            }
+        }
+        log.info("✅ Stock BTS actualizado: {} productos.", updated);
     }
 
     private BigDecimal safeBigDecimal(JsonNode node, String field) {

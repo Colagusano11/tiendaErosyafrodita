@@ -62,6 +62,29 @@ public class ProductoNovaengelService {
     }
 
     /**
+     * Sincronización horaria de stock (sin crear productos nuevos)
+     */
+    public void syncStockNova() throws Exception {
+        log.info("🔄 Iniciando sincronización de stock Novaengel");
+        String json = novaApiClient.getAllProducts("es");
+        JsonNode root = mapper.readTree(json);
+        if (!root.isArray()) {
+            log.error("❌ Respuesta Novaengel no es un array");
+            return;
+        }
+        int count = 0;
+        for (JsonNode node : root) {
+            try {
+                importProcessor.updateStockOnly(node);
+                count++;
+            } catch (Exception e) {
+                log.error("❌ Error stock Novaengel: {}", e.getMessage());
+            }
+        }
+        log.info("✅ Stock Novaengel actualizado: {} productos procesados.", count);
+    }
+
+    /**
      * Sincronización masiva de imágenes oficiales
      */
     public void syncMissingImages() {
