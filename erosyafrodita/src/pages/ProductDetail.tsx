@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { getProductoById, type Producto } from "../api/products";
+import { getProductoById, getVariantes, getNuevos, type Producto } from "../api/products";
 import { getResenas, crearResena, checkPurchaseStatus, type Resena } from "../api/reviews";
+import ProductCard from "../components/ProductCard";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
 import { useAuth } from "../context/AuthContext";
@@ -23,6 +24,10 @@ const ProductDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hasPurchased, setHasPurchased] = useState(false);
+  
+  // Variantes y Recomendados
+  const [variantes, setVariantes] = useState<Producto[]>([]);
+  const [recomendados, setRecomendados] = useState<Producto[]>([]);
 
   // Filtramos imágenes que no cargan
   const { validUrls, loading: imgLoading } = useImageGallery([
@@ -50,7 +55,15 @@ const ProductDetail: React.FC = () => {
         setLoading(true);
         const data = await getProductoById(Number(id));
         setProduct(data);
-        // No seteamos selectedImg aquí para dejar que validUrls mande
+        
+        // Cargar variantes (otros tamaños)
+        const v = await getVariantes(data);
+        setVariantes(v);
+
+        // Cargar recomendados (Novedades)
+        const n = await getNuevos(0, 8);
+        setRecomendados(n.content.filter(p => p.id !== data.id));
+        
       } catch (e: any) {
         setError(e.message ?? "No se pudo cargar el producto");
       } finally {
@@ -278,6 +291,31 @@ const ProductDetail: React.FC = () => {
                 {product.descripcion || "Una obra maestra olfativa diseñada para aquellos que buscan dejar una huella divina. Ingredientes seleccionados para garantizar la máxima pureza y longevidad en la piel."}
               </p>
 
+              {/* Selector de Tamaños (Variantes) */}
+              {variantes.length > 0 && (
+                <div className="mb-10">
+                  <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-4 flex items-center gap-2">
+                    <span className="material-symbols-outlined !text-[14px]">Straighten</span> Tamaños disponibles:
+                  </h4>
+                  <div className="flex flex-wrap gap-3">
+                    {/* El actual */}
+                    <div className="px-6 py-3 rounded-full bg-primary text-charcoal text-[10px] font-black border border-primary shadow-lg shadow-primary/20 cursor-default">
+                      {product.nombre.match(/\d+\s*ml/i)?.[0] || "Actual"}
+                    </div>
+                    {/* Los otros */}
+                    {variantes.map(v => (
+                      <Link 
+                        key={v.id} 
+                        to={`/product/${v.id}`}
+                        className="px-6 py-3 rounded-full border border-white/10 text-white/40 text-[10px] font-black hover:border-primary hover:text-white transition-all bg-white/5"
+                      >
+                        {v.nombre.match(/\d+\s*ml/i)?.[0] || "Ver opción"}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className="flex flex-wrap gap-4 mb-10">
                 <button
                   onClick={() => product && product.stock > 0 && addItem(product)}
@@ -305,6 +343,27 @@ const ProductDetail: React.FC = () => {
             </motion.div>
           </div>
         </div>
+
+        {/* --- SECCIÓN RECOMENDACIONES (Novedades) --- */}
+        {recomendados.length > 0 && (
+          <section className="mb-24 py-16 px-4 md:px-10 bg-gradient-to-r from-primary/5 via-transparent to-transparent rounded-[3rem] border-l border-primary/20">
+            <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-6">
+              <div>
+                <h3 className="text-2xl font-black text-white tracking-tighter">Joyas del <span className="text-primary italic font-serif">Olimpo</span></h3>
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 mt-2">Novedades recomendadas para ti</p>
+              </div>
+              <Link to="/catalog?status=NUEVOS" className="text-[10px] font-black uppercase tracking-widest text-primary hover:text-white transition-colors underline underline-offset-8">Ver todas las novedades</Link>
+            </div>
+            
+            <div className="flex gap-6 overflow-x-auto no-scrollbar pb-10 -mx-4 px-4 mask-fade-edges">
+              {recomendados.map(p => (
+                <div key={p.id} className="min-w-[240px] max-w-[280px]">
+                  <ProductCard product={p} />
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* --- SECCIÓN DE RESEÑAS --- */}
         <section className="border-t border-white/5 pt-24 pb-20">

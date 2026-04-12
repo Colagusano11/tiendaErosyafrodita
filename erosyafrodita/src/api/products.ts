@@ -181,3 +181,34 @@ export async function getDistribuidores(): Promise<string[]> {
   const res = await api.get<string[]>('/productos/proveedores');
   return res.data;
 }
+
+// === Variantes y Novedades ===
+
+/**
+ * Busca productos similares (variantes de tamaño)
+ * Busca por marca y que el nombre empiece igual
+ */
+export async function getVariantes(producto: Producto): Promise<Producto[]> {
+  if (!producto.manufacturer) return [];
+  
+  // Limpiamos el nombre de tamaños (ej: "Sauvage 100ml" -> "Sauvage")
+  const nombreBase = producto.nombre.split(/\d+\s*ml/i)[0].trim();
+  
+  const res = await filtrarProductos({
+    manufacturer: producto.manufacturer,
+    nombre: nombreBase,
+    size: 50,
+    status: "ACTIVOS"
+  });
+
+  return res.content.filter(p => p.id !== producto.id);
+}
+
+/**
+ * Obtiene los productos marcados como nuevos (Novedades)
+ */
+export async function getNuevos(page = 0, size = 10): Promise<PaginatedResponse<Producto>> {
+  const res = await api.get<PaginatedResponse<Producto>>(`/productos/nuevos?page=${page}&size=${size}`);
+  res.data.content = res.data.content.map(transformProduct);
+  return res.data;
+}
