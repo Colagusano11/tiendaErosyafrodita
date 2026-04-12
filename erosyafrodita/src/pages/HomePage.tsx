@@ -49,7 +49,6 @@ const NOVEDADES_BRANDS = [
   "JIMMY CHOO",
   "MYRURGIA",
   "POLICE",
-  "DEVOTA & LOMBA",
 ];
 
 function shuffleArray<T>(arr: T[]): T[] {
@@ -294,11 +293,11 @@ const HomePage: React.FC = () => {
             }}
           >
             {[
-              "ADOLFO DOMINGUEZ", "KILIAN", "4711", "CLARINS", "ROCHAS",
+              "ADOLFO DOMINGUEZ", "KILIAN", "4711", "ROCHAS",
               "LOLITA LEMPICKA", "HERMÈS", "CLINIQUE", "SLAVA ZAÏTSEV", "LOEWE",
               "CHANEL", "DIOR", "GUCCI", "PRADA", "ARMANI",
             ].concat([
-              "ADOLFO DOMINGUEZ", "KILIAN", "4711", "CLARINS", "ROCHAS",
+              "ADOLFO DOMINGUEZ", "KILIAN", "4711", "ROCHAS",
               "LOLITA LEMPICKA", "HERMÈS", "CLINIQUE", "SLAVA ZAÏTSEV", "LOEWE",
               "CHANEL", "DIOR", "GUCCI", "PRADA", "ARMANI",
             ]).map((brand, i) => (
