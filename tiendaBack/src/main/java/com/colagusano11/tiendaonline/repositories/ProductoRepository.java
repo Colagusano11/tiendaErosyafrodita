@@ -27,23 +27,47 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>{
     void updateBulkStatus(List<Long> ids, boolean activo);
 
     @org.springframework.data.jpa.repository.Modifying(clearAutomatically = true)
-    @org.springframework.data.jpa.repository.Query("UPDATE Producto p SET p.precioPVP = ((p.precio + :envio) * :ivaFactor / :divisorMargen) + :comisionTarjeta WHERE p.precio IS NOT NULL")
+    @org.springframework.data.jpa.repository.Query("UPDATE Producto p SET " +
+            "p.precioPVP = ((p.precio + :envio) * :ivaFactor / :divisorMargen) + :comisionTarjeta, " +
+            "p.alertaMargen = (CASE WHEN (((p.precio + :envio) * :ivaFactor / :divisorMargen) + :comisionTarjeta < (p.precio + 5) * 1.21) THEN true ELSE false END), " +
+            "p.activo = (CASE WHEN (((p.precio + :envio) * :ivaFactor / :divisorMargen) + :comisionTarjeta < (p.precio + 5) * 1.21) THEN false ELSE p.activo END) " +
+            "WHERE p.precio IS NOT NULL")
     void updateAllPricing(java.math.BigDecimal ivaFactor, java.math.BigDecimal divisorMargen, java.math.BigDecimal envio, java.math.BigDecimal comisionTarjeta);
 
     @org.springframework.data.jpa.repository.Modifying(clearAutomatically = true)
-    @org.springframework.data.jpa.repository.Query("UPDATE Producto p SET p.precioPVP = ((p.precio + :envio) * :ivaFactor / :divisorMargen) + :comisionTarjeta WHERE p.distribuidor = :distribuidor AND p.precio IS NOT NULL")
+    @org.springframework.data.jpa.repository.Query("UPDATE Producto p SET " +
+            "p.precioPVP = ((p.precio + :envio) * :ivaFactor / :divisorMargen) + :comisionTarjeta, " +
+            "p.alertaMargen = (CASE WHEN (((p.precio + :envio) * :ivaFactor / :divisorMargen) + :comisionTarjeta < (p.precio + 5) * 1.21) THEN true ELSE false END), " +
+            "p.activo = (CASE WHEN (((p.precio + :envio) * :ivaFactor / :divisorMargen) + :comisionTarjeta < (p.precio + 5) * 1.21) THEN false ELSE p.activo END) " +
+            "WHERE p.distribuidor = :distribuidor AND p.precio IS NOT NULL")
     void updateProviderPricing(java.math.BigDecimal ivaFactor, java.math.BigDecimal divisorMargen, java.math.BigDecimal envio, java.math.BigDecimal comisionTarjeta, Distribuidor distribuidor);
 
     @org.springframework.data.jpa.repository.Modifying
-    @org.springframework.data.jpa.repository.Query("UPDATE Producto p SET p.precioPVP = ((p.precio + :envio) * :ivaFactor / :divisorMargen) + :comisionTarjeta WHERE p.id IN :ids AND p.precio IS NOT NULL")
+    @org.springframework.data.jpa.repository.Query("UPDATE Producto p SET " +
+            "p.precioPVP = ((p.precio + :envio) * :ivaFactor / :divisorMargen) + :comisionTarjeta, " +
+            "p.alertaMargen = (CASE WHEN (((p.precio + :envio) * :ivaFactor / :divisorMargen) + :comisionTarjeta < (p.precio + 5) * 1.21) THEN true ELSE false END), " +
+            "p.activo = (CASE WHEN (((p.precio + :envio) * :ivaFactor / :divisorMargen) + :comisionTarjeta < (p.precio + 5) * 1.21) THEN false ELSE p.activo END) " +
+            "WHERE p.id IN :ids AND p.precio IS NOT NULL")
     void updateSelectedPricing(List<Long> ids, java.math.BigDecimal ivaFactor, java.math.BigDecimal divisorMargen, java.math.BigDecimal envio, java.math.BigDecimal comisionTarjeta);
 
     @org.springframework.data.jpa.repository.Modifying(clearAutomatically = true)
-    @org.springframework.data.jpa.repository.Query("UPDATE Producto p SET p.precioPVP = ((p.precio + :envio) * :ivaFactor / :divisorMargen) + :comisionTarjeta WHERE p.id IN :ids AND p.distribuidor = :distribuidor AND p.precio IS NOT NULL")
+    @org.springframework.data.jpa.repository.Query("UPDATE Producto p SET " +
+            "p.precioPVP = ((p.precio + :envio) * :ivaFactor / :divisorMargen) + :comisionTarjeta, " +
+            "p.alertaMargen = (CASE WHEN (((p.precio + :envio) * :ivaFactor / :divisorMargen) + :comisionTarjeta < (p.precio + 5) * 1.21) THEN true ELSE false END), " +
+            "p.activo = (CASE WHEN (((p.precio + :envio) * :ivaFactor / :divisorMargen) + :comisionTarjeta < (p.precio + 5) * 1.21) THEN false ELSE p.activo END) " +
+            "WHERE p.id IN :ids AND p.distribuidor = :distribuidor AND p.precio IS NOT NULL")
     void updateSelectedProviderPricing(List<Long> ids, java.math.BigDecimal ivaFactor, java.math.BigDecimal divisorMargen, java.math.BigDecimal envio, java.math.BigDecimal comisionTarjeta, Distribuidor distribuidor);
 
     @org.springframework.data.jpa.repository.Modifying(clearAutomatically = true)
-    @org.springframework.data.jpa.repository.Query("UPDATE Producto p SET p.enOferta = :enOferta, p.descuentoOferta = :descuento, p.precioOferta = p.precioPVP * (1.0 - :descuento / 100.0) WHERE p.id IN :ids AND p.precioPVP IS NOT NULL")
+    @org.springframework.data.jpa.repository.Query("UPDATE Producto p SET " +
+            "p.enOferta = :enOferta, " +
+            "p.descuentoOferta = :descuento, " +
+            "p.precioOferta = (CASE WHEN (:enOferta = true) THEN p.precioPVP * (1.0 - :descuento / 100.0) ELSE NULL END), " +
+            "p.alertaMargen = (CASE WHEN (:enOferta = true AND p.precioPVP * (1.0 - :descuento / 100.0) < (p.precio + 5) * 1.21) THEN true " +
+            "                       WHEN (:enOferta = false AND p.precioPVP < (p.precio + 5) * 1.21) THEN true ELSE false END), " +
+            "p.activo = (CASE WHEN (:enOferta = true AND p.precioPVP * (1.0 - :descuento / 100.0) < (p.precio + 5) * 1.21) THEN false " +
+            "                 WHEN (:enOferta = false AND p.precioPVP < (p.precio + 5) * 1.21) THEN false ELSE p.activo END) " +
+            "WHERE p.id IN :ids AND p.precioPVP IS NOT NULL")
     void updateBulkOffer(List<Long> ids, boolean enOferta, java.math.BigDecimal descuento);
 
     @org.springframework.data.jpa.repository.Modifying(clearAutomatically = true)
@@ -66,7 +90,8 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>{
             "(:status = 'INACTIVOS' AND p.activo = false) OR " +
             "(:status = 'OFERTAS' AND p.enOferta = true) OR " +
             "((:status = '' OR :status = 'ACTIVOS') AND p.activo = true) OR " +
-            "(:status = 'BAJO_MARGEN' AND p.activo = true AND p.precioPVP < (p.precio * 1.21)) OR " +
+            "(:status = 'BAJO_MARGEN' AND p.activo = true AND p.precioPVP < ((p.precio + 5) * 1.21)) OR " +
+            "(:status = 'ALERTA_MARGEN' AND p.alertaMargen = true) OR " +
             "(:status IS NULL AND p.activo = true AND (p.imagen IS NOT NULL AND p.imagen <> '')))")
     void updateStatusByFilters(
             @org.springframework.data.repository.query.Param("activo") boolean activo,
@@ -81,7 +106,15 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>{
             @org.springframework.data.repository.query.Param("maxPrecio") java.math.BigDecimal maxPrecio);
 
     @org.springframework.data.jpa.repository.Modifying(clearAutomatically = true)
-    @org.springframework.data.jpa.repository.Query("UPDATE Producto p SET p.enOferta = :enOferta, p.descuentoOferta = :descuento, p.precioOferta = p.precioPVP * (1.0 - :descuento / 100.0) WHERE p.precioPVP IS NOT NULL AND (" +
+    @org.springframework.data.jpa.repository.Query("UPDATE Producto p SET " +
+            "p.enOferta = :enOferta, " +
+            "p.descuentoOferta = :descuento, " +
+            "p.precioOferta = (CASE WHEN (:enOferta = true) THEN p.precioPVP * (1.0 - :descuento / 100.0) ELSE NULL END), " +
+            "p.alertaMargen = (CASE WHEN (:enOferta = true AND p.precioPVP * (1.0 - :descuento / 100.0) < (p.precio + 5) * 1.21) THEN true " +
+            "                       WHEN (:enOferta = false AND p.precioPVP < (p.precio + 5) * 1.21) THEN true ELSE false END), " +
+            "p.activo = (CASE WHEN (:enOferta = true AND p.precioPVP * (1.0 - :descuento / 100.0) < (p.precio + 5) * 1.21) THEN false " +
+            "                 WHEN (:enOferta = false AND p.precioPVP < (p.precio + 5) * 1.21) THEN false ELSE p.activo END) " +
+            "WHERE p.precioPVP IS NOT NULL AND (" +
             "(:nombre IS NULL OR (" +
             "  LOWER(p.nombre) LIKE LOWER(CONCAT('%', :nombre, '%')) OR " +
             "  LOWER(p.manufacturer) LIKE LOWER(CONCAT('%', :nombre, '%')) OR " +
@@ -100,7 +133,8 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>{
             "(:status = 'INACTIVOS' AND p.activo = false) OR " +
             "(:status = 'OFERTAS' AND p.enOferta = true) OR " +
             "((:status = '' OR :status = 'ACTIVOS') AND p.activo = true) OR " +
-            "(:status = 'BAJO_MARGEN' AND p.activo = true AND p.precioPVP < (p.precio * 1.21)) OR " +
+            "(:status = 'BAJO_MARGEN' AND p.activo = true AND p.precioPVP < ((p.precio + 5) * 1.21)) OR " +
+            "(:status = 'ALERTA_MARGEN' AND p.alertaMargen = true) OR " +
             "(:status IS NULL AND p.activo = true AND (p.imagen IS NOT NULL AND p.imagen <> ''))))")
     void updateOfferByFilters(
             @org.springframework.data.repository.query.Param("enOferta") boolean enOferta,
@@ -136,7 +170,8 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>{
             "(:status = 'INACTIVOS' AND p.activo = false) OR " +
             "(:status = 'OFERTAS' AND p.enOferta = true) OR " +
             "((:status = '' OR :status = 'ACTIVOS') AND p.activo = true) OR " +
-            "(:status = 'BAJO_MARGEN' AND p.activo = true AND p.precioPVP < (p.precio * 1.21)) OR " +
+            "(:status = 'BAJO_MARGEN' AND p.activo = true AND p.precioPVP < ((p.precio + 5) * 1.21)) OR " +
+            "(:status = 'ALERTA_MARGEN' AND p.alertaMargen = true) OR " +
             "(:status IS NULL AND p.activo = true AND (p.imagen IS NOT NULL AND p.imagen <> '')))")
     List<Long> searchIds(
             @org.springframework.data.repository.query.Param("manufacturador") String manufacturador,
@@ -178,6 +213,8 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>{
             "(:status = 'TODOS' OR " +
             "(:status = 'INACTIVOS' AND p.activo = false) OR " +
             "(:status = 'OFERTAS' AND p.enOferta = true) OR " +
+            "(:status = 'BAJO_MARGEN' AND p.activo = true AND p.precioPVP < ((p.precio + 5) * 1.21)) OR " +
+            "(:status = 'ALERTA_MARGEN' AND p.alertaMargen = true) OR " +
             "((:status = '' OR :status = 'ACTIVOS') AND p.activo = true) OR " +
             "(:status IS NULL AND p.activo = true AND (p.imagen IS NOT NULL AND p.imagen <> '')))")
     Page<Producto> searchAdvanced(

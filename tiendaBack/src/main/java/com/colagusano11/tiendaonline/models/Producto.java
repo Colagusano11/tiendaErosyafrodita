@@ -58,6 +58,31 @@ public class Producto {
     private BigDecimal descuentoOferta = BigDecimal.ZERO;
     private BigDecimal precioOferta;
 
+    private boolean alertaMargen = false;
+
+    @PrePersist
+    @PreUpdate
+    public void validarMargen() {
+        if (precio != null) {
+            // Determinar el precio efectivo en la web
+            BigDecimal precioWeb = (enOferta && precioOferta != null) ? precioOferta : precioPVP;
+
+            if (precioWeb != null) {
+                // Formula: (base + 5) * 1.21
+                BigDecimal baseMasCinco = precio.add(new BigDecimal("5"));
+                BigDecimal precioMinimo = baseMasCinco.multiply(new BigDecimal("1.21"));
+                
+                // Si el precio de la web es menor al mínimo, alerta !
+                if (precioWeb.compareTo(precioMinimo) < 0) {
+                    this.alertaMargen = true;
+                    this.activo = false; // Ocultar de la web
+                } else {
+                    this.alertaMargen = false;
+                }
+            }
+        }
+    }
+
     public Producto() {
 
     }
@@ -244,5 +269,13 @@ public class Producto {
 
     public void setNuevo(boolean nuevo) {
         this.nuevo = nuevo;
+    }
+
+    public boolean isAlertaMargen() {
+        return alertaMargen;
+    }
+
+    public void setAlertaMargen(boolean alertaMargen) {
+        this.alertaMargen = alertaMargen;
     }
 }
