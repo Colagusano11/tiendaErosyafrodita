@@ -152,12 +152,12 @@ const HomePage: React.FC = () => {
               />
               
               {/* Texto "Mágico" solo para móvil (donde se corta la foto) */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center sm:hidden bg-black/20 backdrop-blur-[1px]">
+              <div className="absolute inset-0 h-full w-full flex flex-col items-center justify-center p-4 text-center sm:hidden bg-black/10 backdrop-blur-[1px] z-10">
                   <motion.h1 
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.5 }}
-                    className="text-2xl xs:text-3xl font-black text-white leading-none uppercase tracking-tighter drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]"
+                    className="text-2xl xs:text-3xl font-black text-white leading-none uppercase tracking-tighter drop-shadow-[0_4px_15px_rgba(0,0,0,1)]"
                   >
                     Eros <span className="text-primary italic font-serif">&</span> Afrodita
                   </motion.h1>
@@ -165,7 +165,7 @@ const HomePage: React.FC = () => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.8 }}
-                    className="mt-3 text-[9px] font-black uppercase tracking-[0.5em] text-primary drop-shadow-lg"
+                    className="mt-2 text-[9px] font-black uppercase tracking-[0.5em] text-primary drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
                   >
                     La Esencia Divina
                   </motion.p>
