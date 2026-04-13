@@ -71,11 +71,24 @@ const Header: React.FC = () => {
         <nav className="hidden xl:flex items-center gap-10">
           <Link to="/catalog?genero=HOMBRE" className="text-[11px] font-black uppercase tracking-[0.2em] text-white/50 hover:text-primary transition-colors">Hombre</Link>
           <Link to="/catalog?genero=MUJER" className="text-[11px] font-black uppercase tracking-[0.2em] text-white/50 hover:text-primary transition-colors">Mujer</Link>
-          <Link to="/catalog?categoria=Cabello" className="text-[11px] font-black uppercase tracking-[0.2em] text-white/50 hover:text-primary transition-colors">Cabello</Link>
-          <Link to="/catalog?categoria=Complementos" className="text-[11px] font-black uppercase tracking-[0.2em] text-white/50 hover:text-primary transition-colors">Complementos</Link>
           <Link to="/catalog?orden=idDesc" className="text-[11px] font-black uppercase tracking-[0.2em] text-white/50 hover:text-primary transition-colors">Novedades</Link>
           <Link to="/catalog?status=OFERTAS" className="text-[11px] font-black uppercase tracking-[0.2em] text-primary hover:text-white transition-colors italic">Ofertas</Link>
         </nav>
+
+        {/* Buscador (Desktop) */}
+        <div className="hidden lg:flex flex-1 max-w-sm mx-8">
+          <div className="relative w-full group">
+            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-white/30 text-xl group-focus-within:text-primary transition-colors">search</span>
+            <input 
+              type="text" 
+              placeholder={t('search_placeholder') || "Buscar perfumes, cosmética..."}
+              className="w-full h-11 pl-12 pr-4 bg-white/5 border border-white/10 rounded-full text-xs text-white placeholder:text-white/20 focus:outline-none focus:border-primary/50 focus:bg-white/10 transition-all font-light"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={handleSearch}
+            />
+          </div>
+        </div>
 
         {/* Icons */}
         <div className="flex items-center gap-3 sm:gap-6">
@@ -154,12 +167,23 @@ const Header: React.FC = () => {
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
+
+            {/* Buscador Móvil */}
+            <div className="mb-8 relative group">
+              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-white/30 text-xl">search</span>
+              <input 
+                type="text" 
+                placeholder="¿Qué buscas hoy?"
+                className="w-full h-12 pl-12 pr-4 bg-white/5 border border-white/10 rounded-2xl text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-primary/50 transition-all font-light"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={handleSearch}
+              />
+            </div>
             
             <nav className="flex flex-col gap-6">
               <Link to="/catalog?genero=HOMBRE" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-black uppercase tracking-widest text-white hover:text-primary transition-colors">Hombre</Link>
               <Link to="/catalog?genero=MUJER" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-black uppercase tracking-widest text-white hover:text-primary transition-colors">Mujer</Link>
-              <Link to="/catalog?categoria=Cabello" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-black uppercase tracking-widest text-white hover:text-primary transition-colors">Cabello</Link>
-              <Link to="/catalog?categoria=Complementos" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-black uppercase tracking-widest text-white hover:text-primary transition-colors">Complementos</Link>
               <Link to="/catalog?orden=idDesc" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-black uppercase tracking-widest text-white hover:text-primary transition-colors">Novedades</Link>
               <Link to="/catalog?status=OFERTAS" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-black uppercase tracking-widest text-primary italic">Ofertas</Link>
               <div className="h-px bg-white/5 my-4" />

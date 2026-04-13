@@ -161,31 +161,32 @@ const HomePage: React.FC = () => {
             >
               <div className="max-w-3xl mx-auto">
                 <div className="bg-charcoal/60 backdrop-blur-3xl border border-white/20 p-1.5 sm:p-2 rounded-full sm:rounded-[2.5rem] shadow-2xl shadow-black/50 flex items-center group focus-within:border-primary/50 transition-all duration-500">
-                  <div className="size-10 sm:size-14 rounded-full bg-white/5 flex items-center justify-center text-white/40 group-focus-within:text-primary group-focus-within:bg-primary/10 transition-all">
+                  <div className="size-10 sm:size-14 rounded-full bg-white/5 flex items-center justify-center text-white/40 group-focus-within:text-primary group-focus-within:bg-primary/10 transition-all shrink-0">
                     <span className="material-symbols-outlined text-xl sm:text-2xl">search</span>
-                    <input 
-                      type="text" 
-                      name="q"
-                      autoComplete="off"
-                      spellCheck={false}
-                      placeholder="Busca marca, aroma o nombre..."
-                      className="flex-1 bg-transparent border-none outline-none px-3 sm:px-6 text-white text-sm sm:text-base font-light placeholder:text-white/40"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                              handleSearch();
-                          }
-                      }}
-                    />
-                    <button 
-                      onClick={handleSearch}
-                      className="hidden sm:flex h-12 px-8 rounded-full bg-primary text-charcoal text-[10px] font-black uppercase tracking-[0.2em] hover:bg-white transition-all items-center justify-center"
-                    >
-                      Buscar
-                    </button>
                   </div>
+                  <input 
+                    type="text" 
+                    name="q"
+                    autoComplete="off"
+                    spellCheck={false}
+                    placeholder="Busca marca, aroma o nombre..."
+                    className="flex-1 bg-transparent border-none outline-none px-3 sm:px-6 text-white text-sm sm:text-base font-light placeholder:text-white/40"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            handleSearch();
+                        }
+                    }}
+                  />
+                  <button 
+                    onClick={handleSearch}
+                    className="hidden sm:flex h-12 px-8 rounded-full bg-primary text-charcoal text-[10px] font-black uppercase tracking-[0.2em] hover:bg-white transition-all items-center justify-center"
+                  >
+                    Buscar
+                  </button>
                 </div>
+
                 {/* Tendencias más compactas en móvil */}
                 <div className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[8px] sm:text-[9px] font-black uppercase tracking-[0.2em] text-white/30">
                     <span className="text-primary/50 italic">Tendencias:</span>
@@ -266,6 +267,15 @@ const HomePage: React.FC = () => {
                   eyeglasses
                 </span>
                 <span className="text-sm font-medium">Complementos</span>
+              </Link>
+              <Link
+                to="/catalog?categoria=Otros"
+                className="flex h-10 whitespace-nowrap items-center justify-center gap-2 rounded-full bg-surface-dark text-gray-200 border border-white/10 hover:border-violet-400 hover:text-violet-300 px-3 sm:px-4 transition-all hover:bg-white/5"
+              >
+                <span className="material-symbols-outlined notranslate normal-case text-[18px] text-violet-400">
+                  apps
+                </span>
+                <span className="text-sm font-medium">Otros</span>
               </Link>
             </div>
           </div>
