@@ -99,13 +99,20 @@ public class AmazonImageService {
                 return updatedCount.get();
             }
 
-            // BLINDAJE TOTAL: Si la imagen ya es oficial de Amazon, no la tocamos NUNCA.
-            // Esto ahorra cuota de API y protege el catálogo ya enriquecido.
+            // 1. BLINDAJE: Si ya es de Amazon, no se toca NUNCA.
             boolean isOfficialAmazonImage = p.getImagen() != null && p.getImagen().toLowerCase().contains("amazon");
-
             if (isOfficialAmazonImage) {
                 continue;
             }
+
+            // 2. MODO "SOLO HUECOS": Si NO estamos saneando y el producto ya tiene alguna foto (aunque sea de BTS), saltamos.
+            if (!forceOverwrite && p.getImagen() != null && !p.getImagen().trim().isEmpty()) {
+                continue;
+            }
+
+            // 3. Si llegamos aquí, es porque:
+            // - El hueco está vacío (null o "")
+            // - O estamos en modo "SANEAR" (forceOverwrite=true) y la foto no es oficial de Amazon.
 
             if (p.getEan() == null || p.getEan().isEmpty()) {
                 continue;
