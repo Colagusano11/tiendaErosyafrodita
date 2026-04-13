@@ -119,7 +119,7 @@ public class AmazonImageService {
                     updatedCount.getAndIncrement();
                     System.out.println("Imágenes (" + imgUrls.size() + ") actualizadas para " + p.getNombre() + " (" + p.getEan() + ")");
                 }
-                Thread.sleep(600);
+                Thread.sleep(1000);
             } catch (Exception e) {
                 if (e.getMessage() != null && e.getMessage().contains("403")) {
                     System.out.println("Token caducado detectado en ejecución. Forzando renovación...");
@@ -127,7 +127,8 @@ public class AmazonImageService {
                 }
                 System.err.println("Error procesando " + p.getEan() + ": " + e.getMessage());
                 if (e.getMessage() != null && e.getMessage().contains("429")) {
-                    try { Thread.sleep(2000); } catch (InterruptedException ignored) {}
+                    System.err.println("Amazon 429 detectado. Esperando 5 segundos para reintentar...");
+                    try { Thread.sleep(5000); } catch (InterruptedException ignored) {}
                 }
             }
         }

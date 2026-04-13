@@ -158,6 +158,9 @@ const HomePage: React.FC = () => {
                   </div>
                   <input 
                     type="text" 
+                    name="q"
+                    autoComplete="off"
+                    spellCheck={false}
                     placeholder="Busca tu esencia divina (marca, aroma, nombre...)"
                     className="flex-1 bg-transparent border-none outline-none px-4 sm:px-6 text-white text-sm sm:text-base font-light placeholder:text-white/20"
                     onKeyDown={(e) => {
