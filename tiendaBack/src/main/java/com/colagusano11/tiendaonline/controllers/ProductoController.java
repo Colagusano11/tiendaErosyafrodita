@@ -241,4 +241,13 @@ public class ProductoController {
         return ResponseEntity.ok().build();
     }
 
+    @Autowired
+    private com.colagusano11.tiendaonline.services.AmazonImageService amazonImageService;
+
+    @PostMapping("/admin/sync-images-amazon")
+    public ResponseEntity<Map<String, Object>> syncImagesAmazon(@RequestParam(defaultValue = "false") boolean forceOverwrite) {
+        amazonImageService.syncImagesAsync(forceOverwrite);
+        return ResponseEntity.ok(Map.of("message", "Sincronización iniciada en segundo plano"));
+    }
+
 }

@@ -69,6 +69,7 @@ const AdminProductsPage: React.FC = () => {
   const [homeNovedades, setHomeNovedades] = useState<string[]>([]);
   const [homeRecomendados, setHomeRecomendados] = useState<string[]>([]);
   const [savingHome, setSavingHome] = useState(false);
+  const [syncingAmazon, setSyncingAmazon] = useState(false);
 
   const fetchNuevosCount = async () => {
     try {
@@ -357,6 +358,28 @@ const AdminProductsPage: React.FC = () => {
     } finally {
       setSavingHome(false);
     }
+  };
+
+  const handleSyncAmazon = async () => {
+    showConfirm(
+        "Sincronizar con Amazon",
+        "¿Estás seguro de que deseas sincronizar las imágenes? El sistema buscará las fotos oficiales en Amazon y SOBREESCRIBIRÁ las actuales del catálogo.",
+        async () => {
+             setSyncingAmazon(true);
+             try {
+                 const { syncAmazonImages } = await import("../api/products");
+                 await syncAmazonImages(true); 
+                 showAlert("Procesando", "Sincronización iniciada en segundo plano. Esto puede tardar horas para 28k productos.", "success");
+                 fetchProducts();
+             } catch {
+                 showAlert("Error", "No se pudo sincronizar con Amazon", "error");
+             } finally {
+                 setSyncingAmazon(false);
+             }
+        },
+        "warning",
+        "Sobreescribir TODO"
+    );
   };
 
   const isSearchActive = skuFilter || nameFilter || brandFilter || categoryFilter || providerFilter || statusFilter !== "TODOS";
@@ -656,121 +679,146 @@ const AdminProductsPage: React.FC = () => {
                </div>
           </div>
 
-          {/* PANEL DE ACCIONES (SOLO BOTONES CON VIDA) */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 sm:p-6 bg-white/5 border border-white/10 rounded-[2rem] backdrop-blur-xl transition-all duration-500">
-                <div className="flex flex-col gap-2 min-w-[120px]">
-                    <div className="flex flex-col">
-                        <span className="text-[14px] font-black text-white italic uppercase leading-none">
-                            {totalProducts.toLocaleString()} 
-                            <span className="text-primary ml-1">PRODUCTOS</span>
-                        </span>
-                        <span className="text-[8px] font-bold text-slate-500 uppercase tracking-[0.3em] mt-1">
-                            CATÁLOGO TOTAL
-                        </span>
+          {/* PANEL DE ACCIONES — REESTRUCTURADO EN DOS LÍNEAS / GRUPOS */}
+          <div className="p-6 bg-white/5 border border-white/10 rounded-[2.5rem] backdrop-blur-xl space-y-6">
+                
+                {/* LÍNEA 1: INFO Y CONFIGURACIÓN GLOBAL */}
+                <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+                    <div className="flex flex-col gap-1 min-w-[150px]">
+                        <div className="flex items-baseline gap-2">
+                            <span className="text-2xl font-black text-white italic uppercase leading-none tracking-tighter">
+                                {totalProducts.toLocaleString()} 
+                            </span>
+                            <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">PRODUCTOS</span>
+                        </div>
+                        <span className="text-[8px] font-bold text-slate-500 uppercase tracking-[0.4em]">CATÁLOGO TOTAL</span>
+
+                        {(isAllSelected || selectedIds.length > 0) && (
+                            <div className="mt-2 pt-2 border-t border-white/5 flex items-center gap-2 animate-fade-in">
+                                <span className="text-[11px] font-black text-rose-500 uppercase leading-none">
+                                    {isAllSelected ? "TODO EL CATÁLOGO" : `${selectedIds.length} SELECCIONADOS`}
+                                </span>
+                            </div>
+                        )}
                     </div>
 
-                    {(isAllSelected || selectedIds.length > 0) && (
-                        <div className="flex flex-col pt-2 border-t border-white/5 animate-fade-in">
-                            <span className="text-[14px] font-black text-rose-500 italic uppercase leading-none">
-                                {isAllSelected ? totalProducts : selectedIds.length}
-                                <span className="text-white/40 ml-1">SELECCIONADOS</span>
-                            </span>
-                            <span className="text-[8px] font-bold text-rose-500/50 uppercase tracking-[0.3em] mt-1">
-                                PARA ACCIÓN MASIVA
-                            </span>
-                        </div>
-                    )}
+                    <div className="flex items-center gap-3 flex-wrap w-full lg:w-auto">
+                        <button 
+                            onClick={() => setIsPricingModalOpen(true)}
+                            className="h-12 px-6 bg-primary text-background-dark rounded-2xl text-[10px] font-black uppercase hover:scale-105 active:scale-95 transition-all flex items-center gap-3 group shadow-xl shadow-primary/20"
+                        >
+                            <span className="material-symbols-outlined text-lg">payments</span>
+                            Gestión Precios
+                        </button>
+
+                        <button 
+                            onClick={() => setIsHomeModalOpen(true)}
+                            className="h-12 px-6 bg-purple-500 text-white rounded-2xl text-[10px] font-black uppercase hover:scale-105 active:scale-95 transition-all flex items-center gap-3 group shadow-xl shadow-purple-500/20"
+                        >
+                            <span className="material-symbols-outlined text-lg">home_app_logo</span>
+                            Secciones Home
+                        </button>
+
+                        <button 
+                            onClick={handleSyncAmazon}
+                            disabled={syncingAmazon}
+                            className="h-12 px-6 bg-orange-600 text-white rounded-2xl text-[10px] font-black uppercase hover:scale-105 active:scale-95 transition-all flex items-center gap-3 group shadow-xl shadow-orange-600/20 disabled:opacity-50"
+                        >
+                            {syncingAmazon ? (
+                                <div className="size-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                            ) : (
+                                <span className="material-symbols-outlined text-lg">sync_alt</span>
+                            )}
+                            Sincronizar Amazon
+                        </button>
+
+                        <div className="hidden lg:block w-px h-8 bg-white/10 mx-2"></div>
+
+                        <button 
+                            onClick={() => {
+                                setSkuFilter("");
+                                setNameFilter("");
+                                setBrandFilter("");
+                                setCategoryFilter("");
+                                setProviderFilter("");
+                                setMinPrice("");
+                                setMaxPrice("");
+                                setStatusFilter("TODOS");
+                                setSelectedIds([]);
+                                setIsAllSelected(false);
+                            }}
+                            className="h-12 px-5 bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white rounded-2xl text-[10px] font-black uppercase transition-all flex items-center gap-2 group border border-white/5"
+                            title="Limpiar filtros"
+                        >
+                            <span className="material-symbols-outlined text-lg group-hover:rotate-180 transition-transform duration-500">filter_list_off</span>
+                            Limpiar
+                        </button>
+                    </div>
                 </div>
 
-                <div className="flex items-center gap-2 flex-wrap justify-start sm:justify-end w-full sm:w-auto">
-                    <button 
-                        onClick={() => setStatusFilter("BAJO_MARGEN")}
-                        className={`h-10 px-4 rounded-xl text-[9px] font-black uppercase transition-all flex items-center gap-2 group border ${
-                            statusFilter === "BAJO_MARGEN" 
-                            ? "bg-orange-500 text-white border-orange-600 shadow-lg shadow-orange-500/20" 
-                            : "bg-orange-500/10 border-orange-500/20 text-orange-500 hover:bg-orange-500 hover:text-white"
-                        }`}
-                    >
-                        <span className="material-symbols-outlined text-base">warning</span>
-                        Alerta Margen
-                    </button>
+                {/* LÍNEA 2: ACCIONES MASIVAS Y OFERTAS */}
+                <div className="pt-6 border-t border-white/5 flex flex-col lg:flex-row items-center justify-between gap-6">
+                    <div className="flex items-center gap-3 flex-wrap">
+                        <button 
+                            onClick={() => setStatusFilter("BAJO_MARGEN")}
+                            className={`h-11 px-5 rounded-2xl text-[9px] font-black uppercase transition-all flex items-center gap-2 group border ${
+                                statusFilter === "BAJO_MARGEN" 
+                                ? "bg-orange-500 text-white border-orange-600 shadow-lg shadow-orange-500/20" 
+                                : "bg-orange-500/5 border-orange-500/20 text-orange-500 hover:bg-orange-500 hover:text-white"
+                            }`}
+                        >
+                            <span className="material-symbols-outlined text-base">warning</span>
+                            Margen Insuficiente
+                        </button>
 
-                    <button 
-                        onClick={() => handleBulkStatus(true)}
-                        className="h-10 px-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 rounded-xl text-[9px] font-black uppercase hover:bg-emerald-500 hover:text-white transition-all flex items-center gap-2 group"
-                    >
-                        <span className="material-symbols-outlined text-base">visibility</span>
-                        Activar
-                    </button>
-                    <button 
-                        onClick={() => handleBulkStatus(false)}
-                        className="h-10 px-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl text-[9px] font-black uppercase hover:bg-red-500 hover:text-white transition-all flex items-center gap-2 group"
-                    >
-                        <span className="material-symbols-outlined text-base">visibility_off</span>
-                        Ocultar
-                    </button>
-                    
-                    <div className="w-px h-10 bg-white/10 mx-2"></div>
+                        <button 
+                            onClick={() => handleBulkStatus(true)}
+                            className="h-11 px-5 bg-emerald-500/5 border border-emerald-500/10 text-emerald-500 rounded-2xl text-[9px] font-black uppercase hover:bg-emerald-500 hover:text-white transition-all flex items-center gap-2 group"
+                        >
+                            <span className="material-symbols-outlined text-base">visibility</span>
+                            Publicar
+                        </button>
 
-                    <button 
-                        onClick={() => setIsPricingModalOpen(true)}
-                        className="h-10 px-6 bg-primary text-background-dark rounded-xl text-[9px] font-black uppercase hover:scale-105 active:scale-95 transition-all flex items-center gap-2 group"
-                    >
-                        <span className="material-symbols-outlined text-base">payments</span>
-                        Precios
-                    </button>
-
-                    <button 
-                        onClick={() => setIsHomeModalOpen(true)}
-                        className="h-10 px-6 bg-purple-500 text-white rounded-xl text-[9px] font-black uppercase hover:scale-105 active:scale-95 transition-all flex items-center gap-2 group shadow-lg shadow-purple-500/20"
-                    >
-                        <span className="material-symbols-outlined text-base">home_app_logo</span>
-                        Home
-                    </button>
-
-                    {/* SELECTOR DE % INTEGRADO EN ACCIÓN */}
-                    <div className="h-10 px-3 bg-rose-500/10 border border-rose-500/20 rounded-xl flex items-center gap-2 group hover:border-rose-500/40 transition-all">
-                        <span className="material-symbols-outlined text-rose-500 text-sm">percent</span>
-                        <input 
-                            type="number" 
-                            value={offerDiscount}
-                            onChange={(e) => setOfferDiscount(parseFloat(e.target.value))}
-                            className="w-12 bg-transparent text-white font-black text-[10px] outline-none border-b border-rose-500/30 focus:border-rose-500 transition-colors text-center"
-                        />
+                        <button 
+                            onClick={() => handleBulkStatus(false)}
+                            className="h-11 px-5 bg-red-500/5 border border-red-500/10 text-red-500 rounded-2xl text-[9px] font-black uppercase hover:bg-red-500 hover:text-white transition-all flex items-center gap-2 group"
+                        >
+                            <span className="material-symbols-outlined text-base">visibility_off</span>
+                            Ocultar
+                        </button>
                     </div>
 
-                    <button 
-                        onClick={() => handleUpdateBulkOffer(true)}
-                        className={`h-10 px-6 rounded-xl text-[9px] font-black uppercase transition-all flex items-center gap-2 group bg-rose-500/10 border border-rose-500/20 text-rose-500 hover:bg-rose-500 hover:text-white shadow-lg shadow-rose-500/10 active:scale-95`}
-                    >
-                        <span className="material-symbols-outlined text-base group-hover:scale-110 transition-transform">sell</span>
-                        Aplicar Ofertas
-                    </button>
+                    <div className="flex items-center gap-3 w-full lg:w-auto">
+                        {/* SELECTOR DE % GRANDE Y MODERNO */}
+                        <div className="h-12 flex items-center bg-rose-500/5 border border-rose-500/20 rounded-2xl overflow-hidden focus-within:border-rose-500/50 transition-all">
+                            <div className="px-4 flex items-center gap-2 border-r border-rose-500/10">
+                                <span className="material-symbols-outlined text-rose-500 text-base">percent</span>
+                                <span className="text-[10px] font-black text-rose-500/70 uppercase tracking-tighter">Descuento</span>
+                            </div>
+                            <input 
+                                type="number" 
+                                value={offerDiscount}
+                                onChange={(e) => setOfferDiscount(parseFloat(e.target.value))}
+                                className="w-20 px-4 bg-transparent text-white font-black text-sm outline-none text-center placeholder:text-rose-500/20"
+                            />
+                        </div>
 
-                    <button 
-                         onClick={() => handleUpdateBulkOffer(false)}
-                         className="h-10 px-4 bg-white/5 border border-white/10 text-slate-400 rounded-xl text-[9px] font-black uppercase hover:bg-white/10 hover:text-white transition-all flex items-center gap-2"
-                    >
-                        <span className="material-symbols-outlined text-base">leak_remove</span>
-                        Retirar Ofertas
-                    </button>
+                        <button 
+                            onClick={() => handleUpdateBulkOffer(true)}
+                            className="flex-1 lg:flex-none h-12 px-8 bg-rose-500 text-white rounded-2xl text-[10px] font-black uppercase hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3 group shadow-xl shadow-rose-500/20"
+                        >
+                            <span className="material-symbols-outlined text-lg group-hover:scale-110 transition-transform">sell</span>
+                            Aplicar Ofertas
+                        </button>
 
-                    <button 
-                        onClick={() => {
-                            setSkuFilter("");
-                            setNameFilter("");
-                            setBrandFilter("");
-                            setCategoryFilter("");
-                            setProviderFilter("");
-                            setMinPrice("");
-                            setMaxPrice("");
-                            setStatusFilter("TODOS");
-                            setSelectedIds([]);
-                        }}
-                        className="h-10 px-4 bg-white/5 text-slate-400 border border-white/10 rounded-xl text-[8px] font-black uppercase hover:text-white transition-all"
-                    >
-                        Limpiar
-                    </button>
+                        <button 
+                             onClick={() => handleUpdateBulkOffer(false)}
+                             className="h-12 px-4 bg-white/5 border border-white/10 text-slate-400 rounded-2xl hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20 transition-all flex items-center justify-center"
+                             title="Retirar ofertas"
+                        >
+                            <span className="material-symbols-outlined text-lg">leak_remove</span>
+                        </button>
+                    </div>
                 </div>
           </div>
         </>)}

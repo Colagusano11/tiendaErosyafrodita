@@ -119,10 +119,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onHide }) => {
 
       <Link
         to={`/product/${product.id}`}
-        className="w-full aspect-square bg-charcoal-lighter rounded-xl overflow-hidden relative"
+        className="w-full aspect-square bg-white rounded-xl sm:rounded-2xl overflow-hidden relative border border-white/5 flex items-center justify-center p-4 sm:p-6"
       >
         <img
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90 group-hover:opacity-100"
+          className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-700 drop-shadow-sm"
           src={image}
           alt={name}
           loading="lazy"

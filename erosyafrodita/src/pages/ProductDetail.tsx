@@ -225,19 +225,18 @@ const ProductDetail: React.FC = () => {
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="bg-gradient-to-br from-white/5 to-transparent backdrop-blur-2xl rounded-[2.5rem] p-8 aspect-square flex items-center justify-center relative overflow-hidden group shadow-2xl border border-white/10"
+              className="bg-white rounded-[2.5rem] p-8 aspect-square flex items-center justify-center relative overflow-hidden group shadow-2xl border border-white/5"
             >
-              <div className="absolute inset-0 inner-glow-dark pointer-events-none" />
               {(imgLoading || loading) ? (
                 <div className="size-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
               ) : validUrls.length > 0 ? (
                 <img
                   src={selectedImg || validUrls[0]}
                   alt={name}
-                  className="max-w-[85%] max-h-[85%] object-contain image-mask-blend transition-transform duration-700 group-hover:scale-110 drop-shadow-[0_0_30px_rgba(255,255,255,0.05)]"
+                  className="max-w-[90%] max-h-[90%] object-contain transition-transform duration-700 group-hover:scale-105 drop-shadow-md"
                 />
               ) : (
-                <div className="flex flex-col items-center justify-center gap-3 text-white/20">
+                <div className="flex flex-col items-center justify-center gap-3 text-charcoal/20">
                   <span className="material-symbols-outlined text-6xl">hide_image</span>
                   <span className="text-xs font-bold uppercase tracking-widest">Sin imagen válida</span>
                 </div>
@@ -250,11 +249,11 @@ const ProductDetail: React.FC = () => {
                   <button
                     key={i}
                     onClick={() => setSelectedImg(thumb)}
-                    className={`size-24 rounded-2xl bg-white/5 backdrop-blur-md p-2 border-2 transition-all shrink-0 overflow-hidden ${selectedImg === thumb ? "border-primary" : "border-transparent opacity-40 hover:opacity-100"}`}
+                    className={`size-24 rounded-2xl bg-white p-2 border-2 transition-all shrink-0 overflow-hidden shadow-sm ${selectedImg === thumb ? "border-primary" : "border-transparent opacity-60 hover:opacity-100"}`}
                   >
                     <img
                       src={thumb}
-                      className="w-full h-full object-contain image-mask-blend"
+                      className="w-full h-full object-contain"
                       alt={`vista-${i}`}
                     />
                   </button>

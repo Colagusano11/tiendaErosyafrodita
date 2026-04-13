@@ -101,7 +101,6 @@ const HomePage: React.FC = () => {
       }
     })();
   }, []);
-  }, []);
 
 
   const { addItem } = useCart();
@@ -130,7 +129,7 @@ const HomePage: React.FC = () => {
 
         {/* Home Header Banner */}
         <div className="w-full px-4 lg:px-20 pb-4 sm:pb-6">
-          <div className="max-w-[1440px] mx-auto">
+          <div className="max-w-[1440px] mx-auto relative">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -143,6 +142,42 @@ const HomePage: React.FC = () => {
                 className="w-full h-[220px] sm:h-[400px] lg:h-auto object-cover"
                 style={{ objectPosition: "center top" }}
               />
+            </motion.div>
+
+            {/* BUSCADOR PREMIUM INTEGRADO */}
+            <motion.div 
+               initial={{ opacity: 0, y: 10 }}
+               animate={{ opacity: 1, y: 0 }}
+               transition={{ delay: 0.3, duration: 0.5 }}
+               className="mt-6 sm:-mt-10 relative z-20 px-4 sm:px-0"
+            >
+              <div className="max-w-3xl mx-auto">
+                <div className="bg-charcoal/40 backdrop-blur-2xl border border-white/10 p-2 rounded-[2.5rem] shadow-2xl shadow-black/50 flex items-center group focus-within:border-primary/50 transition-all duration-500">
+                  <div className="size-12 sm:size-14 rounded-full bg-white/5 flex items-center justify-center text-white/20 group-focus-within:text-primary group-focus-within:bg-primary/10 transition-all">
+                    <span className="material-symbols-outlined text-2xl">search</span>
+                  </div>
+                  <input 
+                    type="text" 
+                    placeholder="Busca tu esencia divina (marca, aroma, nombre...)"
+                    className="flex-1 bg-transparent border-none outline-none px-4 sm:px-6 text-white text-sm sm:text-base font-light placeholder:text-white/20"
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            const val = (e.target as HTMLInputElement).value;
+                            if (val.trim()) window.location.href = `/catalog?search=${encodeURIComponent(val.trim())}`;
+                        }
+                    }}
+                  />
+                  <button className="hidden sm:flex h-12 px-8 rounded-full bg-primary text-charcoal text-[10px] font-black uppercase tracking-[0.2em] hover:bg-white transition-all items-center justify-center">
+                    Buscar
+                  </button>
+                </div>
+                <div className="mt-4 flex items-center justify-center gap-4 text-[9px] font-black uppercase tracking-[0.2em] text-white/20">
+                    <span className="text-primary/40 italic">Tendencias:</span>
+                    <Link to="/catalog?search=Rochas" className="hover:text-primary transition-colors">Rochas</Link>
+                    <Link to="/catalog?search=Kilian" className="hover:text-primary transition-colors">Kilian</Link>
+                    <Link to="/catalog?search=Hermes" className="hover:text-primary transition-colors">Hermes</Link>
+                  </div>
+              </div>
             </motion.div>
           </div>
         </div>
@@ -292,12 +327,13 @@ const HomePage: React.FC = () => {
                 viewport={{ once: true }}
                 className="rounded-[1.5rem] lg:rounded-[2.5rem] overflow-hidden bg-charcoal-surface border border-white/5 flex flex-col lg:flex-row shadow-2xl glass-panel"
               >
-                <div className="w-full lg:w-[400px] h-64 sm:h-80 lg:h-[400px] bg-white flex items-center justify-center relative overflow-hidden group/img">
+                <div className="w-full lg:w-[400px] h-64 sm:h-80 lg:h-[400px] bg-white flex items-center justify-center relative overflow-hidden group/img p-10">
                   <div className="absolute inset-0 bg-gradient-to-tr from-charcoal/5 to-transparent pointer-events-none" />
+                  <div className="absolute inset-0 shadow-[inset_0_0_100px_rgba(0,0,0,0.05)]" />
                   <img
                     src={featuredProduct.imagen || ""}
                     alt={featuredProduct.nombre}
-                    className="max-w-[70%] lg:max-w-[75%] max-h-[70%] lg:max-h-[75%] object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.12)] transition-transform duration-700 group-hover/img:scale-110"
+                    className="max-w-full max-h-full object-contain drop-shadow-xl transition-transform duration-700 group-hover/img:scale-110"
                   />
                 </div>
                 <div className="flex-1 p-6 sm:p-8 lg:p-12 flex flex-col justify-center">
