@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { getPedidoById, PedidoSalida, confirmarPago } from "../api/order";
 import { useAlert } from "../context/AlertContext";
+import { useCart } from "../context/CartContext";
+import type { Producto } from "../api/products";
 
 const OrderDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [pedido, setPedido] = useState<PedidoSalida | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -14,6 +17,7 @@ const OrderDetailPage: React.FC = () => {
   const [paying, setPaying] = useState(false);
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
   const { showAlert, showConfirm } = useAlert();
+  const { addItem } = useCart();
 
   useEffect(() => {
     if (!id) return;
@@ -88,6 +92,25 @@ const OrderDetailPage: React.FC = () => {
     } finally {
       setPaying(false);
     }
+  };
+
+  const handleReOrderAll = () => {
+    if (!pedido) return;
+    pedido.productos.forEach(prod => {
+      addItem({
+        id: prod.idProducto,
+        nombre: prod.nombreProducto,
+        imagen: prod.imagen || "",
+        precio: prod.precioUnitario,
+        precioPVP: prod.precioUnitario,
+        stock: 99,
+        ean: prod.ean || "",
+        categoria: "",
+        manufacturer: ""
+      } as any as Producto, prod.cantidad, false);
+    });
+    showAlert("Ritual Reinvocado", "Hemos añadido los artículos de este ritual a tu bolsa divina.", "success");
+    navigate("/cart");
   };
 
   if (loading) {
@@ -343,7 +366,10 @@ const OrderDetailPage: React.FC = () => {
               ))}
 
               <div className="mt-4 flex justify-end">
-                <button className="flex w-full sm:w-auto cursor-pointer items-center justify-center rounded-full h-12 px-8 bg-primary hover:bg-[#d9a50b] text-[#221e10] text-base font-bold tracking-wide transition-all shadow-[0_0_20px_rgba(242,185,13,0.3)] hover:shadow-[0_0_30px_rgba(242,185,13,0.5)]">
+                <button 
+                  onClick={handleReOrderAll}
+                  className="flex w-full sm:w-auto cursor-pointer items-center justify-center rounded-full h-12 px-8 bg-primary hover:bg-[#d9a50b] text-[#221e10] text-base font-bold tracking-wide transition-all shadow-[0_0_20px_rgba(242,185,13,0.3)] hover:shadow-[0_0_30px_rgba(242,185,13,0.5)]"
+                >
                   <span className="material-symbols-outlined mr-2">
                     replay
                   </span>

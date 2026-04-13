@@ -43,7 +43,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 // Endpoints públicos: auth, registro, productos, categorías
                 .requestMatchers(HttpMethod.POST, "/auth/**", "/usuarios/registro").permitAll()
-                .requestMatchers(HttpMethod.GET, "/productos/**", "/categorias/**", "/proxy-image/**", "/resenas/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/productos/**", "/categorias/**", "/proxy-image/**", "/resenas/**", "/pedidos/rastrear").permitAll()
                 .requestMatchers(HttpMethod.GET, "/actuator/**").permitAll()
                 // Endpoints de Pedidos para Invitados (Permitir creación y confirmación sin JWT)
                 .requestMatchers(HttpMethod.POST, "/pedidos", "/pedidos/**", "/api/pedidos", "/api/pedidos/**").permitAll()

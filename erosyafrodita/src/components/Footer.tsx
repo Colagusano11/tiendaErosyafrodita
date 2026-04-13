@@ -60,8 +60,8 @@ const Footer: React.FC = () => (
               </Link>
             </li>
             <li>
-              <Link to="/profile?tab=pedidos" className="hover:text-primary transition-colors">
-                Mis pedidos
+              <Link to="/track-order" className="hover:text-primary transition-colors">
+                Sigue tu pedido
               </Link>
             </li>
             <li>

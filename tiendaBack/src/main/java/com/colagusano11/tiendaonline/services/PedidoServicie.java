@@ -32,4 +32,5 @@ public interface PedidoServicie {
     void syncTrackingConProveedor(Long idPedido);
     TrackingInfoDTO getTrackingExterno(Long idPedido);
     Pedido findById(Long id);
+    Optional<PedidoSalida> rastrearPedido(Long id, String email);
 }

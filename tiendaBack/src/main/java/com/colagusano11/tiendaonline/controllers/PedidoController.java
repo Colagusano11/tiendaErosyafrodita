@@ -153,4 +153,13 @@ public class PedidoController {
     public TrackingInfoDTO checkTracking(@PathVariable Long id) {
         return pedidoService.getTrackingExterno(id);
     }
+
+    @GetMapping("/rastrear")
+    public ResponseEntity<?> rastrearPedido(
+            @RequestParam Long id,
+            @RequestParam String email) {
+        return pedidoService.rastrearPedido(id, email)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(404).build());
+    }
 }

@@ -23,7 +23,7 @@ export interface CartItem {
 
 interface CartContextType {
   items: CartItem[];
-  addItem: (product: Producto, showModal?: boolean) => Promise<void>;
+  addItem: (product: Producto, quantity?: number, showModal?: boolean) => Promise<void>;
   removeItem: (productId: number) => Promise<void>;
   clearCart: () => Promise<void>;
   total: number;
@@ -113,8 +113,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
     })();
   }, [isAuthenticated]);
 
-  // Añadir 1 unidad de un producto
-  const addItem = async (product: Producto, showModal: boolean = true) => {
+  // Añadir unidades de un producto
+  const addItem = async (product: Producto, quantity: number = 1, showModal: boolean = true) => {
     setLoading(true);
     
     // --- MODO INVITADO ---
@@ -122,9 +122,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
       const newItems = [...items];
       const existing = newItems.find(i => i.product.id === product.id);
       if (existing) {
-        existing.quantity += 1;
+        existing.quantity += quantity;
       } else {
-        newItems.push({ product, quantity: 1 });
+        newItems.push({ product, quantity });
       }
       setItems(newItems);
       localStorage.setItem(LOCAL_CART_KEY, JSON.stringify(newItems));
@@ -141,7 +141,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       const data = await apiAgregarAlCarrito({
         idProducto: Number(product.id),
-        cantidad: 1,
+        cantidad: quantity,
       });
 
       const mapped: CartItem[] = data.items.map((i) => ({
@@ -190,7 +190,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       await apiEliminarProducto(productId);
       const data = await apiGetCarrito();
-      // ... mapeo omitido por brevedad pero incluido en la lógica real
       const mapped: CartItem[] = data.items.map((i) => ({
         product: {
           id: i.idProducto,

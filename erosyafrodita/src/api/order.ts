@@ -59,6 +59,7 @@ export interface PedidoSalida {
   pais: string;
   email: string;
   paymentId?: string;
+  usuarioId?: number;
 }
 
 export async function crearPedido(body: PedidoRequest): Promise<PedidoSalida> {
@@ -146,4 +147,11 @@ export async function deletePedidoCompleto(id: number): Promise<void> {
 
 export async function confirmarPago(paymentId: string): Promise<void> {
     await api.post(`/pedidos/pago/confirmar`, { paymentId });
+}
+
+export async function rastrearPedido(id: number, email: string): Promise<PedidoSalida> {
+  const response = await api.get<PedidoSalida>(`/pedidos/rastrear`, {
+    params: { id, email }
+  });
+  return response.data;
 }

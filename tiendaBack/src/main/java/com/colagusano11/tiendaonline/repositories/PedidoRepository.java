@@ -9,6 +9,7 @@ import java.util.Optional;
 public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 
     Optional<Pedido> findByIdAndUsuarioId(Long id, Long usuarioId);
+    Optional<Pedido> findByIdAndEmail(Long id, String email);
 
     List<Pedido> findByUsuarioIdOrderByFechaDesc(Long usuarioId);
 

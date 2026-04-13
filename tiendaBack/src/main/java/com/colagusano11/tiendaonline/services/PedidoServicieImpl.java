@@ -609,4 +609,10 @@ public class PedidoServicieImpl implements PedidoServicie {
     public Pedido findByPaymentId(String paymentId) {
         return pedidoRepository.findByPaymentId(paymentId).orElse(null);
     }
+
+    @Override
+    public Optional<PedidoSalida> rastrearPedido(Long id, String email) {
+        return pedidoRepository.findByIdAndEmail(id, email)
+                .map(pedidoMapper::toSalida);
+    }
 }

@@ -21,6 +21,7 @@ const SuccessPage: React.FC = () => {
   // Extraer parámetros de búsqueda (para redirecciones externas)
   const searchParams = new URLSearchParams(location.search);
   const queryPedidoId = searchParams.get("pedidoId");
+  const queryEmail = searchParams.get("email");
 
   const finalPedidoId = state.pedidoId || (queryPedidoId ? parseInt(queryPedidoId) : null);
 
@@ -31,8 +32,20 @@ const SuccessPage: React.FC = () => {
       try {
         setLoading(true);
         
-        // 1. Cargamos el pedido
-        const data = await getPedidoById(finalPedidoId);
+        // Intentamos cargar el pedido
+        let data: PedidoSalida;
+        try {
+          data = await getPedidoById(finalPedidoId);
+        } catch (e) {
+          // Si falla (ej. 403 por ser invitado), intentamos rastrear con el email del query
+          if (queryEmail) {
+            const { rastrearPedido } = await import("../api/order");
+            data = await rastrearPedido(finalPedidoId, queryEmail);
+          } else {
+            throw e;
+          }
+        }
+
         setPedido(data);
 
         // 2. Si el pedido sigue "Pendiente de pago", intentamos confirmarlo ahora
@@ -41,7 +54,10 @@ const SuccessPage: React.FC = () => {
             try {
               await confirmarPago(data.paymentId);
               // Recargamos para ver el estado actualizado (Pagado)
-              const updated = await getPedidoById(finalPedidoId);
+              const updated = await getPedidoById(finalPedidoId).catch(() => {
+                if(queryEmail) return import("../api/order").then(m => m.rastrearPedido(finalPedidoId, queryEmail));
+                throw new Error("No se pudo recargar");
+              });
               setPedido(updated);
             } catch (e) {
               console.error("Error confirmando pago", e);
@@ -56,7 +72,7 @@ const SuccessPage: React.FC = () => {
     };
 
     procesarExito();
-  }, [finalPedidoId]);
+  }, [finalPedidoId, queryEmail]);
 
   const totalMostrar = state.total ?? (pedido ? pedido.total : 0);
 
@@ -212,11 +228,13 @@ const SuccessPage: React.FC = () => {
           {/* Luxury Action Bar */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-6">
             <button
-              onClick={() => navigate("/profile?tab=pedidos")}
+              onClick={() => navigate(pedido?.usuarioId ? "/profile?tab=pedidos" : "/track-order")}
               className="w-full sm:w-auto px-10 h-14 rounded-full border border-white/10 bg-surface-dark text-white font-bold text-xs tracking-widest uppercase hover:bg-white hover:text-background-dark transition-all flex items-center justify-center gap-3"
             >
-              <span className="material-symbols-outlined text-[18px]">receipt_long</span>
-              Mis Pedidos
+              <span className="material-symbols-outlined text-[18px]">
+                {pedido?.usuarioId ? "receipt_long" : "travel_explore"}
+              </span>
+              {pedido?.usuarioId ? "Mis Pedidos" : "Rastrear Pedido"}
             </button>
 
             <button

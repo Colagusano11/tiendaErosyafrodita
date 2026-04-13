@@ -244,8 +244,9 @@ const Checkout: React.FC = () => {
           }
         },
         onSuccess() {
+          const guestEmail = userEmail || tempAddress.email.trim();
           clearCart().then(() => {
-            navigate(`/success?pedidoId=${createdPedido?.idPedido}`);
+            navigate(`/success?pedidoId=${createdPedido?.idPedido}&email=${encodeURIComponent(guestEmail)}`);
             window.location.reload();
           });
         },
@@ -272,8 +273,9 @@ const Checkout: React.FC = () => {
                   currency: 'EUR',
                   totalAmount: Math.round(total * 100), // En céntimos suele pedirlo o decimal, pero rcInstance suele ajustarse
                   onSuccess: () => {
+                    const guestEmail = userEmail || tempAddress.email.trim();
                     clearCart().then(() => {
-                      navigate(`/success?pedidoId=${createdPedido?.idPedido}`);
+                      navigate(`/success?pedidoId=${createdPedido?.idPedido}&email=${encodeURIComponent(guestEmail)}`);
                       window.location.reload();
                     });
                   }
@@ -290,8 +292,9 @@ const Checkout: React.FC = () => {
                 currency: 'EUR',
                 totalAmount: Math.round(total * 100),
                 onSuccess: () => {
+                  const guestEmail = userEmail || tempAddress.email.trim();
                   clearCart().then(() => {
-                    navigate(`/success?pedidoId=${createdPedido?.idPedido}`);
+                    navigate(`/success?pedidoId=${createdPedido?.idPedido}&email=${encodeURIComponent(guestEmail)}`);
                     window.location.reload();
                   });
                 }
