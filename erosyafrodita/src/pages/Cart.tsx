@@ -80,7 +80,7 @@ const Cart: React.FC = () => {
                         </span>
                         <button
                           className="size-8 flex items-center justify-center rounded-full hover:bg-surface-dark text-gray-400"
-                          onClick={() => addItem(product, false)}
+                          onClick={() => addItem(product, 1, false)}
                         >
                           <span className="material-symbols-outlined !text-[18px]">
                             add
@@ -89,11 +89,7 @@ const Cart: React.FC = () => {
                       </div>
                       <button
                         className="flex items-center gap-1 text-sm text-gray-400 hover:text-red-400"
-                        onClick={() => {
-                          for (let i = 0; i < quantity; i++) {
-                            removeItem(product.id);
-                          }
-                        }}
+                        onClick={() => removeItem(product.id)}
                       >
                         <span className="material-symbols-outlined !text-[18px]">
                           delete

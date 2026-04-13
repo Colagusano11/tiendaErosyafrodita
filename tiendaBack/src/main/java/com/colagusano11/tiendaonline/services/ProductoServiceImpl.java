@@ -278,11 +278,16 @@ public class ProductoServiceImpl implements ProductoService {
         BigDecimal comisionTarjeta = config.getComisionTarjeta();
 
         if (ids != null && !ids.isEmpty()) {
-            if (distribuidor != null) {
-                productoRepository.updateSelectedProviderPricing(ids, factorIva, divisorMargen, envio, comisionTarjeta, distribuidor);
-            } else {
-                productoRepository.updateSelectedPricing(ids, factorIva, divisorMargen, envio, comisionTarjeta);
+            System.out.println("BULK PRICING: Procesando " + ids.size() + " productos en lotes.");
+            for (int i = 0; i < ids.size(); i += 500) {
+                List<Long> batch = ids.subList(i, Math.min(i + 500, ids.size()));
+                if (distribuidor != null) {
+                    productoRepository.updateSelectedProviderPricing(batch, factorIva, divisorMargen, envio, comisionTarjeta, distribuidor);
+                } else {
+                    productoRepository.updateSelectedPricing(batch, factorIva, divisorMargen, envio, comisionTarjeta);
+                }
             }
+            System.out.println("BULK PRICING: Finalizado.");
         } else {
             if (distribuidor != null) {
                 productoRepository.updateProviderPricing(factorIva, divisorMargen, envio, comisionTarjeta, distribuidor);

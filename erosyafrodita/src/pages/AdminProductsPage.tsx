@@ -33,6 +33,7 @@ const AdminProductsPage: React.FC = () => {
   const [nuevosPage, setNuevosPage] = useState(0);
   const [nuevosTotalPages, setNuevosTotalPages] = useState(0);
   const [nuevosPvpEdits, setNuevosPvpEdits] = useState<Record<number, string>>({});
+  const [catalogPvpEdits, setCatalogPvpEdits] = useState<Record<number, string>>({});
   const [savingPvp, setSavingPvp] = useState<Record<number, boolean>>({});
 
   // --- Pestaña Imágenes Rotas ---
@@ -99,6 +100,22 @@ const AdminProductsPage: React.FC = () => {
       setNuevosCount(c => Math.max(0, c - ids.length));
       showAlert("Revisado", `${ids.length} producto${ids.length > 1 ? "s" : ""} marcado${ids.length > 1 ? "s" : ""} como revisado${ids.length > 1 ? "s" : ""}`, "success");
     } catch { showAlert("Error", "No se pudo marcar como revisado", "error"); }
+  };
+
+  const saveCatalogPvp = async (id: number) => {
+    const pvp = parseFloat(catalogPvpEdits[id] ?? "");
+    if (isNaN(pvp) || pvp <= 0) { showAlert("Precio inválido", "Introduce un PVP mayor que 0", "error"); return; }
+    setSavingPvp(s => ({ ...s, [id]: true }));
+    try {
+      await updateProducto(id, { precioPVP: pvp });
+      setProducts(prev => prev.map(p => p.id === id ? { ...p, precioPVP: pvp } : p));
+      showAlert("Guardado", `PVP actualizado con éxito`, "success");
+      // Limpiar edit
+      const newEdits = { ...catalogPvpEdits };
+      delete newEdits[id];
+      setCatalogPvpEdits(newEdits);
+    } catch { showAlert("Error", "No se pudo actualizar el precio", "error"); }
+    finally { setSavingPvp(s => ({ ...s, [id]: false })); }
   };
 
   const fetchProducts = async () => {
@@ -851,12 +868,39 @@ const AdminProductsPage: React.FC = () => {
                             <span className={`text-sm font-black ${mainProduct.enOferta ? 'text-white/30 line-through text-[11px]' : 'text-white/50'}`}>
                                 {mainProduct.precio.toFixed(2)}€
                             </span>
-                            <span className={`text-[10px] font-black uppercase italic flex items-center gap-1 ${mainProduct.enOferta ? 'line-through opacity-40 text-[8px]' : 'text-primary'}`}>
-                                PVP: {(mainProduct.precioPVP || 0).toFixed(2)}€
+                            <div className="flex items-center gap-1.5 mt-1">
+                                <div className="relative group/pvp">
+                                    <input 
+                                        type="number" 
+                                        step="0.01"
+                                        placeholder={(mainProduct.precioPVP || 0).toFixed(2)}
+                                        value={catalogPvpEdits[mainProduct.id] ?? ""}
+                                        onChange={(e) => setCatalogPvpEdits({...catalogPvpEdits, [mainProduct.id]: e.target.value})}
+                                        className={`w-20 h-7 bg-white/5 border ${catalogPvpEdits[mainProduct.id] ? 'border-primary' : 'border-white/10'} rounded-lg px-2 text-[10px] font-black text-white focus:outline-none focus:border-primary transition-all font-mono`}
+                                    />
+                                    {!catalogPvpEdits[mainProduct.id] && (
+                                        <span className={`absolute left-2 top-1/2 -translate-y-1/2 text-[10px] font-black italic pointer-events-none ${mainProduct.enOferta ? 'line-through opacity-40 text-[8px]' : 'text-primary'}`}>
+                                            PVP: {(mainProduct.precioPVP || 0).toFixed(2)}€
+                                        </span>
+                                    )}
+                                </div>
+                                {catalogPvpEdits[mainProduct.id] && (
+                                    <button 
+                                        onClick={() => saveCatalogPvp(mainProduct.id)}
+                                        disabled={savingPvp[mainProduct.id]}
+                                        className="size-7 bg-primary text-background-dark rounded-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-lg shadow-primary/20"
+                                    >
+                                        {savingPvp[mainProduct.id] ? (
+                                            <div className="size-3 border-2 border-background-dark/20 border-t-background-dark rounded-full animate-spin"></div>
+                                        ) : (
+                                            <span className="material-symbols-outlined text-sm font-black">done</span>
+                                        )}
+                                    </button>
+                                )}
                                 {mainProduct.activo && mainProduct.precioPVP < (mainProduct.precio * 1.21) && (
                                     <span className="material-symbols-outlined text-orange-500 text-sm animate-pulse" title="¡PRECIO BAJO EL COSTE CON IVA!">warning</span>
                                 )}
-                            </span>
+                            </div>
                             {mainProduct.enOferta && (
                                 <div className="flex items-center gap-2 animate-fade-in">
                                     <span className="text-[14px] font-black text-rose-500 uppercase italic drop-shadow-[0_0_8px_rgba(244,63,94,0.4)]">
@@ -1333,7 +1377,10 @@ const AdminProductsPage: React.FC = () => {
                             step="0.01"
                             required
                             value={pricingConfig.envio} 
-                            onChange={(e) => setPricingConfig({...pricingConfig, envio: parseFloat(e.target.value)})}
+                            onChange={(e) => {
+                                const val = parseFloat(e.target.value);
+                                setPricingConfig({...pricingConfig, envio: isNaN(val) ? 0 : val});
+                            }}
                             className="w-full h-14 px-6 bg-background-dark border border-white/10 rounded-xl text-lg font-black text-white focus:border-primary/50 outline-none transition-all font-mono"
                         />
                     </div>
@@ -1348,7 +1395,10 @@ const AdminProductsPage: React.FC = () => {
                                 type="number" 
                                 required
                                 value={pricingConfig.iva} 
-                                onChange={(e) => setPricingConfig({...pricingConfig, iva: parseFloat(e.target.value)})}
+                                onChange={(e) => {
+                                    const val = parseFloat(e.target.value);
+                                    setPricingConfig({...pricingConfig, iva: isNaN(val) ? 0 : val});
+                                }}
                                 className="w-full h-14 px-6 bg-background-dark border border-white/10 rounded-xl text-lg font-black text-white focus:border-primary/50 outline-none transition-all font-mono"
                             />
                         </div>
@@ -1361,7 +1411,10 @@ const AdminProductsPage: React.FC = () => {
                                 type="number" 
                                 required
                                 value={pricingConfig.margen} 
-                                onChange={(e) => setPricingConfig({...pricingConfig, margen: parseFloat(e.target.value)})}
+                                onChange={(e) => {
+                                    const val = parseFloat(e.target.value);
+                                    setPricingConfig({...pricingConfig, margen: isNaN(val) ? 0 : val});
+                                }}
                                 className="w-full h-14 px-6 bg-background-dark border border-white/10 rounded-xl text-lg font-black text-white focus:border-primary/50 outline-none transition-all font-mono"
                             />
                         </div>
@@ -1375,9 +1428,42 @@ const AdminProductsPage: React.FC = () => {
                                 step="0.01"
                                 required
                                 value={pricingConfig.comisionTarjeta} 
-                                onChange={(e) => setPricingConfig({...pricingConfig, comisionTarjeta: parseFloat(e.target.value)})}
+                                onChange={(e) => {
+                                    const val = parseFloat(e.target.value);
+                                    setPricingConfig({...pricingConfig, comisionTarjeta: isNaN(val) ? 0 : val});
+                                }}
                                 className="w-full h-14 px-6 bg-background-dark border border-white/10 rounded-xl text-lg font-black text-white focus:border-primary/50 outline-none transition-all font-mono"
                             />
+                        </div>
+                    </div>
+
+                    {/* Simulador de Ejemplo */}
+                    <div className="p-6 bg-primary/5 border border-primary/10 rounded-3xl space-y-4">
+                        <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-black text-primary uppercase italic">Simulador de Ejemplo (Para 20€ de coste)</span>
+                            <span className="material-symbols-outlined text-primary text-sm">calculate</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="flex flex-col">
+                                <span className="text-[8px] font-bold text-slate-500 uppercase">Coste + Envío</span>
+                                <span className="text-sm font-black text-white">{(20 + pricingConfig.envio).toFixed(2)}€</span>
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="text-[8px] font-bold text-slate-500 uppercase">Con IVA ({pricingConfig.iva}%)</span>
+                                <span className="text-sm font-black text-white">{((20 + pricingConfig.envio) * (1 + pricingConfig.iva/100)).toFixed(2)}€</span>
+                            </div>
+                            <div className="flex flex-col pt-2 border-t border-white/5">
+                                <span className="text-[8px] font-bold text-primary uppercase">PVP FINAL (con {pricingConfig.margen}% margen)</span>
+                                <span className="text-xl font-black text-primary italic">
+                                    {(((20 + pricingConfig.envio) * (1 + pricingConfig.iva/100) / (1 - pricingConfig.margen/100)) + pricingConfig.comisionTarjeta).toFixed(2)}€
+                                </span>
+                            </div>
+                            <div className="flex flex-col pt-2 border-t border-white/5 justify-center">
+                                <span className="text-[8px] font-bold text-emerald-500 uppercase">Beneficio Neto</span>
+                                <span className="text-xs font-black text-emerald-400">
+                                    {((((20 + pricingConfig.envio) * (1 + pricingConfig.iva/100) / (1 - pricingConfig.margen/100))) / (1 + pricingConfig.iva/100) - (20 + pricingConfig.envio + (pricingConfig.comisionTarjeta / (1 + pricingConfig.iva/100)))).toFixed(2)}€
+                                </span>
+                            </div>
                         </div>
                     </div>
 

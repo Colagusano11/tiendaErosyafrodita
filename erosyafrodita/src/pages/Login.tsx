@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useAlert } from '../context/AlertContext';
 import logoEros from '../assets/logo-eros.png';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const { login, register, verify, forgotPassword, resetPassword } = useAuth();
+  const { showAlert, showConfirm } = useAlert();
   
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
   const [showVerify, setShowVerify] = useState(false);
@@ -25,8 +27,6 @@ const Login: React.FC = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    name: '',
-    apellidos: '',
   });
 
   const parseError = (err: any) => {
@@ -50,6 +50,18 @@ const Login: React.FC = () => {
     setLoading(true);
     try {
       await login({ email: formData.email.trim(), password: formData.password });
+      
+      if (sessionStorage.getItem('justVerified') === 'true') {
+        sessionStorage.removeItem('justVerified');
+        showConfirm(
+          "¡Bienvenido al Olimpo!",
+          "Tu cuenta ha sido activada con éxito. Te recomendamos completar tu perfil con tu nombre y dirección para agilizar tus futuros pedidos.",
+          () => navigate('/profile?tab=datos'),
+          "info",
+          "Completar Perfil"
+        );
+      }
+      
       navigate('/');
     } catch (err: any) {
       const msg = parseError(err);
@@ -78,8 +90,8 @@ const Login: React.FC = () => {
       await register({
         email: formData.email.trim(),
         password: formData.password,
-        name: formData.name.trim(),
-        apellidos: formData.apellidos.trim(),
+        name: "",
+        apellidos: "",
       });
       setShowVerify(true);
       setSuccess('¡Cuenta creada! Revisa tu email para el código de activación.');
@@ -96,6 +108,7 @@ const Login: React.FC = () => {
     setLoading(true);
     try {
       await verify(formData.email.trim(), verificationCode.trim());
+      sessionStorage.setItem('justVerified', 'true');
       setSuccess('Cuenta verificada con éxito. Ya puedes entrar.');
       setShowVerify(false);
       setActiveTab('login');
@@ -201,18 +214,7 @@ const Login: React.FC = () => {
                   </div>
 
                   <form className="space-y-4" onSubmit={activeTab === 'login' ? handleLogin : handleRegister}>
-                    {activeTab === 'register' && (
-                      <div className="grid grid-cols-2 gap-4">
-                        <label className="block group">
-                          <span className="text-white text-xs font-semibold mb-1.5 block ml-1 text-white/70">Nombre</span>
-                          <input name="name" value={formData.name} onChange={handleChange} required className="w-full h-11 bg-surface-dark border border-border-gold/50 rounded-full px-5 text-white placeholder-white/20 focus:outline-none focus:border-primary text-sm transition-all" placeholder="Juan" />
-                        </label>
-                        <label className="block group">
-                          <span className="text-white text-xs font-semibold mb-1.5 block ml-1 text-white/70">Apellidos</span>
-                          <input name="apellidos" value={formData.apellidos} onChange={handleChange} required className="w-full h-11 bg-surface-dark border border-border-gold/50 rounded-full px-5 text-white placeholder-white/20 focus:outline-none focus:border-primary text-sm transition-all" placeholder="Pérez" />
-                        </label>
-                      </div>
-                    )}
+
 
                     <label className="block group">
                       <span className="text-white text-xs font-semibold mb-1.5 block ml-1 text-white/70">Email</span>
