@@ -142,13 +142,13 @@ const HomePage: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
-              className="w-full overflow-hidden rounded-xl sm:rounded-2xl shadow-2xl shadow-black/40 border border-white/5 bg-black p-8 sm:p-0"
+              className="w-full overflow-hidden rounded-xl sm:rounded-2xl shadow-2xl shadow-black/40 border border-white/5 bg-black"
             >
               <img
                 src={homeHeader}
                 alt="Eros & Afrodita — Colección"
-                className="w-full h-auto min-h-[160px] sm:min-h-[300px] lg:h-auto object-contain sm:object-cover"
-                style={{ objectPosition: "center center" }}
+                className="w-full h-auto min-h-[200px] sm:min-h-[300px] lg:h-auto object-cover sm:object-cover"
+                style={{ objectPosition: window.innerWidth < 640 ? "right center" : "center center" }}
               />
             </motion.div>
 
