@@ -58,40 +58,25 @@ const Header: React.FC = () => {
               alt="Eros & Afrodita logo"
               className="size-8 sm:size-10 rounded-full object-cover shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform duration-500"
             />
-            <div className="flex flex-col -gap-1">
-              <span className="font-black text-sm sm:text-lg tracking-tighter leading-none uppercase">
+            <div className="flex flex-col -gap-0.5">
+              <span className="font-black text-[12px] xs:text-sm sm:text-lg tracking-tighter leading-none uppercase">
                 Eros<span className="text-primary italic font-serif">&</span>Afrodita
               </span>
-              <span className="text-[7px] sm:text-[8px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-primary/60">LA ESENCIA DIVINA</span>
+              <span className="text-[6px] sm:text-[8px] font-black uppercase tracking-[0.1em] sm:tracking-[0.3em] text-primary/60">LA ESENCIA DIVINA</span>
             </div>
           </Link>
         </div>
 
-        {/* Navegación Central (Desktop) */}
-        <nav className="hidden xl:flex items-center gap-10">
+        {/* Navegación Central (Desktop) - Centrada */}
+        <nav className="hidden xl:flex flex-1 items-center justify-center gap-10">
           <Link to="/catalog?genero=HOMBRE" className="text-[11px] font-black uppercase tracking-[0.2em] text-white/50 hover:text-primary transition-colors">Hombre</Link>
           <Link to="/catalog?genero=MUJER" className="text-[11px] font-black uppercase tracking-[0.2em] text-white/50 hover:text-primary transition-colors">Mujer</Link>
           <Link to="/catalog?orden=idDesc" className="text-[11px] font-black uppercase tracking-[0.2em] text-white/50 hover:text-primary transition-colors">Novedades</Link>
           <Link to="/catalog?status=OFERTAS" className="text-[11px] font-black uppercase tracking-[0.2em] text-primary hover:text-white transition-colors italic">Ofertas</Link>
         </nav>
 
-        {/* Buscador (Desktop) */}
-        <div className="hidden lg:flex flex-1 max-w-sm mx-8">
-          <div className="relative w-full group">
-            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-white/30 text-xl group-focus-within:text-primary transition-colors">search</span>
-            <input 
-              type="text" 
-              placeholder={t('search_placeholder') || "Buscar perfumes, cosmética..."}
-              className="w-full h-11 pl-12 pr-4 bg-white/5 border border-white/10 rounded-full text-xs text-white placeholder:text-white/20 focus:outline-none focus:border-primary/50 focus:bg-white/10 transition-all font-light"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onKeyDown={handleSearch}
-            />
-          </div>
-        </div>
-
         {/* Icons */}
-        <div className="flex items-center gap-3 sm:gap-6">
+        <div className="flex items-center gap-2 sm:gap-6">
           {/* Favoritos */}
           <Link
             to="/wishlist"
@@ -168,18 +153,6 @@ const Header: React.FC = () => {
               </button>
             </div>
 
-            {/* Buscador Móvil */}
-            <div className="mb-8 relative group">
-              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-white/30 text-xl">search</span>
-              <input 
-                type="text" 
-                placeholder="¿Qué buscas hoy?"
-                className="w-full h-12 pl-12 pr-4 bg-white/5 border border-white/10 rounded-2xl text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-primary/50 transition-all font-light"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyDown={handleSearch}
-              />
-            </div>
             
             <nav className="flex flex-col gap-6">
               <Link to="/catalog?genero=HOMBRE" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-black uppercase tracking-widest text-white hover:text-primary transition-colors">Hombre</Link>
