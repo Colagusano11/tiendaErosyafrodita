@@ -277,15 +277,6 @@ const HomePage: React.FC = () => {
                 </span>
                 <span className="text-sm font-medium">Otros</span>
               </Link>
-              <Link
-                to="/catalog?categoria=Otros"
-                className="flex h-10 whitespace-nowrap items-center justify-center gap-2 rounded-full bg-surface-dark text-gray-200 border border-white/10 hover:border-violet-400 hover:text-violet-300 px-3 sm:px-4 transition-all hover:bg-white/5"
-              >
-                <span className="material-symbols-outlined notranslate normal-case text-[18px] text-violet-400">
-                  apps
-                </span>
-                <span className="text-sm font-medium">Otros</span>
-              </Link>
             </div>
           </div>
         </div>
