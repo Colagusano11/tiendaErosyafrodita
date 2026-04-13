@@ -9,11 +9,21 @@ interface AlertState {
     type: AlertType;
     onConfirm?: () => void;
     confirmText?: string;
+    onSecondary?: () => void;
+    secondaryText?: string;
 }
 
 interface AlertContextType {
     showAlert: (title: string, message: string, type?: AlertType) => void;
-    showConfirm: (title: string, message: string, onConfirm: () => void, type?: AlertType, confirmText?: string) => void;
+    showConfirm: (
+        title: string, 
+        message: string, 
+        onConfirm: () => void, 
+        type?: AlertType, 
+        confirmText?: string,
+        onSecondary?: () => void,
+        secondaryText?: string
+    ) => void;
     hideAlert: () => void;
     alertState: AlertState;
 }
@@ -38,7 +48,15 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         });
     };
 
-    const showConfirm = (title: string, message: string, onConfirm: () => void, type: AlertType = "warning", confirmText: string = "Confirmar") => {
+    const showConfirm = (
+        title: string, 
+        message: string, 
+        onConfirm: () => void, 
+        type: AlertType = "warning", 
+        confirmText: string = "Confirmar",
+        onSecondary?: () => void,
+        secondaryText?: string
+    ) => {
         setAlertState({
             isOpen: true,
             title,
@@ -46,6 +64,8 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             type,
             onConfirm,
             confirmText,
+            onSecondary,
+            secondaryText
         });
     };
 

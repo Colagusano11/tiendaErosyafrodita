@@ -354,36 +354,42 @@ const AdminProductsPage: React.FC = () => {
     }
   };
 
-  const handleSyncAmazon = async () => {
-    const confirm = await showConfirm(
+  const handleSyncAmazon = () => {
+    showConfirm(
       "Sincronización Inteligente",
-      "Las fotos de Amazon ya vinculadas están BLINDADAS y no se tocarán. ¿Qué quieres hacer con el resto?\n\n• SANEAR: Reemplaza fotos de otros proveedores (BTS, etc) por las de Amazon.\n• SOLO HUECOS: Rellena solo donde no haya ninguna foto.",
+      "Las fotos de Amazon ya vinculadas están BLINDADAS y no se tocarán. ¿Qué quieres hacer con el resto?\n\n• SANEAR: Reemplaza fotos de otros proveedores (BTS, etc) por las de Amazon (RECOMENDADO).\n• SOLO HUECOS: Rellena solo donde no haya ninguna foto.",
+      async () => {
+        // Opción: SANEAR CATÁLOGO (force=true)
+        setSyncingAmazon(true);
+        try {
+          const { syncAmazonImages } = await import("../api/products");
+          await syncAmazonImages(true);
+          showAlert("Sincronización iniciada", "Saneamiento iniciado. Se actualizarán todas las fotos que no sean oficiales de Amazon.", "success");
+          fetchProducts();
+        } catch {
+          showAlert("Error", "No se pudo sincronizar con Amazon", "error");
+        } finally {
+          setSyncingAmazon(false);
+        }
+      },
       "checkmark",
       "Sanear Catálogo",
+      async () => {
+        // Opción: SOLO HUECOS (force=false)
+        setSyncingAmazon(true);
+        try {
+          const { syncAmazonImages } = await import("../api/products");
+          await syncAmazonImages(false);
+          showAlert("Sincronización iniciada", "Búsqueda iniciada solo para productos sin imagen.", "success");
+          fetchProducts();
+        } catch {
+          showAlert("Error", "No se pudo sincronizar con Amazon", "error");
+        } finally {
+          setSyncingAmazon(false);
+        }
+      },
       "Solo Huecos"
     );
-
-    if (confirm === undefined) return; // Cancelar
-
-    setSyncingAmazon(true);
-    try {
-      const { syncAmazonImages } = await import("../api/products");
-      // Si eligió 'Sanear Catálogo', pasamos true. Si eligió 'Solo Huecos', pasamos false.
-      const forceArg = (confirm === true);
-      await syncAmazonImages(forceArg);
-      showAlert(
-        "Sincronización iniciada", 
-        forceArg 
-          ? "Saneamiento iniciado. Se actualizarán todas las fotos que no sean oficiales de Amazon." 
-          : "Búsqueda iniciada solo para productos sin imagen.", 
-        "success"
-      );
-      fetchProducts();
-    } catch {
-      showAlert("Error", "No se pudo sincronizar con Amazon", "error");
-    } finally {
-      setSyncingAmazon(false);
-    }
   };
 
   const isSearchActive = skuFilter || nameFilter || brandFilter || categoryFilter || providerFilter || statusFilter !== "TODOS";

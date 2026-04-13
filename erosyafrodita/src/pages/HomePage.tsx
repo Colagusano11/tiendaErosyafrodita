@@ -136,13 +136,13 @@ const HomePage: React.FC = () => {
       <main className="flex-grow">
 
         {/* Home Header Banner */}
-        <div className="w-full px-2 sm:px-4 lg:px-20 pb-4 sm:pb-6">
+        <div className="w-full px-1 sm:px-4 lg:px-20 pb-4 sm:pb-6">
           <div className="max-w-[1440px] mx-auto relative sm:px-0">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
-              className="w-[92%] sm:w-full mx-auto overflow-hidden rounded-xl sm:rounded-2xl shadow-2xl shadow-black/40 border border-white/5 bg-charcoal-lighter"
+              className="w-full overflow-hidden rounded-xl sm:rounded-2xl shadow-2xl shadow-black/40 border border-white/5 bg-charcoal-lighter p-5 sm:p-0"
             >
               <img
                 src={homeHeader}

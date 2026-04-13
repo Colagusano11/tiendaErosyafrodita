@@ -59,22 +59,35 @@ const AlertModal: React.FC = () => {
                             </p>
                             
                             {alertState.onConfirm ? (
-                                <div className="flex flex-col sm:flex-row gap-3 w-full">
-                                    <button 
-                                        onClick={hideAlert}
-                                        className="flex-1 h-12 sm:h-14 bg-white/5 hover:bg-white/10 text-white/40 hover:text-white font-black text-[9px] sm:text-[10px] uppercase tracking-widest rounded-xl sm:rounded-2xl border border-white/5 transition-all active:scale-95"
-                                    >
-                                        Cancelar
-                                    </button>
-                                    <button 
-                                        onClick={() => {
-                                            alertState.onConfirm?.();
-                                            hideAlert();
-                                        }}
-                                        className="flex-1 h-12 sm:h-14 bg-primary hover:bg-white text-charcoal font-black text-[9px] sm:text-[10px] uppercase tracking-widest rounded-xl sm:rounded-2xl transition-all active:scale-95 shadow-xl shadow-primary/20"
-                                    >
-                                        {alertState.confirmText || "Confirmar"}
-                                    </button>
+                                <div className="flex flex-col gap-3 w-full">
+                                    <div className="flex gap-3 w-full">
+                                        <button 
+                                            onClick={hideAlert}
+                                            className="flex-1 h-12 sm:h-14 bg-white/5 hover:bg-white/10 text-white/40 hover:text-white font-black text-[9px] sm:text-[10px] uppercase tracking-widest rounded-xl sm:rounded-2xl border border-white/5 transition-all active:scale-95"
+                                        >
+                                            Cancelar
+                                        </button>
+                                        <button 
+                                            onClick={() => {
+                                                alertState.onConfirm?.();
+                                                hideAlert();
+                                            }}
+                                            className="flex-1 h-12 sm:h-14 bg-primary hover:bg-white text-charcoal font-black text-[9px] sm:text-[10px] uppercase tracking-widest rounded-xl sm:rounded-2xl transition-all active:scale-95 shadow-xl shadow-primary/20"
+                                        >
+                                            {alertState.confirmText || "Confirmar"}
+                                        </button>
+                                    </div>
+                                    {alertState.onSecondary && (
+                                        <button 
+                                            onClick={() => {
+                                                alertState.onSecondary?.();
+                                                hideAlert();
+                                            }}
+                                            className="w-full h-12 sm:h-14 bg-violet-600 hover:bg-white text-white hover:text-charcoal font-black text-[9px] sm:text-[10px] uppercase tracking-widest rounded-xl sm:rounded-2xl transition-all active:scale-95 shadow-xl shadow-violet-600/20 mt-1"
+                                        >
+                                            {alertState.secondaryText || "Secundario"}
+                                        </button>
+                                    )}
                                 </div>
                             ) : (
                                 <button 
