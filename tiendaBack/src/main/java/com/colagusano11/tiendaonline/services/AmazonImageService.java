@@ -99,11 +99,11 @@ public class AmazonImageService {
                 return updatedCount.get();
             }
 
-            // CRITERIO DE CONFIANZA: Si la imagen ya es de Amazon (contiene "amazon"), la respetamos a menos que se fuerce.
-            // Si la imagen NO es de Amazon (ej: btswholesaler), la tratamos como vacía para que el script la sanee.
+            // BLINDAJE TOTAL: Si la imagen ya es oficial de Amazon, no la tocamos NUNCA.
+            // Esto ahorra cuota de API y protege el catálogo ya enriquecido.
             boolean isOfficialAmazonImage = p.getImagen() != null && p.getImagen().toLowerCase().contains("amazon");
 
-            if (!forceOverwrite && isOfficialAmazonImage) {
+            if (isOfficialAmazonImage) {
                 continue;
             }
 

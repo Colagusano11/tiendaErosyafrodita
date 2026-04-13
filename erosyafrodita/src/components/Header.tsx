@@ -58,11 +58,11 @@ const Header: React.FC = () => {
               alt="Eros & Afrodita logo"
               className="size-8 sm:size-10 rounded-full object-cover shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform duration-500"
             />
-            <div className="flex flex-col -gap-0.5">
-              <span className="font-black text-[12px] xs:text-sm sm:text-lg tracking-tighter leading-none uppercase">
+            <div className="flex flex-col -gap-0.5 ml-2 sm:ml-0">
+              <span className="text-[10px] xs:text-xs sm:text-lg tracking-tighter leading-none uppercase">
                 Eros<span className="text-primary italic font-serif">&</span>Afrodita
               </span>
-              <span className="text-[6px] sm:text-[8px] font-black uppercase tracking-[0.1em] sm:tracking-[0.3em] text-primary/60">LA ESENCIA DIVINA</span>
+              <span className="text-[5px] sm:text-[8px] font-black uppercase tracking-[0.05em] sm:tracking-[0.3em] text-primary/60">LA ESENCIA DIVINA</span>
             </div>
           </Link>
         </div>
