@@ -102,23 +102,24 @@ public class AmazonImageService {
             // 1. BLINDAJE: Si ya es de Amazon, no se toca NUNCA.
             boolean isOfficialAmazonImage = p.getImagen() != null && p.getImagen().toLowerCase().contains("amazon");
             if (isOfficialAmazonImage) {
+                System.out.println("[AMAZON-SYNC] SKIP: " + p.getSku() + " ya tiene imagen oficial de Amazon.");
                 continue;
             }
 
-            // 2. MODO "SOLO HUECOS": Si NO estamos saneando y el producto ya tiene alguna foto (aunque sea de BTS), saltamos.
+            // 2. MODO "SOLO HUECOS": Si NO estamos saneando y el producto ya tiene alguna foto, saltamos.
             if (!forceOverwrite && p.getImagen() != null && !p.getImagen().trim().isEmpty()) {
+                System.out.println("[AMAZON-SYNC] SKIP: " + p.getSku() + " ya tiene imagen (Modo Solo Huecos).");
                 continue;
             }
 
-            // 3. Si llegamos aquí, es porque:
-            // - El hueco está vacío (null o "")
-            // - O estamos en modo "SANEAR" (forceOverwrite=true) y la foto no es oficial de Amazon.
-
+            // 3. Proceso de Sincronización
             if (p.getEan() == null || p.getEan().isEmpty()) {
+                System.out.println("[AMAZON-SYNC] ERROR: " + p.getSku() + " no tiene EAN.");
                 continue;
             }
 
             try {
+                System.out.println("[AMAZON-SYNC] BUSCANDO: " + p.getSku() + " (" + p.getNombre() + ")...");
                 List<String> imgUrls = fetchImagesFromAmazon(p.getEan(), token);
                 // Filtramos para asegurar que solo guardamos enlaces que contengan "amazon"
                 List<String> validAmazonUrls = imgUrls.stream()
@@ -133,7 +134,9 @@ public class AmazonImageService {
                     
                     productoRepository.save(p);
                     updatedCount.getAndIncrement();
-                    System.out.println("Imágenes (" + imgUrls.size() + ") actualizadas para " + p.getNombre() + " (" + p.getEan() + ")");
+                    System.out.println("[AMAZON-SYNC] OK: " + validAmazonUrls.size() + " imágenes actualizadas para " + p.getSku());
+                } else {
+                    System.out.println("[AMAZON-SYNC] INFO: No se encontraron fotos en Amazon para " + p.getSku());
                 }
                 Thread.sleep(1000);
             } catch (Exception e) {
