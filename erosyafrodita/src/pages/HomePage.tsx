@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import ProductCard from "../components/ProductCard";
@@ -31,6 +31,14 @@ const HomePage: React.FC = () => {
   const [recommendedCount, setRecommendedCount] = useState(10);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
+
+  const handleSearch = () => {
+    if (searchQuery.trim()) {
+      navigate(`/catalog?search=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
 
   useEffect(() => {
     (async () => {
@@ -128,54 +136,59 @@ const HomePage: React.FC = () => {
       <main className="flex-grow">
 
         {/* Home Header Banner */}
-        <div className="w-full px-4 lg:px-20 pb-4 sm:pb-6">
+        <div className="w-full px-2 sm:px-4 lg:px-20 pb-4 sm:pb-6">
           <div className="max-w-[1440px] mx-auto relative">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
-              className="w-full overflow-hidden rounded-2xl shadow-2xl shadow-black/40 border border-white/5 bg-charcoal-lighter"
+              className="w-full overflow-hidden rounded-xl sm:rounded-2xl shadow-2xl shadow-black/40 border border-white/5 bg-charcoal-lighter"
             >
               <img
                 src={homeHeader}
                 alt="Eros & Afrodita — Colección"
-                className="w-full h-[220px] sm:h-[400px] lg:h-auto object-cover"
-                style={{ objectPosition: "center top" }}
+                className="w-full h-auto min-h-[160px] sm:min-h-[300px] lg:h-auto object-cover sm:object-cover"
+                style={{ objectPosition: "center center" }}
               />
             </motion.div>
 
-            {/* BUSCADOR PREMIUM INTEGRADO */}
+            {/* BUSCADOR PREMIUM INTEGRADO - Optimizado para Mobile */}
             <motion.div 
                initial={{ opacity: 0, y: 10 }}
                animate={{ opacity: 1, y: 0 }}
                transition={{ delay: 0.3, duration: 0.5 }}
-               className="mt-6 sm:-mt-10 relative z-20 px-4 sm:px-0"
+               className="mt-4 sm:-mt-10 relative z-20 px-2 sm:px-0"
             >
               <div className="max-w-3xl mx-auto">
-                <div className="bg-charcoal/40 backdrop-blur-2xl border border-white/10 p-2 rounded-[2.5rem] shadow-2xl shadow-black/50 flex items-center group focus-within:border-primary/50 transition-all duration-500">
-                  <div className="size-12 sm:size-14 rounded-full bg-white/5 flex items-center justify-center text-white/20 group-focus-within:text-primary group-focus-within:bg-primary/10 transition-all">
-                    <span className="material-symbols-outlined text-2xl">search</span>
+                <div className="bg-charcoal/60 backdrop-blur-3xl border border-white/20 p-1.5 sm:p-2 rounded-full sm:rounded-[2.5rem] shadow-2xl shadow-black/50 flex items-center group focus-within:border-primary/50 transition-all duration-500">
+                  <div className="size-10 sm:size-14 rounded-full bg-white/5 flex items-center justify-center text-white/40 group-focus-within:text-primary group-focus-within:bg-primary/10 transition-all">
+                    <span className="material-symbols-outlined text-xl sm:text-2xl">search</span>
+                    <input 
+                      type="text" 
+                      name="q"
+                      autoComplete="off"
+                      spellCheck={false}
+                      placeholder="Busca marca, aroma o nombre..."
+                      className="flex-1 bg-transparent border-none outline-none px-3 sm:px-6 text-white text-sm sm:text-base font-light placeholder:text-white/40"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                              handleSearch();
+                          }
+                      }}
+                    />
+                    <button 
+                      onClick={handleSearch}
+                      className="hidden sm:flex h-12 px-8 rounded-full bg-primary text-charcoal text-[10px] font-black uppercase tracking-[0.2em] hover:bg-white transition-all items-center justify-center"
+                    >
+                      Buscar
+                    </button>
                   </div>
-                  <input 
-                    type="text" 
-                    name="q"
-                    autoComplete="off"
-                    spellCheck={false}
-                    placeholder="Busca tu esencia divina (marca, aroma, nombre...)"
-                    className="flex-1 bg-transparent border-none outline-none px-4 sm:px-6 text-white text-sm sm:text-base font-light placeholder:text-white/20"
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                            const val = (e.target as HTMLInputElement).value;
-                            if (val.trim()) window.location.href = `/catalog?search=${encodeURIComponent(val.trim())}`;
-                        }
-                    }}
-                  />
-                  <button className="hidden sm:flex h-12 px-8 rounded-full bg-primary text-charcoal text-[10px] font-black uppercase tracking-[0.2em] hover:bg-white transition-all items-center justify-center">
-                    Buscar
-                  </button>
                 </div>
-                <div className="mt-4 flex items-center justify-center gap-4 text-[9px] font-black uppercase tracking-[0.2em] text-white/20">
-                    <span className="text-primary/40 italic">Tendencias:</span>
+                {/* Tendencias más compactas en móvil */}
+                <div className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[8px] sm:text-[9px] font-black uppercase tracking-[0.2em] text-white/30">
+                    <span className="text-primary/50 italic">Tendencias:</span>
                     <Link to="/catalog?search=Rochas" className="hover:text-primary transition-colors">Rochas</Link>
                     <Link to="/catalog?search=Kilian" className="hover:text-primary transition-colors">Kilian</Link>
                     <Link to="/catalog?search=Hermes" className="hover:text-primary transition-colors">Hermes</Link>
@@ -185,58 +198,79 @@ const HomePage: React.FC = () => {
           </div>
         </div>
 
-        {/* Categories Strip */}
-        <div className="px-4 lg:px-20 py-4 lg:py-8">
+        {/* Categories Strip sanitized */}
+        <div className="px-4 lg:px-6 py-4 lg:py-6">
           <div className="max-w-[1440px] mx-auto">
-            <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-4 no-scrollbar">
+            <div className="flex flex-wrap lg:flex-nowrap items-center justify-center gap-2 sm:gap-2 overflow-x-auto lg:overflow-visible pb-4 lg:pb-0 no-scrollbar">
+              
+              {/* Categorías Principales en orden solicitado */}
               <Link
-                to="/catalog"
-                className="flex h-10 whitespace-nowrap items-center justify-center gap-2 rounded-full bg-surface-dark text-gray-200 border border-white/10 hover:border-primary hover:text-primary px-6 transition-all hover:bg-white/5"
+                to="/catalog?categoria=Perfumes"
+                className="flex h-10 whitespace-nowrap items-center justify-center gap-2 rounded-full bg-surface-dark text-gray-200 border border-white/10 hover:border-amber-400 hover:text-amber-300 px-3 sm:px-4 transition-all hover:bg-white/5"
               >
-                <span className="material-symbols-outlined text-[18px]">
-                  apps
+                <span className="material-symbols-outlined notranslate normal-case text-[18px] text-amber-400">
+                  flare
                 </span>
-                <span className="text-sm font-medium">Todo</span>
+                <span className="text-sm font-medium">Perfumes</span>
               </Link>
               <Link
-                to="/catalog?genero=HOMBRE"
-                className="flex h-10 whitespace-nowrap items-center justify-center gap-2 rounded-full bg-surface-dark text-gray-200 border border-white/10 hover:border-blue-400 hover:text-blue-300 px-6 transition-all hover:bg-white/5"
+                to="/catalog?categoria=Cosmética"
+                className="flex h-10 whitespace-nowrap items-center justify-center gap-2 rounded-full bg-surface-dark text-gray-200 border border-white/10 hover:border-emerald-400 hover:text-emerald-300 px-3 sm:px-4 transition-all hover:bg-white/5"
               >
-                <span className="material-symbols-outlined text-[18px] text-blue-400">
-                  male
+                <span className="material-symbols-outlined notranslate normal-case text-[18px] text-emerald-400">
+                  spa
                 </span>
-                <span className="text-sm font-medium">Hombre</span>
+                <span className="text-sm font-medium">Cosmética</span>
               </Link>
               <Link
-                to="/catalog?genero=MUJER"
-                className="flex h-10 whitespace-nowrap items-center justify-center gap-2 rounded-full bg-surface-dark text-gray-200 border border-white/10 hover:border-pink-400 hover:text-pink-300 px-6 transition-all hover:bg-white/5"
+                to="/catalog?categoria=Maquillaje"
+                className="flex h-10 whitespace-nowrap items-center justify-center gap-2 rounded-full bg-surface-dark text-gray-200 border border-white/10 hover:border-rose-400 hover:text-rose-300 px-3 sm:px-4 transition-all hover:bg-white/5"
               >
-                <span className="material-symbols-outlined text-[18px] text-pink-400">
-                  female
+                <span className="material-symbols-outlined notranslate normal-case text-[18px] text-rose-400">
+                  brush
                 </span>
-                <span className="text-sm font-medium">Mujer</span>
+                <span className="text-sm font-medium">Maquillaje</span>
               </Link>
               <Link
-                to="/catalog?orden=idDesc"
-                className="flex h-10 whitespace-nowrap items-center justify-center gap-2 rounded-full bg-surface-dark text-gray-200 border border-white/10 hover:border-purple-400 hover:text-purple-300 px-6 transition-all hover:bg-white/5"
+                to="/catalog?categoria=Cabello"
+                className="flex h-10 whitespace-nowrap items-center justify-center gap-2 rounded-full bg-surface-dark text-gray-200 border border-white/10 hover:border-yellow-500 hover:text-yellow-400 px-3 sm:px-4 transition-all hover:bg-white/5"
               >
-                <span className="material-symbols-outlined text-[18px] text-purple-400">
-                  new_releases
+                <span className="material-symbols-outlined notranslate normal-case text-[18px] text-yellow-500">
+                  content_cut
                 </span>
-                <span className="text-sm font-medium">Novedades</span>
+                <span className="text-sm font-medium">Cabello</span>
               </Link>
               <Link
-                to="/catalog?status=OFERTAS"
-                className="flex h-10 whitespace-nowrap items-center justify-center gap-2 rounded-full bg-surface-dark text-primary border border-primary/30 hover:border-primary hover:bg-primary/10 px-6 transition-all"
+                to="/catalog?categoria=Parafarmacia"
+                className="flex h-10 whitespace-nowrap items-center justify-center gap-2 rounded-full bg-surface-dark text-gray-200 border border-white/10 hover:border-green-400 hover:text-green-300 px-3 sm:px-4 transition-all hover:bg-white/5"
               >
-                <span className="material-symbols-outlined text-[18px]">
-                  local_offer
+                <span className="material-symbols-outlined notranslate normal-case text-[18px] text-green-400">
+                  medical_services
                 </span>
-                <span className="text-sm font-bold italic">Ofertas</span>
+                <span className="text-sm font-medium">Parafarmacia</span>
+              </Link>
+              <Link
+                to="/catalog?categoria=Linea de Baño"
+                className="flex h-10 whitespace-nowrap items-center justify-center gap-2 rounded-full bg-surface-dark text-gray-200 border border-white/10 hover:border-sky-400 hover:text-sky-300 px-3 sm:px-4 transition-all hover:bg-white/5"
+              >
+                <span className="material-symbols-outlined notranslate normal-case text-[18px] text-sky-400">
+                  bathtub
+                </span>
+                <span className="text-sm font-medium">Línea de Baño</span>
+              </Link>
+              <Link
+                to="/catalog?categoria=Complementos"
+                className="flex h-10 whitespace-nowrap items-center justify-center gap-2 rounded-full bg-surface-dark text-gray-200 border border-white/10 hover:border-cyan-400 hover:text-cyan-300 px-3 sm:px-4 transition-all hover:bg-white/5"
+              >
+                <span className="material-symbols-outlined notranslate normal-case text-[18px] text-cyan-400">
+                  eyeglasses
+                </span>
+                <span className="text-sm font-medium">Complementos</span>
               </Link>
             </div>
           </div>
         </div>
+        
 
         {/* Novedades */}
         <section className="px-4 lg:px-20 py-16 bg-charcoal/75">

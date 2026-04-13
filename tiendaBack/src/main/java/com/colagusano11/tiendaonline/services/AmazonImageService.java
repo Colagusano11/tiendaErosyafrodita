@@ -99,7 +99,11 @@ public class AmazonImageService {
                 return updatedCount.get();
             }
 
-            if (!forceOverwrite && p.getImagen() != null && !p.getImagen().isEmpty()) {
+            // CRITERIO DE CONFIANZA: Si la imagen ya es de Amazon (contiene "amazon"), la respetamos a menos que se fuerce.
+            // Si la imagen NO es de Amazon (ej: btswholesaler), la tratamos como vacía para que el script la sanee.
+            boolean isOfficialAmazonImage = p.getImagen() != null && p.getImagen().toLowerCase().contains("amazon");
+
+            if (!forceOverwrite && isOfficialAmazonImage) {
                 continue;
             }
 
@@ -109,11 +113,16 @@ public class AmazonImageService {
 
             try {
                 List<String> imgUrls = fetchImagesFromAmazon(p.getEan(), token);
-                if (!imgUrls.isEmpty()) {
-                    p.setImagen(imgUrls.get(0));
-                    if (imgUrls.size() > 1) p.setImagen2(imgUrls.get(1));
-                    if (imgUrls.size() > 2) p.setImagen3(imgUrls.get(2));
-                    if (imgUrls.size() > 3) p.setImagen4(imgUrls.get(3));
+                // Filtramos para asegurar que solo guardamos enlaces que contengan "amazon"
+                List<String> validAmazonUrls = imgUrls.stream()
+                        .filter(url -> url.toLowerCase().contains("amazon"))
+                        .toList();
+
+                if (!validAmazonUrls.isEmpty()) {
+                    p.setImagen(validAmazonUrls.get(0));
+                    if (validAmazonUrls.size() > 1) p.setImagen2(validAmazonUrls.get(1));
+                    if (validAmazonUrls.size() > 2) p.setImagen3(validAmazonUrls.get(2));
+                    if (validAmazonUrls.size() > 3) p.setImagen4(validAmazonUrls.get(3));
                     
                     productoRepository.save(p);
                     updatedCount.getAndIncrement();

@@ -172,7 +172,7 @@ const Catalog: React.FC = () => {
       />
       <Header />
       
-      <div className="flex-1 flex flex-col lg:flex-row max-w-[1440px] mx-auto w-full px-4 lg:px-20 py-6 lg:py-10 gap-6 lg:gap-10">
+      <div className="flex-1 flex flex-col lg:flex-row max-w-[1600px] mx-auto w-full px-4 lg:px-6 py-6 lg:py-10 gap-6 lg:gap-6">
         {/* Mobile Filter Toggle */}
         <div className="lg:hidden flex items-center justify-between bg-surface-dark p-4 rounded-2xl border border-white/5">
            <div className="flex flex-col">
@@ -189,7 +189,7 @@ const Catalog: React.FC = () => {
         </div>
 
         {/* Sidebar de Filtros */}
-        <aside className={`${showMobileFilters ? 'block' : 'hidden'} lg:block w-full lg:w-[240px] shrink-0 animate-in fade-in slide-in-from-top-4 duration-300`}>
+        <aside className={`${showMobileFilters ? 'block' : 'hidden'} lg:block w-full lg:w-[220px] shrink-0 animate-in fade-in slide-in-from-top-4 duration-300`}>
           <div className="bg-surface-dark rounded-2xl p-5 border border-white/5 lg:sticky lg:top-28 shadow-2xl overflow-hidden relative group">
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-primary/10 transition-colors"></div>
 
@@ -333,7 +333,7 @@ const Catalog: React.FC = () => {
           </div>
 
           {loading && (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 opacity-30">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6 opacity-30">
               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
                 <div key={n} className="aspect-[3/4.5] rounded-3xl bg-surface-dark animate-pulse border border-white/5"></div>
               ))}
@@ -357,43 +357,76 @@ const Catalog: React.FC = () => {
             <div className="flex flex-col h-full">
               {productos.length > 0 ? (
                 <>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-4 gap-y-10 animate-in fade-in duration-700">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-x-4 gap-y-10 animate-in fade-in duration-700">
                     {productos.map((product) => (
                       <ProductCard key={product.id} product={product} />
                     ))}
                   </div>
 
-                  {/* Paginación UI */}
+                  {/* Paginación UI Avanzada */}
                   {paginacion.totalPages > 1 && (
-                    <div className="mt-20 mb-10 flex items-center justify-center gap-2">
+                    <div className="mt-20 mb-10 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
                       <button
                         onClick={() => handlePageChange(paginacion.page - 1)}
                         disabled={paginacion.page === 0}
-                        className="size-12 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-background-dark disabled:opacity-20 disabled:hover:bg-transparent disabled:hover:text-white transition-all group"
+                        className="size-10 sm:size-12 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-background-dark disabled:opacity-20 disabled:hover:bg-transparent disabled:hover:text-white transition-all group shrink-0"
                       >
                         <span className="material-symbols-outlined group-active:-translate-x-1 transition-transform">chevron_left</span>
                       </button>
                       
-                      <div className="flex items-center gap-1">
-                        {[...Array(paginacion.totalPages)].map((_, i) => (
-                          <button
-                            key={i}
-                            onClick={() => handlePageChange(i)}
-                            className={`size-10 rounded-full text-xs font-black transition-all ${
-                              paginacion.page === i 
-                                ? "bg-primary text-background-dark" 
-                                : "text-white/40 hover:text-white hover:bg-white/5"
-                            }`}
-                          >
-                            {i + 1}
-                          </button>
-                        )).slice(Math.max(0, paginacion.page - 2), Math.min(paginacion.totalPages, paginacion.page + 3))}
+                      <div className="flex items-center gap-1 sm:gap-2">
+                        {(() => {
+                          const total = paginacion.totalPages;
+                          const current = paginacion.page;
+                          
+                          // Construir conjunto de indices a mostrar
+                          const pages = new Set<number>();
+                          
+                          // Siempre las primeras 5 (0 al 4)
+                          for (let i = 0; i < Math.min(5, total); i++) pages.add(i);
+                          
+                          // Siempre las últimas 4 (total-4 al total-1)
+                          for (let i = Math.max(0, total - 4); i < total; i++) pages.add(i);
+                          
+                          // Bloque central de 5 (current-2 al current+2)
+                          for (let i = Math.max(0, current - 2); i <= Math.min(total - 1, current + 2); i++) pages.add(i);
+                          
+                          const sortedPages = Array.from(pages).sort((a, b) => a - b);
+                          const items: (number | string)[] = [];
+                          
+                          for (let i = 0; i < sortedPages.length; i++) {
+                            if (i > 0 && sortedPages[i] - sortedPages[i-1] > 1) {
+                              items.push("...");
+                            }
+                            items.push(sortedPages[i]);
+                          }
+                          
+                          return items.map((item, idx) => {
+                            if (item === "...") {
+                              return <span key={`dots-${idx}`} className="size-8 flex items-center justify-center text-white/20 font-black">...</span>;
+                            }
+                            const val = item as number;
+                            return (
+                              <button
+                                key={val}
+                                onClick={() => handlePageChange(val)}
+                                className={`size-9 sm:size-11 rounded-full text-[10px] sm:text-xs font-black transition-all ${
+                                  current === val 
+                                    ? "bg-primary text-background-dark shadow-[0_0_15px_rgba(242,185,13,0.4)]" 
+                                    : "text-white/40 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10"
+                                }`}
+                              >
+                                {val + 1}
+                              </button>
+                            );
+                          });
+                        })()}
                       </div>
 
                       <button
                         onClick={() => handlePageChange(paginacion.page + 1)}
                         disabled={paginacion.page === paginacion.totalPages - 1}
-                        className="size-12 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-background-dark disabled:opacity-20 disabled:hover:bg-transparent disabled:hover:text-white transition-all group"
+                        className="size-10 sm:size-12 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-background-dark disabled:opacity-20 disabled:hover:bg-transparent disabled:hover:text-white transition-all group shrink-0"
                       >
                         <span className="material-symbols-outlined group-active:translate-x-1 transition-transform">chevron_right</span>
                       </button>

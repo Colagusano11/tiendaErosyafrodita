@@ -28,11 +28,13 @@ public class DataFixer {
 
             repository.findByEmail(adminEmail).ifPresentOrElse(
                 admin -> {
-                    admin.setPassword(passwordEncoder.encode(adminPassword));
-                    admin.setAdmin(true);
-                    admin.setVerificado(true);
-                    repository.save(admin);
-                    System.out.println(">>> Usuario administrador sincronizado.");
+                    // Si ya existe, nos aseguramos de que sea admin y esté verificado,
+                    // pero NO sobreescribimos la contraseña para que los cambios manuales persistan.
+                    boolean change = false;
+                    if (!admin.isAdmin()) { admin.setAdmin(true); change = true; }
+                    if (!admin.isVerificado()) { admin.setVerificado(true); change = true; }
+                    if (change) repository.save(admin);
+                    System.out.println(">>> Usuario administrador verificado (sin sobrescribir contraseña).");
                 },
                 () -> {
                     Usuario admin = new Usuario();

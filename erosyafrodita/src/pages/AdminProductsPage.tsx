@@ -36,13 +36,7 @@ const AdminProductsPage: React.FC = () => {
   const [catalogPvpEdits, setCatalogPvpEdits] = useState<Record<number, string>>({});
   const [savingPvp, setSavingPvp] = useState<Record<number, boolean>>({});
 
-  // --- Pestaña Imágenes Rotas ---
-  const [activeTab, setActiveTab] = useState<"catalogo" | "imagenes" | "nuevos">("catalogo");
-  const [brokenImages, setBrokenImages] = useState<Producto[]>([]);
-  const [scanning, setScanning] = useState(false);
-  const [scanProgress, setScanProgress] = useState(0);
-  const [scanTotal, setScanTotal] = useState(0);
-  const [enricherRunning, setEnricherRunning] = useState(false);
+  const [activeTab, setActiveTab] = useState<"catalogo" | "nuevos">("catalogo");
 
   const { showAlert, showConfirm } = useAlert();
 
@@ -433,85 +427,6 @@ const AdminProductsPage: React.FC = () => {
     );
   };
 
-  const scanBrokenImages = async () => {
-    setScanning(true);
-    setBrokenImages([]);
-    setScanProgress(0);
-
-    try {
-      // Paginar para traer todos los productos (el backend limita a 200 por página)
-      const PAGE_SIZE = 200;
-      const firstPage = await getProductos(0, PAGE_SIZE);
-      const totalPages = firstPage.totalPages;
-      let allContent = [...firstPage.content];
-
-      for (let page = 1; page < totalPages; page++) {
-        const pageData = await getProductos(page, PAGE_SIZE);
-        allContent = [...allContent, ...pageData.content];
-      }
-
-      const withImage = allContent.filter(p => !!p.imagen);
-      setScanTotal(withImage.length);
-
-      const testImage = (url: string): Promise<boolean> =>
-        new Promise((resolve) => {
-          const img = new window.Image();
-          const timer = setTimeout(() => resolve(false), 6000);
-          img.onload = () => { clearTimeout(timer); resolve(true); };
-          img.onerror = () => { clearTimeout(timer); resolve(false); };
-          img.src = url;
-        });
-
-      const broken: Producto[] = [];
-      const BATCH = 30;
-
-      for (let i = 0; i < withImage.length; i += BATCH) {
-        const batch = withImage.slice(i, i + BATCH);
-        const results = await Promise.all(
-          batch.map(async (p) => ({ p, ok: await testImage(p.imagen!) }))
-        );
-        results.forEach(({ p, ok }) => { if (!ok) broken.push(p); });
-        setScanProgress(Math.min(i + BATCH, withImage.length));
-      }
-
-      setBrokenImages(broken);
-    } catch {
-      showAlert("Error", "No se pudo completar el escaneo", "error");
-    } finally {
-      setScanning(false);
-    }
-  };
-
-  const [normalizingGender, setNormalizingGender] = useState(false);
-
-  const normalizeGenders = async () => {
-    setNormalizingGender(true);
-    try {
-      const res = await api.post<Record<string, number>>("/productos/admin/normalize-gender");
-      const d = res.data;
-      showAlert(
-        "Género normalizado",
-        `Actualizados → HOMBRE: ${d.HOMBRE}, MUJER: ${d.MUJER}, UNISEX: ${d.UNISEX}, vaciados: ${d.VACIADOS}`,
-        "success"
-      );
-    } catch {
-      showAlert("Error", "No se pudo normalizar el género de los productos", "error");
-    } finally {
-      setNormalizingGender(false);
-    }
-  };
-
-  const launchImageEnricher = async () => {
-    setEnricherRunning(true);
-    try {
-      await api.post("/admin/import/web/images");
-      showAlert("Batida lanzada", "El script de búsqueda de imágenes se está ejecutando en segundo plano. Puede tardar varios minutos.", "success");
-    } catch {
-      showAlert("Error", "No se pudo lanzar el script de imágenes", "error");
-    } finally {
-      setEnricherRunning(false);
-    }
-  };
 
   return (
     <AdminLayout>
@@ -536,18 +451,6 @@ const AdminProductsPage: React.FC = () => {
                   <span className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-sm">inventory_2</span>
                     <span className="hidden xs:inline">Catálogo</span>
-                  </span>
-                </button>
-                <button
-                  onClick={() => { setActiveTab("imagenes"); }}
-                  className={`h-9 px-4 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${activeTab === "imagenes" ? "bg-red-500 text-white shadow-lg" : "text-slate-400 hover:text-white"}`}
-                >
-                  <span className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-sm">hide_image</span>
-                    <span className="hidden xs:inline">Imágenes Rotas</span>
-                    {brokenImages.length > 0 && (
-                      <span className="bg-red-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full">{brokenImages.length}</span>
-                    )}
                   </span>
                 </button>
                 <button
@@ -950,7 +853,6 @@ const AdminProductsPage: React.FC = () => {
                                     <input 
                                         type="number" 
                                         step="0.01"
-                                        placeholder={(mainProduct.precioPVP || 0).toFixed(2)}
                                         value={catalogPvpEdits[mainProduct.id] ?? ""}
                                         onChange={(e) => setCatalogPvpEdits({...catalogPvpEdits, [mainProduct.id]: e.target.value})}
                                         className={`w-20 h-7 bg-white/5 border ${catalogPvpEdits[mainProduct.id] ? 'border-primary' : 'border-white/10'} rounded-lg px-2 text-[10px] font-black text-white focus:outline-none focus:border-primary transition-all font-mono`}
@@ -1309,116 +1211,6 @@ const AdminProductsPage: React.FC = () => {
           </div>
         )}
 
-        {/* ===== PESTAÑA: IMÁGENES ROTAS ===== */}
-        {activeTab === "imagenes" && (
-          <div className="flex flex-col gap-6">
-            {/* Header de la pestaña */}
-            <div className="flex items-center justify-between p-6 bg-white/5 border border-white/10 rounded-[2.5rem]">
-              <div>
-                <p className="text-white font-black text-lg uppercase tracking-tight">Escáner de Imágenes Rotas</p>
-                <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">
-                  Detecta productos cuya URL de imagen no carga correctamente
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={normalizeGenders}
-                  disabled={normalizingGender}
-                  className="h-12 px-6 bg-teal-600 hover:bg-teal-500 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-3 shadow-lg shadow-teal-500/20"
-                >
-                  <span className={`material-symbols-outlined text-lg ${normalizingGender ? "animate-spin" : ""}`}>
-                    {normalizingGender ? "sync" : "wc"}
-                  </span>
-                  {normalizingGender ? "Normalizando..." : "Normalizar Género"}
-                </button>
-                <button
-                  onClick={launchImageEnricher}
-                  disabled={enricherRunning || scanning}
-                  className="h-12 px-6 bg-violet-600 hover:bg-violet-500 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-3 shadow-lg shadow-violet-500/20"
-                >
-                  <span className={`material-symbols-outlined text-lg ${enricherRunning ? "animate-spin" : ""}`}>
-                    {enricherRunning ? "sync" : "travel_explore"}
-                  </span>
-                  {enricherRunning ? "Lanzando..." : "Batida de Imágenes"}
-                </button>
-                <button
-                  onClick={scanBrokenImages}
-                  disabled={scanning}
-                  className="h-12 px-8 bg-red-500 hover:bg-red-400 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-3 shadow-lg shadow-red-500/20"
-                >
-                  <span className={`material-symbols-outlined text-lg ${scanning ? "animate-spin" : ""}`}>
-                    {scanning ? "sync" : "image_search"}
-                  </span>
-                  {scanning ? `Escaneando... ${scanProgress}/${scanTotal}` : "Detectar Rotas"}
-                </button>
-              </div>
-            </div>
-
-            {/* Barra de progreso */}
-            {scanning && (
-              <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden border border-white/10">
-                <div
-                  className="h-full bg-red-500 transition-all duration-300 rounded-full"
-                  style={{ width: scanTotal > 0 ? `${(scanProgress / scanTotal) * 100}%` : "0%" }}
-                />
-              </div>
-            )}
-
-            {/* Resultado */}
-            {!scanning && brokenImages.length === 0 && scanTotal > 0 && (
-              <div className="flex flex-col items-center justify-center p-16 bg-white/5 border border-white/10 rounded-[2.5rem] gap-4">
-                <span className="material-symbols-outlined text-5xl text-emerald-500">check_circle</span>
-                <p className="text-white font-black text-lg uppercase">¡Sin imágenes rotas!</p>
-                <p className="text-slate-400 text-sm">Todos los {scanTotal} productos escaneados tienen imagen correcta.</p>
-              </div>
-            )}
-
-            {brokenImages.length > 0 && (
-              <div className="glass-panel rounded-[2.5rem] overflow-hidden border border-red-500/20 bg-white/5 shadow-2xl">
-                <div className="p-5 border-b border-white/10 bg-red-500/5 flex items-center justify-between">
-                  <p className="text-red-400 text-[10px] font-black uppercase tracking-widest">
-                    {brokenImages.length} producto{brokenImages.length !== 1 ? "s" : ""} con imagen rota detectado{brokenImages.length !== 1 ? "s" : ""}
-                  </p>
-                  <button
-                    onClick={() => {
-                      const lines = brokenImages.map(p => `${p.id}\t${p.ean ?? ""}\t${p.nombre}\t${p.manufacturer ?? ""}\t${p.imagen}`).join("\n");
-                      navigator.clipboard.writeText("ID\tEAN\tNombre\tMarca\tURL Imagen\n" + lines);
-                      showAlert("Copiado", "Lista copiada al portapapeles (TSV)", "success");
-                    }}
-                    className="h-9 px-5 bg-white/5 border border-white/10 text-slate-300 rounded-xl text-[9px] font-black uppercase hover:bg-white/10 transition-all flex items-center gap-2"
-                  >
-                    <span className="material-symbols-outlined text-sm">content_copy</span>
-                    Copiar lista
-                  </button>
-                </div>
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-white/5 border-b border-white/10">
-                      <th className="p-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">ID</th>
-                      <th className="p-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">EAN</th>
-                      <th className="p-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Nombre</th>
-                      <th className="p-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Marca</th>
-                      <th className="p-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">URL rota</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/5">
-                    {brokenImages.map((p) => (
-                      <tr key={p.id} className="hover:bg-white/5 transition-colors">
-                        <td className="p-4 text-[10px] font-black text-slate-500">{p.id}</td>
-                        <td className="p-4 text-[10px] font-mono text-slate-400">{p.ean ?? "—"}</td>
-                        <td className="p-4 text-[11px] font-bold text-white">{p.nombre}</td>
-                        <td className="p-4 text-[10px] font-bold text-slate-400">{p.manufacturer ?? "—"}</td>
-                        <td className="p-4 max-w-xs">
-                          <span className="text-[9px] font-mono text-red-400 break-all line-clamp-2">{p.imagen}</span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        )}
 
       </div>
 

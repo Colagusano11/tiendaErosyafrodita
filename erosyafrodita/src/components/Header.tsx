@@ -71,6 +71,8 @@ const Header: React.FC = () => {
         <nav className="hidden xl:flex items-center gap-10">
           <Link to="/catalog?genero=HOMBRE" className="text-[11px] font-black uppercase tracking-[0.2em] text-white/50 hover:text-primary transition-colors">Hombre</Link>
           <Link to="/catalog?genero=MUJER" className="text-[11px] font-black uppercase tracking-[0.2em] text-white/50 hover:text-primary transition-colors">Mujer</Link>
+          <Link to="/catalog?categoria=Cabello" className="text-[11px] font-black uppercase tracking-[0.2em] text-white/50 hover:text-primary transition-colors">Cabello</Link>
+          <Link to="/catalog?categoria=Complementos" className="text-[11px] font-black uppercase tracking-[0.2em] text-white/50 hover:text-primary transition-colors">Complementos</Link>
           <Link to="/catalog?orden=idDesc" className="text-[11px] font-black uppercase tracking-[0.2em] text-white/50 hover:text-primary transition-colors">Novedades</Link>
           <Link to="/catalog?status=OFERTAS" className="text-[11px] font-black uppercase tracking-[0.2em] text-primary hover:text-white transition-colors italic">Ofertas</Link>
         </nav>
@@ -141,8 +143,8 @@ const Header: React.FC = () => {
 
       {/* Mobile Drawer */}
       {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm lg:hidden animate-fade-in">
-          <div className="absolute right-0 top-0 h-full w-[280px] bg-charcoal p-8 shadow-2xl animate-slide-left border-l border-white/5">
+        <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md lg:hidden animate-fade-in">
+          <div className="absolute left-0 top-0 h-full w-[300px] bg-background-dark p-8 shadow-[10px_0_40px_rgba(0,0,0,0.8)] animate-slide-right border-r border-white/10">
             <div className="flex justify-between items-center mb-10">
               <span className="text-[10px] font-black tracking-[0.4em] text-primary uppercase italic">Menú</span>
               <button 
@@ -156,6 +158,8 @@ const Header: React.FC = () => {
             <nav className="flex flex-col gap-6">
               <Link to="/catalog?genero=HOMBRE" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-black uppercase tracking-widest text-white hover:text-primary transition-colors">Hombre</Link>
               <Link to="/catalog?genero=MUJER" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-black uppercase tracking-widest text-white hover:text-primary transition-colors">Mujer</Link>
+              <Link to="/catalog?categoria=Cabello" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-black uppercase tracking-widest text-white hover:text-primary transition-colors">Cabello</Link>
+              <Link to="/catalog?categoria=Complementos" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-black uppercase tracking-widest text-white hover:text-primary transition-colors">Complementos</Link>
               <Link to="/catalog?orden=idDesc" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-black uppercase tracking-widest text-white hover:text-primary transition-colors">Novedades</Link>
               <Link to="/catalog?status=OFERTAS" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-black uppercase tracking-widest text-primary italic">Ofertas</Link>
               <div className="h-px bg-white/5 my-4" />

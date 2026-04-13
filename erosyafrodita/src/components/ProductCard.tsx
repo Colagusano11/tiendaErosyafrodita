@@ -56,24 +56,33 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onHide }) => {
   if (!image) return null;
 
   const handleNotify = async (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
-    if (!isAuthenticated) {
-      showAlert(
-        "¿No quieres perdertelo?",
-        "Regístrate o Inicia sesión para que podamos avisarte en cuanto este tesoro vuelva al Olimpo.",
-        "info"
-      );
-    } else if (userEmail) {
-      try {
-        await suscribirAvisoStock({ email: userEmail, productoId: product.id });
-        showAlert(
-          "Aviso Creado",
-          `Te enviaremos un correo en cuanto tengamos stock de ${product.nombre}.`,
-          "success"
-        );
-      } catch (err) {
-        showAlert("Error", "No pudimos crear el aviso. Inténtalo más tarde.", "error");
+    
+    let email = userEmail;
+    
+    if (!isAuthenticated || !email) {
+      // Si no está logueado, le pedimos un email
+      const inputEmail = window.prompt("Introduce tu email para avisarte cuando vuelva a haber stock:");
+      if (!inputEmail) return;
+      
+      // Validación básica de email
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inputEmail)) {
+        showAlert("Email inválido", "Por favor, introduce un correo electrónico correcto.", "error");
+        return;
       }
+      email = inputEmail;
+    }
+
+    try {
+      await suscribirAvisoStock({ email, productoId: product.id });
+      showAlert(
+        "Aviso Creado",
+        `Te enviaremos un correo en cuanto tengamos stock de ${product.nombre}.`,
+        "success"
+      );
+    } catch (err) {
+      showAlert("Error", "No pudimos crear el aviso. Inténtalo más tarde.", "error");
     }
   };
 
@@ -84,10 +93,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onHide }) => {
       viewport={{ once: true }}
       whileHover={{ y: -8 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
-      className="group relative flex flex-col gap-2 sm:gap-4 rounded-xl sm:rounded-2xl bg-charcoal-surface p-2 sm:p-4 border border-white/5 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300"
+      className="group relative flex flex-col gap-2 sm:gap-4 rounded-xl sm:rounded-2xl bg-charcoal-surface p-2 sm:p-4 border border-white/5 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 cursor-pointer"
     >
+      {/* Invisible link overlay for the whole card */}
+      <Link 
+        to={`/product/${product.id}`} 
+        className="absolute inset-0 z-[1]" 
+        aria-label={`Ver detalles de ${name}`}
+      />
+
       {outOfStock && (
-        <div className="absolute top-2 left-2 sm:top-4 sm:left-4 z-20">
+        <div className="absolute top-2 left-2 sm:top-4 sm:left-4 z-20 pointer-events-none">
           <span className="bg-red-700 text-white text-[8px] sm:text-[10px] font-black px-2 sm:px-3 py-1 rounded-full shadow-lg uppercase tracking-wider">
             Próximamente
           </span>
@@ -95,7 +111,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onHide }) => {
       )}
 
       {!outOfStock && product.enOferta && (
-        <div className="absolute top-2 left-2 sm:top-4 sm:left-4 z-20">
+        <div className="absolute top-2 left-2 sm:top-4 sm:left-4 z-20 pointer-events-none">
           <span className="bg-rose-500 text-white text-[8px] sm:text-[10px] font-black px-2 sm:px-3 py-1 rounded-full shadow-lg shadow-rose-500/20 uppercase italic tracking-wider animate-pulse">
             Oferta
           </span>
@@ -117,29 +133,24 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onHide }) => {
         </span>
       </button>
 
-      <Link
-        to={`/product/${product.id}`}
-        className="w-full aspect-square bg-white rounded-xl sm:rounded-2xl overflow-hidden relative border border-white/5 flex items-center justify-center p-4 sm:p-6"
-      >
+      <div className="w-full aspect-square bg-white rounded-xl sm:rounded-2xl overflow-hidden relative border border-white/5 flex items-center justify-center p-4 sm:p-6">
         <img
           className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-700 drop-shadow-sm"
           src={image}
           alt={name}
           loading="lazy"
         />
-      </Link>
+      </div>
 
-      <div className="px-1 pb-2 mt-1">
+      <div className="px-1 pb-2 mt-1 relative z-0">
         {brand && (
           <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wide">
             {brand}
           </p>
         )}
-        <Link to={`/product/${product.id}`}>
-          <h3 className={`text-[11px] sm:text-xs font-bold leading-tight mt-1 transition-colors ${outOfStock ? "text-white/60" : "text-white group-hover:text-primary"} line-clamp-2 min-h-[2.2rem]`}>
-            {name}
-          </h3>
-        </Link>
+        <h3 className={`text-[11px] sm:text-xs font-bold leading-tight mt-1 transition-colors ${outOfStock ? "text-white/60" : "text-white group-hover:text-primary"} line-clamp-2 min-h-[2.2rem]`}>
+          {name}
+        </h3>
 
 
         <div className="flex items-center justify-between mt-3">
@@ -158,12 +169,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onHide }) => {
             </span>
           </div>
           <button
-            className={`size-8 sm:size-9 rounded-full flex items-center justify-center transition-all duration-300 ${
+            className={`size-8 sm:size-9 rounded-full flex items-center justify-center transition-all duration-300 relative z-10 ${
               outOfStock 
                 ? "bg-primary/20 text-primary hover:bg-primary hover:text-charcoal border border-primary/20" 
                 : "bg-white/10 hover:bg-primary text-white hover:text-charcoal border border-white/5"
             }`}
             onClick={(e) => {
+              e.preventDefault();
               e.stopPropagation();
               outOfStock ? handleNotify(e) : addItem(product);
             }}

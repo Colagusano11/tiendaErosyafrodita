@@ -12,6 +12,8 @@ import { motion } from "framer-motion";
 import SEO from "../components/SEO";
 import { LAUNCH_PROMO_ACTIVE, LAUNCH_DISCOUNT, applyPromo } from "../config/promo";
 import { useImageGallery } from "../hooks/useImageGallery";
+import { useAlert } from "../context/AlertContext";
+import { suscribirAvisoStock } from "../api/stock";
 
 // Marcas curadas de Novedades (Sincronizado con Home)
 const NOVEDADES_BRANDS = [
@@ -35,8 +37,9 @@ const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { addItem } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
+  const { showAlert } = useAlert();
 
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user: userEmail } = useAuth();
   const [product, setProduct] = useState<Producto | null>(null);
   const [selectedImg, setSelectedImg] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -138,6 +141,33 @@ const ProductDetail: React.FC = () => {
       setSubmitError(e.response?.data ?? "Error al publicar la reseña.");
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleNotify = async () => {
+    if (!product) return;
+    
+    let email = userEmail;
+    
+    if (!isAuthenticated || !email) {
+      const inputEmail = window.prompt("Introduce tu email para avisarte cuando vuelva a haber stock:");
+      if (!inputEmail) return;
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inputEmail)) {
+        showAlert("Email inválido", "Por favor, introduce un correo electrónico correcto.", "error");
+        return;
+      }
+      email = inputEmail;
+    }
+
+    try {
+      await suscribirAvisoStock({ email, productoId: product.id });
+      showAlert(
+        "Aviso Creado",
+        `Te enviaremos un correo en cuanto tengamos stock de ${product.nombre}.`,
+        "success"
+      );
+    } catch (err) {
+      showAlert("Error", "No pudimos crear el aviso. Inténtalo más tarde.", "error");
     }
   };
 
@@ -347,16 +377,18 @@ const ProductDetail: React.FC = () => {
 
               <div className="flex flex-wrap gap-4 mb-10">
                 <button
-                  onClick={() => product && product.stock > 0 && addItem(product)}
-                  disabled={product.stock === 0}
+                  onClick={() => {
+                    if (!product) return;
+                    product.stock > 0 ? addItem(product) : handleNotify();
+                  }}
                   className={`flex-1 h-12 rounded-full font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-3 ${product.stock === 0
-                      ? "bg-white/5 text-white/20 cursor-not-allowed border border-white/5"
+                      ? "bg-primary/10 text-primary border border-primary/30 hover:bg-primary hover:text-charcoal"
                       : "bg-primary text-charcoal shadow-xl shadow-primary/20 hover:bg-white hover:scale-105"
                     }`}
                 >
-                  {product.stock === 0 ? "Próximamente" : "Añadir al Carrito"}
+                  {product.stock === 0 ? "Avisarme cuando haya stock" : "Añadir al Carrito"}
                   <span className="material-symbols-outlined !text-[18px]">
-                    {product.stock === 0 ? "block" : "shopping_cart"}
+                    {product.stock === 0 ? "notifications" : "shopping_cart"}
                   </span>
                 </button>
                 <button

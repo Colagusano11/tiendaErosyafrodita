@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 
 import com.example.tiendaonline.usuario.mcsv_usuario.dto.UsuarioDto;
 import com.example.tiendaonline.usuario.mcsv_usuario.dto.UsuarioRegistro;
@@ -51,21 +53,24 @@ public class UsuarioController {
  }
 
  @PutMapping("/{email}")
- public ResponseEntity<UsuarioRegistroDto> actualizarDatos(@PathVariable String email, @RequestBody UsuarioRegistroDto datos){
+ public ResponseEntity<UsuarioRegistroDto> actualizarDatos(@PathVariable String email, @RequestBody UsuarioRegistroDto datos, Authentication auth){
     
-UsuarioRegistroDto userActualizado = service.actualizarPerfil(email, datos);
+    if (!auth.getName().equalsIgnoreCase(email) && auth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
 
-  return ResponseEntity.ok(userActualizado);
-                                              
+    UsuarioRegistroDto userActualizado = service.actualizarPerfil(email, datos);
+    return ResponseEntity.ok(userActualizado);
 }
 
  @GetMapping("/{email}")
- public ResponseEntity<UsuarioRegistroDto> verUser(@PathVariable String email){
-  UsuarioRegistroDto dto = service.verUser(email);
-
-  return ResponseEntity.ok().body(dto);
-
-  }
+ public ResponseEntity<UsuarioRegistroDto> verUser(@PathVariable String email, Authentication auth){
+    if (!auth.getName().equalsIgnoreCase(email) && auth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
+    UsuarioRegistroDto dto = service.verUser(email);
+    return ResponseEntity.ok().body(dto);
+ }
 
   @DeleteMapping("/{email}")
   public ResponseEntity<Void> deleteUsuario(@PathVariable String email){
@@ -76,11 +81,12 @@ UsuarioRegistroDto userActualizado = service.actualizarPerfil(email, datos);
   }
 
   @PutMapping("/{email:.+}/password")
-  public ResponseEntity<?> changePassword(@PathVariable("email") String email, @RequestBody Map<String, String> body) {
+  public ResponseEntity<?> changePassword(@PathVariable("email") String email, @RequestBody Map<String, String> body, Authentication auth) {
+      if (!auth.getName().equalsIgnoreCase(email) && auth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+          return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+      }
       String oldPassword = body.get("oldPassword") != null ? body.get("oldPassword").trim() : null;
       String newPassword = body.get("newPassword") != null ? body.get("newPassword").trim() : null;
-      
-      System.out.println("Solicitud de cambio de contraseña para: " + email);
       
       service.changePassword(email, oldPassword, newPassword);
       return ResponseEntity.ok("Contraseña actualizada correctamente");
