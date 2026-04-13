@@ -177,6 +177,11 @@ public class ProductoController {
         productoService.updatePricingConfig(config, ids, distribuidor);
     }
 
+    @PutMapping("/home-config")
+    public void updateHomeConfig(@RequestBody Map<String, String> body) {
+        productoService.updateHomeConfig(body.get("novedades"), body.get("recomendados"));
+    }
+
     @PutMapping("/bulk-offer")
     public void updateBulkOffer(@RequestBody Map<String, Object> body) {
         boolean enOferta = (boolean) body.get("enOferta");

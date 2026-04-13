@@ -64,6 +64,12 @@ const AdminProductsPage: React.FC = () => {
   const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
   const [offerDiscount, setOfferDiscount] = useState<number>(10);
 
+  // Estados para modal Home
+  const [isHomeModalOpen, setIsHomeModalOpen] = useState(false);
+  const [homeNovedades, setHomeNovedades] = useState<string[]>([]);
+  const [homeRecomendados, setHomeRecomendados] = useState<string[]>([]);
+  const [savingHome, setSavingHome] = useState(false);
+
   const fetchNuevosCount = async () => {
     try {
       const res = await api.get<number>("/productos/nuevos/count");
@@ -186,8 +192,10 @@ const AdminProductsPage: React.FC = () => {
     try {
         const data = await import("../api/products").then(m => m.getConfiguracion());
         setPricingConfig(data);
+        return data;
     } catch (error) {
         console.error("Error fetching config", error);
+        return null;
     }
   };
 
@@ -196,7 +204,12 @@ const AdminProductsPage: React.FC = () => {
     fetchCategories();
     fetchBrands();
     fetchProviders();
-    fetchConfig();
+    fetchConfig().then(config => {
+      if (config) {
+        setHomeNovedades(config.novedadesBrands ? config.novedadesBrands.split(",").map(s => s.trim()).filter(Boolean) : []);
+        setHomeRecomendados(config.recomendadosBrands ? config.recomendadosBrands.split(",").map(s => s.trim()).filter(Boolean) : []);
+      }
+    });
     fetchNuevosCount();
   }, []);
 
@@ -322,19 +335,27 @@ const AdminProductsPage: React.FC = () => {
             return;
         }
 
-        await updateBulkOffer(idsToSend, enOferta, offerDiscount, filters);
-        
-        const targetLabel = isAllSelected 
-            ? "todo el catálogo filtrado"
-            : `${selectedIds.length} productos seleccionados`;
-
-        showAlert("Éxito", `Acción completada sobre ${targetLabel}: ${enOferta ? 'puestos en oferta' : 'retirados de oferta'}`, "success");
+        await updateBulkOffer(idsToSend, enOferta, offerDiscount / 100, filters);
+        showAlert("Éxito", enOferta ? "Ofertas aplicadas correctamente" : "Ofertas retiradas correctamente", "success");
         setSelectedIds([]);
         setIsAllSelected(false);
-        setIsOfferModalOpen(false);
         fetchProducts();
     } catch (error) {
-        showAlert("Error", "No se pudo actualizar el estado de oferta", "error");
+        showAlert("Error", "No se pudo actualizar las ofertas", "error");
+    }
+  };
+
+  const handleUpdateHomeConfig = async () => {
+    setSavingHome(true);
+    try {
+      const { updateHomeConfig } = await import("../api/products");
+      await updateHomeConfig(homeNovedades.join(","), homeRecomendados.join(","));
+      showAlert("Éxito", "Configuración de inicio actualizada", "success");
+      setIsHomeModalOpen(false);
+    } catch {
+      showAlert("Error", "No se pudo actualizar la configuración", "error");
+    } finally {
+      setSavingHome(false);
     }
   };
 
@@ -697,6 +718,14 @@ const AdminProductsPage: React.FC = () => {
                     >
                         <span className="material-symbols-outlined text-base">payments</span>
                         Precios
+                    </button>
+
+                    <button 
+                        onClick={() => setIsHomeModalOpen(true)}
+                        className="h-10 px-6 bg-purple-500 text-white rounded-xl text-[9px] font-black uppercase hover:scale-105 active:scale-95 transition-all flex items-center gap-2 group shadow-lg shadow-purple-500/20"
+                    >
+                        <span className="material-symbols-outlined text-base">home_app_logo</span>
+                        Home
                     </button>
 
                     {/* SELECTOR DE % INTEGRADO EN ACCIÓN */}
@@ -1742,6 +1771,99 @@ const AdminProductsPage: React.FC = () => {
                 </div>
              </div>
           </div>
+      )}
+      {/* MODAL CONFIGURACIÓN HOME */}
+      {isHomeModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-background-dark/80 backdrop-blur-xl">
+          <div className="w-full max-w-4xl bg-charcoal border border-white/10 rounded-[3rem] overflow-hidden shadow-2xl animate-fade-in-up">
+            <div className="p-8 border-b border-white/10 flex justify-between items-center bg-white/5">
+              <div>
+                <h3 className="text-2xl font-black text-white italic uppercase tracking-tighter">
+                  Gestionar <span className="text-purple-400 not-italic">Marcas Destacadas</span>
+                </h3>
+                <p className="text-[9px] text-slate-400 font-bold uppercase tracking-[0.3em]">Selecciona las marcas que aparecen en secciones del Home</p>
+              </div>
+              <button onClick={() => setIsHomeModalOpen(false)} className="size-10 rounded-full hover:bg-white/10 flex items-center justify-center text-slate-400">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            <div className="p-8 grid grid-cols-2 gap-8 overflow-y-auto max-h-[70vh]">
+              {/* Sección Novedades */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 text-emerald-400">
+                  <span className="material-symbols-outlined">new_releases</span>
+                  <p className="text-[11px] font-black uppercase tracking-widest">Sección Novedades</p>
+                </div>
+                <div className="bg-white/5 border border-white/10 rounded-2xl p-4 max-h-[400px] overflow-y-auto">
+                   <div className="grid grid-cols-1 gap-2">
+                      {brands.map(brand => (
+                        <label key={`nov-${brand}`} className="flex items-center gap-3 p-2 hover:bg-white/5 rounded-xl cursor-pointer transition-colors group">
+                           <input 
+                              type="checkbox" 
+                              checked={homeNovedades.includes(brand)}
+                              onChange={() => {
+                                setHomeNovedades(prev => prev.includes(brand) ? prev.filter(b => b !== brand) : [...prev, brand]);
+                              }}
+                              className="size-4 rounded border-white/20 bg-white/5 text-emerald-500 accent-emerald-500"
+                           />
+                           <span className={`text-[10px] font-black uppercase tracking-wider transition-colors ${homeNovedades.includes(brand) ? 'text-white' : 'text-slate-500 group-hover:text-slate-300'}`}>{brand}</span>
+                        </label>
+                      ))}
+                   </div>
+                </div>
+              </div>
+
+              {/* Sección Recomendados */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 text-blue-400">
+                  <span className="material-symbols-outlined">recommend</span>
+                  <p className="text-[11px] font-black uppercase tracking-widest">Sección Recomendados</p>
+                </div>
+                <div className="bg-white/5 border border-white/10 rounded-2xl p-4 max-h-[400px] overflow-y-auto">
+                   <div className="grid grid-cols-1 gap-2">
+                      {brands.map(brand => (
+                        <label key={`rec-${brand}`} className="flex items-center gap-3 p-2 hover:bg-white/5 rounded-xl cursor-pointer transition-colors group">
+                           <input 
+                              type="checkbox" 
+                              checked={homeRecomendados.includes(brand)}
+                              onChange={() => {
+                                setHomeRecomendados(prev => prev.includes(brand) ? prev.filter(b => b !== brand) : [...prev, brand]);
+                              }}
+                              className="size-4 rounded border-white/20 bg-white/5 text-blue-500 accent-blue-500"
+                           />
+                           <span className={`text-[10px] font-black uppercase tracking-wider transition-colors ${homeRecomendados.includes(brand) ? 'text-white' : 'text-slate-500 group-hover:text-slate-300'}`}>{brand}</span>
+                        </label>
+                      ))}
+                   </div>
+                </div>
+              </div>
+
+              <div className="col-span-2 pt-4 flex gap-4">
+                <button 
+                  onClick={handleUpdateHomeConfig}
+                  disabled={savingHome}
+                  className="flex-1 h-14 bg-purple-500 hover:bg-purple-600 text-white text-[11px] font-black uppercase tracking-[0.2em] rounded-3xl shadow-xl shadow-purple-500/20 transition-all flex items-center justify-center gap-3"
+                >
+                  {savingHome ? (
+                    <div className="size-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                  ) : (
+                    <>
+                      <span className="material-symbols-outlined text-lg">save</span>
+                      Guardar Configuración
+                    </>
+                  )}
+                </button>
+                <button 
+                  onClick={() => setIsHomeModalOpen(false)}
+                  className="px-8 h-14 bg-white/5 hover:bg-white/10 text-white text-[11px] font-black uppercase tracking-[0.2em] rounded-3xl border border-white/10 transition-all"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </AdminLayout>
   );

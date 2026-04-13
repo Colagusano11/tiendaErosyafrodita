@@ -61,6 +61,7 @@ public interface ProductoService{
     void updateBulkStatus(List<Long> ids, boolean activo);
     void updateBulkStatusByFilters(boolean activo, String manufacturer, String nombre, String sku, String distribuidor, BigDecimal minPrecio, BigDecimal maxPrecio, String categoria, String gender, String status);
     void updatePricingConfig(Configuracion config, List<Long> ids, Distribuidor distribuidor);
+    void updateHomeConfig(String novedades, String recomendados);
     Configuracion getConfiguracion();
     void updateBulkOffer(List<Long> ids, boolean enOferta, BigDecimal descuento);
     void updateBulkOfferByFilters(boolean enOferta, BigDecimal descuento, String manufacturer, String nombre, String sku, String distribuidor, BigDecimal minPrecio, BigDecimal maxPrecio, String categoria, String gender, String status);

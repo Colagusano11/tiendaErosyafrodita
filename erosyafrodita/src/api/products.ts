@@ -136,10 +136,16 @@ export interface Configuracion {
   margen: number;
   envio: number;
   comisionTarjeta: number;
+  novedadesBrands?: string;
+  recomendadosBrands?: string;
 }
 
 export async function updateBulkPricing(config: Configuracion, ids?: number[], distribuidor?: string): Promise<void> {
   await api.put("/productos/bulk-pricing", { config, ids, distribuidor });
+}
+
+export async function updateHomeConfig(novedades: string, recomendados: string): Promise<void> {
+  await api.put("/productos/home-config", { novedades, recomendados });
 }
 
 export async function getConfiguracion(): Promise<Configuracion> {

@@ -16,6 +16,12 @@ public class Configuracion {
     private BigDecimal envio;    // fijo (ej: 5)
     private BigDecimal comisionTarjeta; // fijo (ej: 1.20)
 
+    @Column(columnDefinition = "TEXT")
+    private String novedadesBrands;
+
+    @Column(columnDefinition = "TEXT")
+    private String recomendadosBrands;
+
     public Configuracion() {}
 
     public Configuracion(BigDecimal iva, BigDecimal margen, BigDecimal envio, BigDecimal comisionTarjeta) {
@@ -40,4 +46,10 @@ public class Configuracion {
 
     public BigDecimal getComisionTarjeta() { return comisionTarjeta; }
     public void setComisionTarjeta(BigDecimal comisionTarjeta) { this.comisionTarjeta = comisionTarjeta; }
+
+    public String getNovedadesBrands() { return novedadesBrands; }
+    public void setNovedadesBrands(String novedadesBrands) { this.novedadesBrands = novedadesBrands; }
+
+    public String getRecomendadosBrands() { return recomendadosBrands; }
+    public void setRecomendadosBrands(String recomendadosBrands) { this.recomendadosBrands = recomendadosBrands; }
 }

@@ -12,44 +12,7 @@ import SEO from "../components/SEO";
 import homeBg from "../assets/home-background.png";
 import homeHeader from "../assets/home-header.png";
 
-// Marcas curadas para la sección Recomendados — perfumes clásicos distintos de Novedades
-const RECOMENDADOS_BRANDS = [
-  "DIOR",
-  "GUCCI",
-  "ARMANI",
-  "GIVENCHY",
-  "HUGO BOSS",
-  "BURBERRY",
-  "DAVIDOFF",
-];
-
-// Marcas curadas para la sección Novedades — basadas en el catálogo real
-const NOVEDADES_BRANDS = [
-  "CALVIN KLEIN",
-  "HOLLISTER",
-  "KARL LAGERFELD",
-  "L'OCCITANE EN PROVENCE",
-  "MOSCHINO",
-  "ABERCROMOBIE AND FITCH",
-  "LATTAFA",
-  "MAISON ALHAMBRA",
-  "ARD AL ZAAFARAN",
-  "ANGEL SCHLESSER",
-  "LOLITA LEMPICKA",
-  "LORENZO VILLORESI",
-  "LOEWE",
-  "HERMÈS",
-  "CHANEL",
-  "CAROLINA HERRERA",
-  "PILEXIL",
-  "DOLCE & GABBANA",
-  "DONNA KARAN",
-  "VERSACE",
-  "PRADA",
-  "JIMMY CHOO",
-  "MYRURGIA",
-  "POLICE",
-];
+// Las marcas se cargan ahora desde la configuración del backend.
 
 function shuffleArray<T>(arr: T[]): T[] {
   const copy = [...arr];
@@ -73,29 +36,46 @@ const HomePage: React.FC = () => {
     (async () => {
       try {
         setLoading(true);
-        const data = await getProductos(0, 200);
-        const content: Producto[] = data.content || [];
+        const { getProductos, getConfiguracion } = await import("../api/products");
+        
+        // Cargar productos y configuración en paralelo
+        const [data, config] = await Promise.all([
+          getProductos(0, 200),
+          getConfiguracion()
+        ]);
 
+        const content: Producto[] = data.content || [];
         const withImage = content.filter(p => !!p.imagen && p.stock > 0);
+
+        // Parsear marcas desde config
+        const novedadesBrands = config.novedadesBrands 
+          ? config.novedadesBrands.split(",").map(s => s.trim().toUpperCase()).filter(Boolean)
+          : [];
+        const recomendadosBrands = config.recomendadosBrands
+          ? config.recomendadosBrands.split(",").map(s => s.trim().toUpperCase()).filter(Boolean)
+          : [];
 
         const isNovedadBrand = (p: Producto) =>
           !!p.manufacturer &&
-          NOVEDADES_BRANDS.some((b: string) =>
+          novedadesBrands.some((b: string) =>
             p.manufacturer!.toUpperCase().includes(b)
           );
 
-        // --- NOVEDADES: marcas curadas primero, luego resto del catálogo como reserva ---
+        const isRecomendadoBrand = (p: Producto) =>
+          !!p.manufacturer &&
+          recomendadosBrands.some((b: string) =>
+            p.manufacturer!.toUpperCase().includes(b)
+          );
+
+        // --- NOVEDADES ---
         const novedadesBranded = shuffleArray(withImage.filter(isNovedadBrand));
         const novedadesExtra = shuffleArray(withImage.filter(p => !isNovedadBrand(p)));
         const novedadesAll = [...novedadesBranded, ...novedadesExtra];
         setNovedadesPool(novedadesAll);
 
-        // IDs de novedades para excluirlos de recomendados
-        // Solo excluimos las marcas curadas; los extras siguen disponibles para recomendados
         const novedadesIds = new Set(novedadesBranded.map(p => p.id));
 
-        // --- OFERTA DE LA SEMANA: mayor ahorro absoluto (PVP − precio) ---
-        // Prioriza marcas curadas si las hay con descuento, si no usa todo el catálogo
+        // --- OFERTA DE LA SEMANA ---
         const conDescuento = withImage.filter(p => p.precioPVP > p.precio);
         const highAppealConDescuento = conDescuento.filter(isNovedadBrand);
         const ofertaPool = highAppealConDescuento.length > 0 ? highAppealConDescuento : conDescuento;
@@ -103,24 +83,11 @@ const HomePage: React.FC = () => {
           .sort((a, b) => (b.precioPVP - b.precio) - (a.precioPVP - a.precio))[0] ?? null;
         setFeaturedProduct(ofertaCandidate);
 
-        const isRecomendadoBrand = (p: Producto) =>
-          !!p.manufacturer &&
-          RECOMENDADOS_BRANDS.some((b: string) =>
-            p.manufacturer!.toUpperCase().includes(b)
-          );
-
-        // --- RECOMENDADOS: marcas curadas primero, luego resto del catálogo como reserva ---
-        // Excluye productos ya en novedades (marcas curadas) y la oferta destacada
+        // --- RECOMENDADOS ---
         const recomendadosBase = withImage.filter(p =>
           p.id !== ofertaCandidate?.id &&
           !novedadesIds.has(p.id)
         );
-
-        const sortRecomendados = (arr: Producto[]) => [...arr].sort((a, b) => {
-          const ratioA = a.precioPVP > 0 ? (a.precioPVP - a.precio) / a.precioPVP : 0;
-          const ratioB = b.precioPVP > 0 ? (b.precioPVP - b.precio) / b.precioPVP : 0;
-          return ratioB - ratioA;
-        });
 
         const recomendadosBranded = shuffleArray(recomendadosBase.filter(isRecomendadoBrand));
         const recomendadosExtra = shuffleArray(recomendadosBase.filter(p => !isRecomendadoBrand(p)));
@@ -134,6 +101,8 @@ const HomePage: React.FC = () => {
       }
     })();
   }, []);
+  }, []);
+
 
   const { addItem } = useCart();
   const { t } = useTranslation();

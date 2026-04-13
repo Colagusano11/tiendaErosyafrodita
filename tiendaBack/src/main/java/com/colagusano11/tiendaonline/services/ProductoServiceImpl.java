@@ -268,8 +268,12 @@ public class ProductoServiceImpl implements ProductoService {
 
     @Override
     public void updatePricingConfig(Configuracion config, List<Long> ids, Distribuidor distribuidor) {
-        configuracionRepository.deleteAll();
-        configuracionRepository.save(config);
+        Configuracion existing = configuracionRepository.findAll().stream().findFirst().orElse(new Configuracion());
+        existing.setIva(config.getIva());
+        existing.setMargen(config.getMargen());
+        existing.setEnvio(config.getEnvio());
+        existing.setComisionTarjeta(config.getComisionTarjeta());
+        configuracionRepository.save(existing);
 
         // Nueva lógica: PVP = ((Precio + Envio) * IVA_Factor / (1 - Margen/100)) + Comision_Tarjeta
         BigDecimal factorIva = BigDecimal.ONE.add(config.getIva().divide(new BigDecimal("100"), 4, RoundingMode.HALF_UP));
@@ -295,6 +299,16 @@ public class ProductoServiceImpl implements ProductoService {
                 productoRepository.updateAllPricing(factorIva, divisorMargen, envio, comisionTarjeta);
             }
         }
+    }
+
+    @Override
+    public void updateHomeConfig(String novedades, String recomendados) {
+        Configuracion existing = configuracionRepository.findAll().stream().findFirst().orElse(new Configuracion(
+            new BigDecimal("21"), new BigDecimal("25"), new BigDecimal("5"), new BigDecimal("1.20")
+        ));
+        existing.setNovedadesBrands(novedades);
+        existing.setRecomendadosBrands(recomendados);
+        configuracionRepository.save(existing);
     }
 
     @Override
