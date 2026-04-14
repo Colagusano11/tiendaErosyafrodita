@@ -29,30 +29,30 @@ const CookieBanner: React.FC = () => {
           transition={{ type: "spring", damping: 25, stiffness: 200 }}
           className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] w-[90%] max-w-[500px]"
         >
-          <div className="bg-background-dark/80 backdrop-blur-2xl border border-white/10 p-6 md:p-8 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex flex-col gap-6">
+          <div className="bg-black border border-white/10 p-5 sm:p-8 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.8)] flex flex-col gap-5 sm:gap-6">
             <div className="flex items-start gap-4">
-              <div className="size-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
-                <span className="material-symbols-outlined text-primary text-2xl">cookie</span>
+              <div className="size-10 sm:size-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+                <span className="material-symbols-outlined text-primary text-xl sm:text-2xl">cookie</span>
               </div>
-              <div className="space-y-2">
-                <h4 className="text-white font-black uppercase tracking-widest text-xs">Experiencia Divina</h4>
-                <p className="text-white/50 text-[11px] leading-relaxed font-light">
+              <div className="space-y-1.5 sm:space-y-2">
+                <h4 className="text-white font-black uppercase tracking-widest text-[10px] sm:text-xs">Experiencia Divina</h4>
+                <p className="text-white/60 text-[10px] sm:text-[11px] leading-relaxed font-medium">
                   Utilizamos cookies para personalizar tu viaje olfativo y mejorar la experiencia en el Olimpo. 
                   Al continuar, aceptas nuestra <Link to="/legal/privacidad" className="text-primary hover:underline">Política de Privacidad</Link>.
                 </p>
               </div>
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex gap-2 sm:gap-3">
               <button
                 onClick={handleAccept}
-                className="flex-1 h-12 bg-primary text-charcoal rounded-full font-black text-[10px] uppercase tracking-widest hover:bg-white hover:scale-[1.02] transition-all shadow-lg shadow-primary/10"
+                className="flex-1 h-11 sm:h-12 bg-primary text-charcoal rounded-full font-black text-[9px] sm:text-[10px] uppercase tracking-widest hover:bg-white hover:scale-[1.02] transition-all shadow-lg shadow-primary/10"
               >
                 Aceptar Alquimia
               </button>
               <button
                 onClick={() => setIsVisible(false)}
-                className="px-6 h-12 border border-white/10 text-white/40 rounded-full font-black text-[10px] uppercase tracking-widest hover:border-white/20 hover:text-white/60 transition-all"
+                className="px-4 sm:px-6 h-11 sm:h-12 border border-white/10 text-white/40 rounded-full font-black text-[9px] sm:text-[10px] uppercase tracking-widest hover:border-white/20 hover:text-white/60 transition-all"
               >
                 Cerrar
               </button>
