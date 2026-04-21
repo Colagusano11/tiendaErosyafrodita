@@ -90,6 +90,19 @@ public class PedidoServicieImpl implements PedidoServicie {
     @Override
     public Pedido createPedidoDesdeCarrito(UsuarioRegistroDto usuario, PedidoRequest pedidoRequest) {
 
+        // ─────────────────────────────────────────────────────────────────
+        // IDEMPOTENCY: Si ya existe un pedido con este idempotencyKey para
+        // este usuario, devolver el existente (no crear duplicado)
+        // ─────────────────────────────────────────────────────────────────
+        if (pedidoRequest.getIdempotencyKey() != null && !pedidoRequest.getIdempotencyKey().isBlank()) {
+            Optional<Pedido> existente = pedidoRepository.findByIdempotencyKeyAndUsuarioId(
+                    pedidoRequest.getIdempotencyKey(), getUserIdOrDefault(usuario));
+            if (existente.isPresent()) {
+                log.info("Pedido idempotente encontrado: {} para key {}", existente.get().getId(), pedidoRequest.getIdempotencyKey());
+                return existente.get();
+            }
+        }
+
         Long usuarioId = getUserIdOrDefault(usuario);
 
         Pedido pedido = new Pedido();
@@ -174,6 +187,9 @@ public class PedidoServicieImpl implements PedidoServicie {
 
         pedido.setLineas(lineasPedido);
         pedido.setTotal(total);
+        if (pedidoRequest.getIdempotencyKey() != null) {
+            pedido.setIdempotencyKey(pedidoRequest.getIdempotencyKey());
+        }
 
         return pedidoRepository.save(pedido);
     }

@@ -12,6 +12,7 @@ public class PedidoRequest {
         private String telefono;
         private String pais;
         private Double descuento; // 0..1 — ej. 0.10 = -10% lanzamiento
+        private String idempotencyKey; // Para evitar duplicados en checkout
 
         public PedidoRequest() {
         }

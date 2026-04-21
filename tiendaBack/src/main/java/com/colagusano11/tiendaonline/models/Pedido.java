@@ -55,6 +55,9 @@ public class Pedido {
     @Column(name = "pedido_proveedor_id")
     private String pedidoProveedorId;
 
+    @Column(name = "idempotency_key")
+    private String idempotencyKey;
+
     @Column(name = "estado_proveedor")
     private String estadoProveedor;
 
@@ -228,6 +231,14 @@ public class Pedido {
 
     public void setPedidoProveedorId(String pedidoProveedorId) {
         this.pedidoProveedorId = pedidoProveedorId;
+    }
+
+    public String getIdempotencyKey() {
+        return idempotencyKey;
+    }
+
+    public void setIdempotencyKey(String idempotencyKey) {
+        this.idempotencyKey = idempotencyKey;
     }
 
     public String getEstadoProveedor() {
