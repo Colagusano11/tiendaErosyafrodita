@@ -12,7 +12,7 @@
     "@revolut/checkout": "^1.1.25",
     "axios": "^1.13.2",
     "framer-motion": "^12.38.0",
-    "lucide-react": "^1.7.0",
+    "lucide-react": "^1.8.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-helmet-async": "^3.0.0",
@@ -21,7 +21,7 @@
   "devDependencies": {
     "@types/node": "^22.14.0",
     "@types/react": "^19.2.14",
-    "@vitejs/plugin-react": "^5.0.0",
+    "@vitejs/plugin-react": "^5.2.0",
     "typescript": "~5.8.2",
     "vite": "^6.2.0"
   }

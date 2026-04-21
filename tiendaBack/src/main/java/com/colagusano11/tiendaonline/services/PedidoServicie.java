@@ -33,4 +33,5 @@ public interface PedidoServicie {
     TrackingInfoDTO getTrackingExterno(Long idPedido);
     Pedido findById(Long id);
     Optional<PedidoSalida> rastrearPedido(Long id, String email);
+    boolean esAdminDelPedido(Long idPedido, String adminEmail);
 }

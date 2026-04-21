@@ -93,7 +93,7 @@ const Profile: React.FC = () => {
       try {
         setLoading(true);
         const data = await getHistorial();
-        setPedidos(data);
+        setPedidos(Array.isArray(data) ? data : []);
         setError(null);
       } catch (err: any) {
         setError(
@@ -847,7 +847,7 @@ const Profile: React.FC = () => {
                   )}
 
                   <div className="flex flex-col gap-6">
-                    {pedidos.map((pedido) => (
+                    {(pedidos || []).map((pedido) => (
                       <Link
                         key={pedido.idPedido}
                         to={`/orders/${pedido.idPedido}`}
@@ -889,7 +889,7 @@ const Profile: React.FC = () => {
                         {pedido.productos && pedido.productos.length > 0 && (
                           <div className="relative z-10 mt-6 pt-6 border-t border-white/5">
                             <div className="flex items-center gap-4 overflow-x-auto no-scrollbar py-2">
-                              {pedido.productos.map((prod, idx) => (
+                              {(pedido.productos || []).map((prod, idx) => (
                                 <div key={idx} className="flex items-center gap-3 bg-background-dark/50 rounded-xl p-2 pr-4 border border-white/5 shrink-0">
                                   {prod.imagen && (
                                     <div className="size-10 rounded-lg overflow-hidden bg-white/5 p-1">

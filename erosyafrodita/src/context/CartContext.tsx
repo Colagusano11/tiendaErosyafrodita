@@ -87,7 +87,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
           return;
         }
 
-        const mapped: CartItem[] = data.items.map((i) => ({
+        const mapped: CartItem[] = (data?.items || []).map((i) => ({
           product: {
             id: i.idProducto,
             nombre: i.nombreProducto,
@@ -144,7 +144,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
         cantidad: quantity,
       });
 
-      const mapped: CartItem[] = data.items.map((i) => ({
+      const mapped: CartItem[] = (data?.items || []).map((i) => ({
         product: {
           id: i.idProducto,
           nombre: i.nombreProducto,
@@ -190,7 +190,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       await apiEliminarProducto(productId);
       const data = await apiGetCarrito();
-      const mapped: CartItem[] = data.items.map((i) => ({
+      const mapped: CartItem[] = (data?.items || []).map((i) => ({
         product: {
           id: i.idProducto,
           nombre: i.nombreProducto,

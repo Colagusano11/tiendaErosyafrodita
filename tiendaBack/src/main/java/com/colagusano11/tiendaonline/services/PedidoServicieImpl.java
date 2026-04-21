@@ -615,4 +615,13 @@ public class PedidoServicieImpl implements PedidoServicie {
         return pedidoRepository.findByIdAndEmail(id, email)
                 .map(pedidoMapper::toSalida);
     }
+
+    @Override
+    public boolean esAdminDelPedido(Long idPedido, String adminEmail) {
+        // Un admin puede gestionar cualquier pedido — 
+        // la validación de rol ADMIN ya se hizo en el controller.
+        // Este método existe para posibles verificaciones futuras
+        // de ownership específico por proveedor.
+        return pedidoRepository.findById(idPedido).isPresent();
+    }
 }

@@ -19,6 +19,22 @@ const OrderDetailPage: React.FC = () => {
   const { showAlert, showConfirm } = useAlert();
   const { addItem } = useCart();
 
+  // Traductor de estados a español
+  const estadoLabel = (estado: string): string => {
+    const labels: Record<string, string> = {
+      PENDIENTE_DE_PAGO: "Pendiente",
+      PENDIENTE: "Pendiente",
+      PAGADO: "Pagado",
+      RECIBIDO: "Recibido",
+      ENVIADO: "Enviado",
+      ENTREGADO: "Entregado",
+      CANCELADO: "Cancelado",
+      DEVOLUCION_SOLICITADA: "Devolución Solicitada",
+      DEVUELTO: "Devuelto",
+    };
+    return labels[estado] ?? estado;
+  };
+
   useEffect(() => {
     if (!id) return;
 
@@ -162,7 +178,7 @@ const OrderDetailPage: React.FC = () => {
                       ? 'bg-red-400/20 text-red-400 border-red-400/30'
                       : 'bg-amber-500/20 text-amber-500 border-amber-500/30'
                   }`}>
-                  {pedido.estado}
+                  {estadoLabel(pedido.estado)}
                 </span>
               </div>
               <p className="text-[#cbbc90] text-base">

@@ -9,6 +9,14 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 3000,
       host: '0.0.0.0',
+      allowedHosts: ['erosyafrodita.com', 'www.erosyafrodita.com'],
+      proxy: {
+        '/api': {
+          target: 'http://127.0.0.1:8082',
+          changeOrigin: true,
+          rewrite: (path: string) => path.replace(/^\/api/, '/api'),
+        },
+      },
     },
     plugins: [react()],
     define: {

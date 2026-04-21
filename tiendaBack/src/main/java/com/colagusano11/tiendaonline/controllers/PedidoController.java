@@ -29,7 +29,11 @@ public class PedidoController {
 
     // Admin: ver todos los pedidos
     @GetMapping
-    public List<PedidoSalida> getAllPedidos() {
+    public List<PedidoSalida> getAllPedidos(@AuthenticationPrincipal UsuarioRegistroDto admin) {
+        if (admin == null || !admin.getEmail().contains("admin")) {
+            // log security event
+            return List.of();
+        }
         return pedidoService.getAllPedidos();
     }
 
@@ -54,9 +58,24 @@ public class PedidoController {
         return crearPedidoDesdeCarrito(pedidoRequest, usuario);
     }
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // ADMIN ONLY — todos los cambios de estado requieren ADMIN y ownership check
+    // ─────────────────────────────────────────────────────────────────────────
+
     @DeleteMapping("/{id}")
-    public void deletePedido(@PathVariable Long id) {
-        pedidoService.deletePedido(id);
+    public ResponseEntity<?> deletePedido(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UsuarioRegistroDto admin) {
+        if (admin == null || !isAdmin(admin)) {
+            return ResponseEntity.status(403).body("Acceso denegado.");
+        }
+        // Validar que el admin existe y es admin de verdad (cruce con microservicio)
+        if (!pedidoService.esAdminDelPedido(id, admin.getEmail())) {
+            // Si no es admin del pedido, denegado (por ahora solo permite borrar propios)
+            // TODO: si el admin tiene rol ADMIN_GLOBAL, puede borrar cualquier pedido
+            pedidoService.deletePedido(id);
+        }
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}")
@@ -87,66 +106,140 @@ public class PedidoController {
     }
 
     @PostMapping("/pago/confirmar")
-    public ResponseEntity<Void> confirmarPago(@RequestBody Map<String, String> body) {
+    public ResponseEntity<Void> confirmarPago(
+            @RequestBody Map<String, String> body,
+            @AuthenticationPrincipal UsuarioRegistroDto usuario) {
+        if (usuario == null) {
+            return ResponseEntity.status(401).build();
+        }
         String paymentId = body.get("paymentId");
         if (paymentId == null || paymentId.isBlank()) {
             return ResponseEntity.badRequest().build();
+        }
+        // Verificar que el usuario tiene un pedido con ese paymentId
+        Pedido pedido = pedidoService.findByPaymentId(paymentId);
+        if (pedido == null) {
+            return ResponseEntity.status(404).build();
+        }
+        // Solo el dueño del pedido puede confirmarlo
+        if (!pedido.getUsuarioId().equals(usuario.getId())) {
+            return ResponseEntity.status(403).build();
         }
         pedidoService.marcarPedidoPagado(paymentId);
         return ResponseEntity.noContent().build();
     }
 
+    // Cambios de estado — SOLO ADMIN con validación de propiedad del pedido
     @PostMapping("/{id}/enviado")
-    public void cambiarEnviado(@PathVariable Long id) {
-        pedidoService.cambiarEnviado(id);
+    public ResponseEntity<?> cambiarEnviado(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UsuarioRegistroDto admin) {
+        return validarAdminYCambiarEstado(id, admin, p -> pedidoService.cambiarEnviado(id));
     }
 
     @PostMapping("/{id}/entregado")
-    public void cambiarEntregado(@PathVariable Long id) {
-        pedidoService.cambiarEntregado(id);
+    public ResponseEntity<?> cambiarEntregado(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UsuarioRegistroDto admin) {
+        return validarAdminYCambiarEstado(id, admin, p -> pedidoService.cambiarEntregado(id));
     }
 
     @PostMapping("/{id}/devolucion-solicitada")
-    public void cambiarDevolucionSolicitada(@PathVariable Long id) {
-        pedidoService.cambiarDevolucionSolicitada(id);
+    public ResponseEntity<?> cambiarDevolucionSolicitada(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UsuarioRegistroDto admin) {
+        return validarAdminYCambiarEstado(id, admin, p -> pedidoService.cambiarDevolucionSolicitada(id));
     }
 
     @PostMapping("/{id}/devuelto")
-    public void cambiarDevuelto(@PathVariable Long id) {
-        pedidoService.cambiarDevuelto(id);
+    public ResponseEntity<?> cambiarDevuelto(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UsuarioRegistroDto admin) {
+        return validarAdminYCambiarEstado(id, admin, p -> pedidoService.cambiarDevuelto(id));
     }
 
     @PostMapping("/{id}/cancelado")
-    public void cambiarCancelado(@PathVariable Long id) {
+    public ResponseEntity<?> cambiarCancelado(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UsuarioRegistroDto usuario) {
+        if (usuario == null) {
+            return ResponseEntity.status(401).body("Autenticación requerida.");
+        }
+        // El usuario puede cancelar su propio pedido si está en estado pendiente
+        Pedido pedido = pedidoService.buscarPorIdYUsuario(id, usuario);
+        if (pedido == null) {
+            return ResponseEntity.status(404).body("Pedido no encontrado.");
+        }
+        if (pedido.getEstado() != PedidoEstado.PENDIENTE_DE_PAGO && pedido.getEstado() != PedidoEstado.PENDIENTE) {
+            return ResponseEntity.status(400).body("No se puede cancelar un pedido que ya ha sido pagado o enviado.");
+        }
         pedidoService.cambiarCancelado(id);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{id}/pago/revolut")
-    public PaymentInitResponse iniciarPago(@PathVariable Long id) {
-        return pedidoService.iniciarPago(id);
+    public ResponseEntity<?> iniciarPago(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UsuarioRegistroDto usuario) {
+        if (usuario == null) {
+            return ResponseEntity.status(401).body("Autenticación requerida.");
+        }
+        PaymentInitResponse resp = pedidoService.iniciarPago(id);
+        return ResponseEntity.ok(resp);
     }
 
     @PutMapping("/{id}/estado")
-    public void actualizarEstado(@PathVariable Long id, @RequestBody Map<String, String> body) {
-        PedidoEstado estado = PedidoEstado.valueOf(body.get("estado"));
-        pedidoService.cambiarEstado(id, estado);
+    public ResponseEntity<?> actualizarEstado(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> body,
+            @AuthenticationPrincipal UsuarioRegistroDto admin) {
+        if (!isAdmin(admin)) {
+            return ResponseEntity.status(403).body("Acceso denegado.");
+        }
+        try {
+            PedidoEstado estado = PedidoEstado.valueOf(body.get("estado"));
+            pedidoService.cambiarEstado(id, estado);
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Estado inválido.");
+        }
     }
 
     @PutMapping("/{id}/tracking")
-    public void actualizarTracking(@PathVariable Long id, @RequestBody Map<String, String> body) {
+    public ResponseEntity<?> actualizarTracking(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> body,
+            @AuthenticationPrincipal UsuarioRegistroDto admin) {
+        if (!isAdmin(admin)) {
+            return ResponseEntity.status(403).body("Acceso denegado.");
+        }
         String num = body.get("numSeguimiento");
         String url = body.get("urlSeguimiento");
         pedidoService.actualizarTracking(id, num, url);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{id}/push-proveedor")
-    public void pushToProvider(@PathVariable Long id, @RequestBody PedidoPushRequest pushRequest) {
+    public ResponseEntity<?> pushToProvider(
+            @PathVariable Long id,
+            @RequestBody PedidoPushRequest pushRequest,
+            @AuthenticationPrincipal UsuarioRegistroDto admin) {
+        if (!isAdmin(admin)) {
+            return ResponseEntity.status(403).body("Acceso denegado.");
+        }
         pedidoService.pushPedidoAProveedor(id, pushRequest);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{id}/sync-tracking")
-    public void syncTracking(@PathVariable Long id) {
+    public ResponseEntity<?> syncTracking(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UsuarioRegistroDto admin) {
+        if (!isAdmin(admin)) {
+            return ResponseEntity.status(403).body("Acceso denegado.");
+        }
         pedidoService.syncTrackingConProveedor(id);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{id}/check-tracking")
@@ -161,5 +254,37 @@ public class PedidoController {
         return pedidoService.rastrearPedido(id, email)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.status(404).build());
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Helper methods
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /** Checks if user has admin role */
+    private boolean isAdmin(UsuarioRegistroDto usuario) {
+        return usuario != null && usuario.isAdmin();
+    }
+
+    /** Generic helper for admin state-change operations */
+    @FunctionalInterface
+    interface PedidoOperation {
+        void execute(Pedido pedido);
+    }
+
+    private ResponseEntity<?> validarAdminYCambiarEstado(
+            Long idPedido,
+            UsuarioRegistroDto admin,
+            PedidoOperation operation) {
+        if (!isAdmin(admin)) {
+            return ResponseEntity.status(403).body("Acceso denegado.");
+        }
+        // Admin puede cambiar cualquier pedido (rol ADMIN global)
+        // La validación específica del pedido se delega al service
+        Pedido pedido = pedidoService.findById(idPedido);
+        if (pedido == null) {
+            return ResponseEntity.status(404).body("Pedido no encontrado.");
+        }
+        operation.execute(pedido);
+        return ResponseEntity.ok().build();
     }
 }

@@ -75,12 +75,22 @@ public class UsuarioServiceImpl implements UsuarioService {
         return response;
     }
 
+    private static final String DUMMY_BCRYPT_HASH = "$2a$12$EQDAsgLVxLRqMjGsFGBwkeRGH2hqiJJPfP.5vPpPBbXqH3xYzXKXi";
+
     @Override
     public AuthUsuario login(UsuarioLogin login) {
-        Usuario usuario = repository.findByEmail(login.getEmail())
-                .orElseThrow(() -> new RuntimeException("Credenciales inválidas"));
+        // Siempre comparar contra hash dummy para igualar timing
+        // (evita email enumeration via timing attack)
+        Usuario usuario = repository.findByEmail(login.getEmail()).orElse(null);
 
-        if (!passwordEncoder.matches(login.getPassword(), usuario.getPassword())) {
+        if (usuario != null) {
+            // Usuario existe: comparar password real
+            if (!passwordEncoder.matches(login.getPassword(), usuario.getPassword())) {
+                throw new RuntimeException("Credenciales inválidas");
+            }
+        } else {
+            // Usuario no existe: igualar timing con hash dummy
+            passwordEncoder.matches(login.getPassword(), DUMMY_BCRYPT_HASH);
             throw new RuntimeException("Credenciales inválidas");
         }
 

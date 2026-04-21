@@ -51,7 +51,8 @@ const transformProduct = (p: Producto): Producto => {
 export async function getProductos(page = 0, size = 20, status?: string): Promise<PaginatedResponse<Producto>> {
   const url = status ? `/productos/filtro?page=${page}&size=${size}&status=${status}` : `/productos/filtro?page=${page}&size=${size}`;
   const res = await api.get<PaginatedResponse<Producto>>(url);
-  res.data.content = res.data.content.map(transformProduct);
+  if (!res.data) return res.data;
+  res.data.content = (res.data.content || []).map(transformProduct);
   return res.data;
 }
 
@@ -115,7 +116,8 @@ export async function filtrarProductos(
   if (filtro.distribuidor) params.append("distribuidor", filtro.distribuidor);
   
   const res = await api.get<PaginatedResponse<Producto>>(`/productos/filtro?${params.toString()}`);
-  res.data.content = res.data.content.map(transformProduct);
+  if (!res.data || Array.isArray(res.data)) return res.data;
+  res.data.content = (res.data.content || []).map(transformProduct);
   return res.data;
 }
 
@@ -220,6 +222,7 @@ export async function getVariantes(producto: Producto): Promise<Producto[]> {
  */
 export async function getNuevos(page = 0, size = 10): Promise<PaginatedResponse<Producto>> {
   const res = await api.get<PaginatedResponse<Producto>>(`/productos/nuevos?page=${page}&size=${size}`);
-  res.data.content = res.data.content.map(transformProduct);
+  if (!res.data) return res.data;
+  res.data.content = (res.data.content || []).map(transformProduct);
   return res.data;
 }

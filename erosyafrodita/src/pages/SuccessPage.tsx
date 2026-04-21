@@ -12,6 +12,22 @@ interface LocationState {
 const SuccessPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Traductor de estados a español
+  const estadoLabel = (estado: string): string => {
+    const labels: Record<string, string> = {
+      PENDIENTE_DE_PAGO: "Pendiente",
+      PENDIENTE: "Pendiente",
+      PAGADO: "Pagado",
+      RECIBIDO: "Recibido",
+      ENVIADO: "Enviado",
+      ENTREGADO: "Entregado",
+      CANCELADO: "Cancelado",
+      DEVOLUCION_SOLICITADA: "Devolución Solicitada",
+      DEVUELTO: "Devuelto",
+    };
+    return labels[estado] ?? estado;
+  };
   const state = (location.state || {}) as LocationState;
 
   const [pedido, setPedido] = useState<PedidoSalida | null>(null);
@@ -136,7 +152,7 @@ const SuccessPage: React.FC = () => {
                 </div>
                 {pedido && (
                   <span className="text-[10px] font-black text-primary bg-primary/10 px-4 py-1.5 rounded-full border border-primary/20 tracking-[0.2em] uppercase">
-                    {pedido.estado}
+                    {estadoLabel(pedido.estado)}
                   </span>
                 )}
               </div>
@@ -145,7 +161,7 @@ const SuccessPage: React.FC = () => {
                 {/* Product List */}
                 {pedido && pedido.productos && pedido.productos.length > 0 ? (
                   <div className="space-y-8">
-                    {pedido.productos.map((prod, idx) => (
+                    {(pedido.productos || []).map((prod, idx) => (
                       <div key={idx} className="flex items-center gap-6 group/item">
                         <div className="size-20 md:size-24 shrink-0 rounded-2xl overflow-hidden bg-background-dark border border-white/5 p-2 transition-all group-hover/item:border-primary/30 flex items-center justify-center">
                           {prod.imagen ? (

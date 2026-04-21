@@ -26,9 +26,12 @@ public class UsuarioRegistroDto {
   private String puerta;
   private String poblacion;
 
-
+  private boolean admin = false;
 
   public UsuarioRegistroDto(){}
+
+  public boolean isAdmin() { return admin; }
+  public void setAdmin(boolean admin) { this.admin = admin; }
 
   public String getName() {
     return name;

@@ -23,15 +23,20 @@ import java.util.List;
 
 /**
  * Filtro JWT entrante para mcsv-usuario.
- * Valida Bearer tokens emitidos por este mismo servicio y propaga
- * el principal + rol al SecurityContext para que los endpoints
- * protegidos puedan usar @AuthenticationPrincipal y hasRole().
+ * Valida Bearer tokens y rechaza los revocados (blacklist en BD).
  */
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     @Value("${application.security.jwt.secret-key}")
     private String secretKey;
+
+    private final com.example.tiendaonline.usuario.mcsv_usuario.repository.RevokedTokenRepository revokedTokenRepository;
+
+    public JwtAuthFilter(
+            com.example.tiendaonline.usuario.mcsv_usuario.repository.RevokedTokenRepository revokedTokenRepository) {
+        this.revokedTokenRepository = revokedTokenRepository;
+    }
 
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
@@ -58,10 +63,19 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     .parseClaimsJws(token)
                     .getBody();
 
+            String jti   = claims.getId();
             String email = claims.getSubject();
             String role  = claims.get("role", String.class);
 
             if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                // ── Blacklist check ─────────────────────────────────────────
+                if (jti != null && revokedTokenRepository.existsById(jti)) {
+                    response.setStatus(401);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"error\":\"Token revocada\"}");
+                    return;
+                }
+
                 List<SimpleGrantedAuthority> authorities = List.of(
                         new SimpleGrantedAuthority(role != null ? role : "ROLE_USER")
                 );

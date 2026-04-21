@@ -12,6 +12,22 @@ const TrackOrder: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+
+  // Traductor de estados a español
+  const estadoLabel = (estado: string): string => {
+    const labels: Record<string, string> = {
+      PENDIENTE_DE_PAGO: "Pendiente",
+      PENDIENTE: "Pendiente",
+      PAGADO: "Pagado",
+      RECIBIDO: "Recibido",
+      ENVIADO: "Enviado",
+      ENTREGADO: "Entregado",
+      CANCELADO: "Cancelado",
+      DEVOLUCION_SOLICITADA: "Devolución Solicitada",
+      DEVUELTO: "Devuelto",
+    };
+    return labels[estado] ?? estado;
+  };
     const handleTrack = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!orderId || !email) return;
@@ -135,7 +151,7 @@ const TrackOrder: React.FC = () => {
                                     <div>
                                         <h2 className="text-3xl font-black tracking-tight">Pedido #{pedido.idPedido}</h2>
                                         <p className="text-primary text-[10px] font-black uppercase tracking-widest mt-1">
-                                            Estado Atual: {pedido.estado}
+                                            Estado Atual: {estadoLabel(pedido.estado)}
                                         </p>
                                     </div>
                                 </div>

@@ -30,6 +30,7 @@ const Checkout: React.FC = () => {
   const [showPayment, setShowPayment] = useState(false);
   const [rcInstance, setRcInstance] = useState<any>(null);
   const [cardField, setCardField] = useState<any>(null);
+  const [isRevolutReady, setIsRevolutReady] = useState(false);
   const [publicId, setPublicId] = useState<string | null>(null);
   const [createdPedido, setCreatedPedido] = useState<PedidoSalida | null>(null);
   const [isPaying, setIsPaying] = useState(false);
@@ -56,8 +57,9 @@ const Checkout: React.FC = () => {
   });
 
   const validatePhone = (phone: string) => {
-    // Regex para España: Empieza por 6, 7, 8 o 9, seguido de 8 dígitos
-    return /^[6789]\d{8}$/.test(phone.replace(/\s/g, ""));
+    // Acepta: 9 dígitos (630860856) o número con prefijo internacional (34630860856, +34630860856)
+    const cleaned = phone.replace(/\s/g, "").replace(/^\+34/, "").replace(/^34/, "");
+    return /^\d{9}$/.test(cleaned) && /^[6789]/.test(cleaned);
   };
 
   const validateCP = (cp: string) => {
@@ -113,13 +115,13 @@ const Checkout: React.FC = () => {
     };
 
     if (!isUsingSavedAddress && (
-      !tempAddress.nombre.trim() || 
-      !tempAddress.apellidos.trim() || 
-      !tempAddress.calle.trim() || 
-      !tempAddress.poblacion.trim() || 
-      !tempAddress.codigoPostal.trim() || 
-      !tempAddress.provincia.trim() || 
-      !tempAddress.telefono.trim() || 
+      !tempAddress.nombre.trim() ||
+      !tempAddress.apellidos.trim() ||
+      !tempAddress.calle.trim() ||
+      !tempAddress.poblacion.trim() ||
+      !tempAddress.codigoPostal.trim() ||
+      !tempAddress.provincia.trim() ||
+      !tempAddress.telefono.trim() ||
       (!userEmail && !tempAddress.email.trim())
     )) {
       setError("Por favor, completa todos los campos de envío. Son necesarios para la entrega.");
@@ -127,13 +129,19 @@ const Checkout: React.FC = () => {
       return;
     }
 
-    if (!validatePhone(tempAddress.telefono)) {
-      setError("El número de teléfono no es válido. Debe tener 9 dígitos y empezar por 6, 7, 8 o 9.");
+      const phoneValue = isUsingSavedAddress && userProfile
+        ? (userProfile.phone || (userProfile as any).telefono || "")
+        : tempAddress.telefono;
+      if (!validatePhone(phoneValue)) {
+        setError(`Teléfono "${phoneValue}" no válido. Formatos válidos: 630860856, 34630860856, +34630860856`);
       return;
     }
 
-    if (!validateCP(tempAddress.codigoPostal)) {
-      setError("El Código Postal debe tener exactamente 5 dígitos.");
+    const cpValue = isUsingSavedAddress && userProfile
+      ? (userProfile.codigoPostal || "")
+      : tempAddress.codigoPostal;
+    if (!validateCP(cpValue)) {
+      setError(`Código Postal "${cpValue}" no válido. Debe tener exactamente 5 dígitos.`);
       return;
     }
 
@@ -169,7 +177,6 @@ const Checkout: React.FC = () => {
       return;
     }
 
-    try {
       setLoading(true);
 
       // 1. Guardar dirección en el perfil si se marcó en el modal
@@ -188,51 +195,70 @@ const Checkout: React.FC = () => {
         });
       }
 
-
-
-      // 3. Crear el pedido
-      const { iniciarPagoRevolut } = await import("../api/order");
-      const pedido = await crearPedido({
-        ...payload,
-        ...(LAUNCH_PROMO_ACTIVE ? { descuento: LAUNCH_DISCOUNT } : {}),
-        ...(!userEmail ? { items: items.map(i => ({ productoId: i.product.id, cantidad: i.quantity })) } : {})
-      });
-      setCreatedPedido(pedido);
-      
-      // 4. Iniciar el proceso de pago con Revolut (Obtener public_id)
+      // 2. Crear el pedido
+      let pedido;
       try {
+        const { iniciarPagoRevolut } = await import("../api/order");
+        pedido = await crearPedido({
+          ...payload,
+          ...(LAUNCH_PROMO_ACTIVE ? { descuento: LAUNCH_DISCOUNT } : {}),
+          ...(!userEmail ? { items: items.map(i => ({ productoId: i.product.id, cantidad: i.quantity })) } : {})
+        });
+        setCreatedPedido(pedido);
+      } catch (err: any) {
+        setError(err.message ?? "No se pudo crear el pedido.");
+        showAlert("Error", err.message ?? "No se pudo procesar el pago.", "error");
+        setLoading(false);
+        return;
+      }
+
+      // 3. Iniciar el proceso de pago con Revolut (Obtener public_id)
+      try {
+        const { iniciarPagoRevolut } = await import("../api/order");
         const paymentData = await iniciarPagoRevolut(pedido.idPedido);
-        
+
         if (paymentData && paymentData.paymentId) {
-          // Guardamos el public_id y mostramos la sección de pago
           setPublicId(paymentData.paymentId);
           setShowPayment(true);
-          
-          // Inicializamos el SDK de Revolut
-          const rc = await RevolutCheckout(paymentData.paymentId);
-          setRcInstance(rc);
-          
-          // El montaje lo haremos en un useEffect separado para asegurar que el DOM existe
-          return;
+          setLoading(false);
+          // Timeout de 15s para cargar el widget de Revolut
+          try {
+            const rc = await Promise.race([
+              RevolutCheckout(paymentData.paymentId),
+              new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), 15000))
+            ]);
+            setRcInstance(rc);
+            return;
+          } catch (revErr: any) {
+            setShowPayment(false);
+            setError("El widget de pago no pudo cargarse. Inténtalo de nuevo en unos segundos.");
+            showAlert("Error", "No se pudo cargar el formulario de pago. Comprueba tu conexión e inténtalo de nuevo.", "error");
+            return;
+          }
         } else {
           throw new Error("No se recibió una ID de pago válida de Revolut.");
         }
       } catch (payErr: any) {
         console.error("Error al iniciar el pago:", payErr);
-        setError("Pedido creado, pero hubo un error al iniciar la pasarela de pago. Por favor, contacta con soporte. ID: " + pedido.idPedido);
-        showAlert("Error en pasarela", "El pedido se ha creado pero no hemos podido conectar con Revolut. Inténtalo de nuevo o contacta con nosotros.", "error");
+        setError("El pedido ha sido creado (ID: " + pedido.idPedido + ") pero no se pudo iniciar el pago. Puedes reintentarlo desde tu historial de pedidos o contactarnos.");
+        showAlert("Error en pasarela", "El pedido ha sido creado pero no hemos podido conectar con Revolut. Puedes reintentarlo o contactarnos. ID: " + pedido.idPedido, "error");
       }
-    } catch (err: any) {
-      setError(err.message ?? "No se pudo crear el pedido.");
-      showAlert("Error", err.message ?? "No se pudo procesar el pago.", "error");
-    } finally {
+
       setLoading(false);
-    }
-  };
+    };
+
 
   // Efecto para montar el campo de tarjeta cuando Revolut esté listo
   React.useEffect(() => {
     if (showPayment && rcInstance && !cardField) {
+      // Auto-rellenar nombre del titular desde el perfil o la dirección
+      if (!cardholderName && userProfile) {
+        const perfilNombre = userProfile.name || (userProfile as any).nombre || "";
+        if (perfilNombre) setCardholderName(perfilNombre);
+      }
+      if (!cardholderName && createdPedido) {
+        setCardholderName(createdPedido.nombre || "");
+      }
       const card = rcInstance.createCardField({
         target: document.getElementById("revolut-card-field"),
         styles: {
@@ -254,6 +280,9 @@ const Checkout: React.FC = () => {
           setError(error?.message || "Hubo un problema al validar o procesar tu tarjeta.");
           showAlert("Error en tarjeta", error?.message || "Revisa los detalles introducidos y vuelve a intentarlo.", "error");
           setIsPaying(false);
+        },
+        onReady() {
+          setIsRevolutReady(true);
         }
       });
       setCardField(card);
@@ -350,6 +379,7 @@ const Checkout: React.FC = () => {
     setPublicId(null);
     setRcInstance(null);
     setCardField(null);
+    setIsRevolutReady(false);
   };
 
 
@@ -618,7 +648,7 @@ const Checkout: React.FC = () => {
                   <button
                     type={showPayment ? "button" : "submit"}
                     onClick={showPayment && selectedMethod === 'card' ? handleExecutePayment : undefined}
-                    disabled={loading || isPaying || (showPayment && selectedMethod === 'card' && !cardholderName.trim())}
+                    disabled={loading || isPaying || (showPayment && selectedMethod === 'card' && (!cardholderName.trim() || !isRevolutReady))}
                     className="w-full h-16 bg-primary text-charcoal rounded-full font-black text-xs uppercase tracking-widest hover:bg-white hover:scale-105 transition-all shadow-2xl shadow-primary/10 flex items-center justify-center gap-3 disabled:opacity-30 disabled:grayscale disabled:scale-100 disabled:cursor-not-allowed"
                   >
                     {!showPayment ? (loading ? "Conectando..." : "Ir a Pagar") : (isPaying ? "Procesando..." : "Pagar")}

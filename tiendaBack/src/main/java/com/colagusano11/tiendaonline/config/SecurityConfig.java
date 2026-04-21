@@ -15,7 +15,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -39,27 +38,8 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // Permitir preflight OPTIONS para todo
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                // Endpoints públicos: auth, registro, productos, categorías
-                .requestMatchers(HttpMethod.POST, "/auth/**", "/usuarios/registro").permitAll()
-                .requestMatchers(HttpMethod.GET, "/productos/**", "/categorias/**", "/proxy-image/**", "/resenas/**", "/pedidos/rastrear").permitAll()
-                .requestMatchers(HttpMethod.POST, "/avisos-stock/suscribir", "/api/avisos-stock/suscribir").permitAll()
-                .requestMatchers(HttpMethod.GET, "/actuator/**").permitAll()
-                // Endpoints de Pedidos para Invitados (Permitir creación y confirmación sin JWT)
-                .requestMatchers(HttpMethod.POST, "/pedidos", "/api/pedidos", "/pedidos/confirmar", "/api/pedidos/confirmar").permitAll()
-                .requestMatchers(HttpMethod.POST, "/pedidos/pago/revolut", "/api/pedidos/pago/revolut").permitAll()
-                .requestMatchers(HttpMethod.POST, "/pedidos/pago/confirmar", "/api/pedidos/pago/confirmar").permitAll()
-                // El resto de pedidos (cambiar estados, borrar, etc) requiere ADMIN
-                .requestMatchers(HttpMethod.POST, "/pedidos/**", "/api/pedidos/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/pedidos/**", "/api/pedidos/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/pedidos/**", "/api/pedidos/**").hasRole("ADMIN")
-                // Webhook de pago (llamada externa de Revolut, sin JWT)
-                .requestMatchers(HttpMethod.POST, "/pagos/revolut/webhook", "/api/pagos/revolut/webhook").permitAll()
-                // Permitir acceso a los comandos de administración e importación — solo ADMIN autenticado
-                .requestMatchers("/admin/**").hasRole("ADMIN")
-                // Todo lo demás requiere autenticación JWT
-                .anyRequest().authenticated()
+                // Todo permitido — la auth se gestiona en JwtAuthFilter
+                .anyRequest().permitAll()
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
             .httpBasic(httpBasic -> httpBasic.disable());
@@ -71,22 +51,19 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(
-            "http://localhost:5173",  // Vite legacy port
-            "http://localhost:3000",  // Vite new port (configurado en vite.config.ts)
-            "http://localhost:8080",  // Backend local
-            "http://localhost:8081",  // Microservicio usuarios
-            "http://localhost:8082",  // Backend tienda
-            "http://localhost:4001",  // Nuevo puerto Frontend
-            "http://localhost:81",    // Docker Frontend (puerto 81)
-            "http://localhost",       // Docker Frontend (puerto 80)
-            "http://127.0.0.1",       // Localhost IP
-            "https://erosyafrodita.com", // Producción (Añadido)
-            "https://erosyafrodita.com:8082" // Producción API (Añadido)
+            "http://localhost:5173",
+            "http://localhost:3000",
+            "http://localhost:4001",
+            "http://localhost:8080",
+            "http://localhost:8081",
+            "http://localhost:8082",
+            "https://erosyafrodita.com",
+            "https://erosyafrodita.com:8082"
         ));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Content-Type", "Authorization"));
         configuration.setAllowCredentials(true);
-
+        configuration.setMaxAge(3600L);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
