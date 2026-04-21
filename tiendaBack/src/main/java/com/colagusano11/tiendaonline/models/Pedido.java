@@ -31,6 +31,8 @@ public class Pedido {
 
     private String paymentId;
 
+    private String publicId;
+
     // Campos de envío desglosados
     private String nombre;
     private String apellidos;
@@ -199,6 +201,14 @@ public class Pedido {
 
     public void setPaymentId(String paymentId) {
         this.paymentId = paymentId;
+    }
+
+    public String getPublicId() {
+        return publicId;
+    }
+
+    public void setPublicId(String publicId) {
+        this.publicId = publicId;
     }
 
     public Distribuidor getDistribuidor() {
