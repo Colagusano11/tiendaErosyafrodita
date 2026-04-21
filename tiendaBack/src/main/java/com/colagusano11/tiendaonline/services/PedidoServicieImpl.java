@@ -9,6 +9,7 @@ import com.colagusano11.tiendaonline.repositories.CarritoRepository;
 import com.colagusano11.tiendaonline.repositories.PedidoRepository;
 import com.colagusano11.tiendaonline.repositories.ProductoRepository;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -27,6 +28,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class PedidoServicieImpl implements PedidoServicie {
 
     private final PedidoRepository pedidoRepository;
