@@ -106,6 +106,14 @@ public class PedidoRequest {
         public void setPais(String pais) {
             this.pais = pais;
         }
+
+        public String getIdempotencyKey() {
+            return idempotencyKey;
+        }
+
+        public void setIdempotencyKey(String idempotencyKey) {
+            this.idempotencyKey = idempotencyKey;
+        }
     }
 
 
