@@ -7,8 +7,9 @@ export default defineConfig(({ mode }) => {
 
   return {
     server: {
-      port: 3000,
+      port: 4002,
       host: '0.0.0.0',
+      allowedHosts: ['laboratorio.erosyafrodita.com', 'localhost', '127.0.0.1'],
     },
     plugins: [react()],
     define: {

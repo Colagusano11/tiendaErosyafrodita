@@ -76,7 +76,10 @@ public class SecurityConfig {
             "http://localhost:8080",  // Backend local
             "http://localhost:8081",  // Microservicio usuarios
             "http://localhost:8082",  // Backend tienda
-            "http://localhost:4001",  // Nuevo puerto Frontend
+            "http://localhost:4001",  // Puerto Frontend producción
+            "http://localhost:4002",  // Puerto Frontend laboratorio
+            "http://192.168.1.40:4002",  // IP directa laboratorio
+            "http://laboratorio.erosyafrodita.com:4002",  // Dominio laboratorio
             "http://localhost:81",    // Docker Frontend (puerto 81)
             "http://localhost",       // Docker Frontend (puerto 80)
             "http://127.0.0.1",       // Localhost IP
