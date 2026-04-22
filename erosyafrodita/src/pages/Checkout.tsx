@@ -315,7 +315,7 @@ const Checkout: React.FC = () => {
           if (selectedMethod === 'paypal') {
             const paypalDiv = document.getElementById("paypal-button-container");
             if (paypalDiv && !paypalDiv.hasChildNodes()) {
-              const PAYPAL_CLIENT_ID = 'AZQuuMRt01yL3oXrGBzy78bErP3QbhuDfcBVmyFO-OWbWqQVMpvXH-WFVt0XuKp2PqPFh5dyljT5fpLa';
+              const PAYPAL_CLIENT_ID = 'AK1B5zo3RCW8QD7POLPHd3HChJ_0ytSQVrmVTSTcPlP7rCICcYASEbAxmo7L3GKy4d98HmQwooikMsr';
               
               const loadPayPalScript = () => {
                 return new Promise<void>((resolve) => {
