@@ -141,6 +141,16 @@ export async function iniciarPagoRevolut(id: number): Promise<PaymentInitRespons
     return response.data;
 }
 
+export async function iniciarPagoPayPal(id: number): Promise<PaymentInitResponse> {
+    const response = await api.post<PaymentInitResponse>(`/pedidos/${id}/pago/paypal`);
+    return response.data;
+}
+
+export async function capturarPagoPayPal(id: number): Promise<{ status: string; pedidoId: number }> {
+    const response = await api.post<{ status: string; pedidoId: number }>(`/pedidos/${id}/pago/paypal/capture`);
+    return response.data;
+}
+
 export async function deletePedidoCompleto(id: number): Promise<void> {
     await api.delete(`/pedidos/${id}`);
 }

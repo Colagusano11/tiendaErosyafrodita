@@ -4,6 +4,7 @@ import com.colagusano11.tiendaonline.client.dto.UsuarioRegistroDto;
 import com.colagusano11.tiendaonline.mappers.PedidoMapper;
 import com.colagusano11.tiendaonline.models.*;
 import com.colagusano11.tiendaonline.payments.PaymentGateway;
+import com.colagusano11.tiendaonline.payments.PayPalPaymentGateway;
 import com.colagusano11.tiendaonline.payments.dto.PaymentInitResponse;
 import com.colagusano11.tiendaonline.repositories.CarritoRepository;
 import com.colagusano11.tiendaonline.repositories.PedidoRepository;
@@ -35,6 +36,7 @@ public class PedidoServicieImpl implements PedidoServicie {
     private final ProductoRepository productoRepository;
     private final CarritoRepository carritoRepository;
     private final PaymentGateway paymentGateway;
+    private final PayPalPaymentGateway payPalGateway;
     private final PedidoTrakingService pedidoTrak;
     private final PedidoMapper pedidoMapper;
     private final BtsApiClient btsApiClient;
@@ -48,6 +50,7 @@ public class PedidoServicieImpl implements PedidoServicie {
             ProductoRepository productoRepository,
             CarritoRepository carritoRepository,
             PaymentGateway paymentGateway,
+            PayPalPaymentGateway payPalGateway,
             PedidoTrakingService pedidoTrak,
             PedidoMapper pedidoMapper,
             BtsApiClient btsApiClient,
@@ -59,6 +62,7 @@ public class PedidoServicieImpl implements PedidoServicie {
         this.productoRepository = productoRepository;
         this.carritoRepository = carritoRepository;
         this.paymentGateway = paymentGateway;
+        this.payPalGateway = payPalGateway;
         this.pedidoTrak = pedidoTrak;
         this.pedidoMapper = pedidoMapper;
         this.btsApiClient = btsApiClient;
@@ -330,6 +334,40 @@ public class PedidoServicieImpl implements PedidoServicie {
         pedidoRepository.save(pedido);
 
         return response;
+    }
+
+    @Override
+    public PaymentInitResponse iniciarPagoPayPal(Long id) {
+        Pedido pedido = pedidoRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("Pedido no encontrado"));
+
+        pedido.setEstado(PedidoEstado.PENDIENTE_DE_PAGO);
+
+        PaymentInitResponse response = payPalGateway.crearPago(pedido);
+
+        // Guardar el paymentId de PayPal
+        pedidoRepository.save(pedido);
+
+        return response;
+    }
+
+    @Override
+    public boolean capturarPagoPayPal(Long id) {
+        Pedido pedido = pedidoRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("Pedido no encontrado"));
+
+        if (pedido.getPaymentId() == null) {
+            return false;
+        }
+
+        boolean success = payPalGateway.capturarPago(pedido.getPaymentId());
+
+        if (success) {
+            pedido.setEstado(PedidoEstado.PAGADO);
+            pedidoRepository.save(pedido);
+        }
+
+        return success;
     }
 
     @Override

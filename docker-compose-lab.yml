@@ -51,7 +51,7 @@ services:
       - default
 
   frontend-lab:
-    image: eros-front:latest
+    image: eros-front:lab
     container_name: eros-frontend-lab
     ports:
       - "4002:80"

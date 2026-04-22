@@ -122,8 +122,22 @@ public class PedidoController {
     }
 
     @PostMapping("/{id}/pago/revolut")
-    public PaymentInitResponse iniciarPago(@PathVariable Long id) {
+    public PaymentInitResponse iniciarPagoRevolut(@PathVariable Long id) {
         return pedidoService.iniciarPago(id);
+    }
+
+    @PostMapping("/{id}/pago/paypal")
+    public PaymentInitResponse iniciarPagoPayPal(@PathVariable Long id) {
+        return pedidoService.iniciarPagoPayPal(id);
+    }
+
+    @PostMapping("/{id}/pago/paypal/capture")
+    public ResponseEntity<?> capturarPagoPayPal(@PathVariable Long id) {
+        boolean success = pedidoService.capturarPagoPayPal(id);
+        if (success) {
+            return ResponseEntity.ok(Map.of("status", "COMPLETED", "pedidoId", id));
+        }
+        return ResponseEntity.badRequest().body(Map.of("status", "FAILED"));
     }
 
     @PutMapping("/{id}/estado")

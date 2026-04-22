@@ -34,7 +34,7 @@ const Checkout: React.FC = () => {
   const [createdPedido, setCreatedPedido] = useState<PedidoSalida | null>(null);
   const [isPaying, setIsPaying] = useState(false);
   const [cardholderName, setCardholderName] = useState("");
-  const [selectedMethod, setSelectedMethod] = useState<'card' | 'revolut_pay' | 'mobile_pay'>('card');
+  const [selectedMethod, setSelectedMethod] = useState<'card' | 'revolut_pay' | 'mobile_pay' | 'paypal'>('card');
   const [isMobilePaySupported, setIsMobilePaySupported] = useState(false);
   
   // Datos de dirección para el modal/nueva dirección
@@ -310,13 +310,60 @@ const Checkout: React.FC = () => {
               }
             }
           }
+
+          // 3. PayPal
+          if (selectedMethod === 'paypal') {
+            const paypalDiv = document.getElementById("paypal-button-container");
+            if (paypalDiv && !paypalDiv.hasChildNodes()) {
+              const PAYPAL_CLIENT_ID = 'AZQuuMRt01yL3oXrGBzy78bErP3QbhuDfcBVmyFO-OWbWqQVMpvXH-WFVt0XuKp2PqPFh5dyljT5fpLa';
+              
+              const loadPayPalScript = () => {
+                return new Promise<void>((resolve) => {
+                  if ((window as any).paypal) { resolve(); return; }
+                  const script = document.createElement('script');
+                  script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=EUR&intent=capture`;
+                  script.async = true;
+                  script.onload = () => resolve();
+                  document.head.appendChild(script);
+                });
+              };
+
+              await loadPayPalScript();
+              
+              const paypal = (window as any).paypal;
+              paypal.Buttons({
+                style: {
+                  layout: 'vertical',
+                  color: 'gold',
+                  shape: 'rect',
+                  label: 'paypal'
+                },
+                createOrder: async (data: any, actions: any) => {
+                  const { iniciarPagoPayPal } = await import('../api/order');
+                  const response = await iniciarPagoPayPal(createdPedido!.idPedido);
+                  return response.paymentId;
+                },
+                onApprove: async (data: any, actions: any) => {
+                  const guestEmail = userEmail || tempAddress.email.trim();
+                  clearCart().then(() => {
+                    navigate(`/success?pedidoId=${createdPedido?.idPedido}&email=${encodeURIComponent(guestEmail)}&paypal=1`);
+                    window.location.reload();
+                  });
+                },
+                onError: (err: any) => {
+                  console.error('PayPal error:', err);
+                  setError('Error al procesar pago con PayPal.');
+                }
+              }).render('#paypal-button-container');
+            }
+          }
         } catch (err) {
           console.error("Error al inicializar métodos alternativos:", err);
         }
       };
       initOtherMethods();
     }
-  }, [showPayment, rcInstance, selectedMethod, total, createdPedido, clearCart, navigate]);
+  }, [showPayment, rcInstance, selectedMethod, total, createdPedido, clearCart, navigate, userEmail, tempAddress, setError]);
 
   const handleExecutePayment = async () => {
     if (!cardField || !createdPedido) return;
@@ -484,6 +531,15 @@ const Checkout: React.FC = () => {
                             </div>
                             <span className="text-[10px] font-black uppercase tracking-widest">Digital Bag</span>
                           </div>
+                          <div 
+                            onClick={() => setSelectedMethod('paypal')}
+                            className={`p-4 rounded-xl border transition-all cursor-pointer flex flex-col items-center gap-2 text-center ${selectedMethod === 'paypal' ? 'bg-primary/5 border-primary shadow-lg shadow-primary/10' : 'bg-black/20 border-white/5 hover:border-white/10'}`}
+                          >
+                            <div className="h-5 flex items-center justify-center">
+                              <span className="font-black text-sm">Pay<span className="text-blue-500">Pal</span></span>
+                            </div>
+                            <span className="text-[10px] font-black uppercase tracking-widest">Pagar</span>
+                          </div>
                         </div>
                     </div>
                   </div>
@@ -546,6 +602,14 @@ const Checkout: React.FC = () => {
                        {!isMobilePaySupported && (
                          <p className="text-[10px] text-red-400 font-bold uppercase tracking-widest">Verificando compatibilidad...</p>
                        )}
+                    </div>
+
+                    <div className={`${selectedMethod === 'paypal' ? 'flex flex-col items-center gap-6 py-10 animate-fade-in' : 'hidden'}`}>
+                       <div className="text-center flex flex-col gap-2 mb-4">
+                          <p className="text-blue-500 font-black text-xl uppercase tracking-widest">PayPal</p>
+                          <p className="text-xs text-white/40 font-light">Paga de forma segura con tu cuenta PayPal</p>
+                       </div>
+                       <div id="paypal-button-container" className="w-full max-w-[300px] min-h-[100px]"></div>
                     </div>
 
                     <div className="flex justify-start mt-2">
