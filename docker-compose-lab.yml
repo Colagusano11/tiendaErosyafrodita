@@ -1,24 +1,37 @@
-# Laboratorio - usa BD propia + servicios compartidos de producción
+version: '3.8'
 services:
   db-lab:
     image: mysql:8.0
     container_name: tienda-mysql-lab
     ports:
-      - "3310:3306"
+      - "3312:3306"
     environment:
       MYSQL_ROOT_PASSWORD: root123
       MYSQL_DATABASE: tienda_db
     volumes:
       - db_lab_data:/var/lib/mysql
-    networks:
-      - lab-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  db-usuarios-lab:
+    image: mysql:8.0
+    container_name: db-usuarios-lab
+    ports:
+      - "3311:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: sasa1234
+      MYSQL_DATABASE: tienda_usuarios
+    volumes:
+      - db_usuarios_lab_data:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       timeout: 20s
       retries: 10
 
   app-lab:
-    image: tiendaonline-lab:latest
+    image: tiendaonline:latest
     container_name: tienda-app-lab
     ports:
       - "8083:8080"
@@ -35,24 +48,25 @@ services:
       db-lab:
         condition: service_healthy
     networks:
-      - lab-net
+      - default
 
   frontend-lab:
-    image: nginx:alpine
+    image: eros-front:latest
     container_name: eros-frontend-lab
     ports:
       - "4002:80"
     volumes:
-      - ./erosyafrodita/dist:/usr/share/nginx/html:ro
       - ./lab-assets-nginx.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       - app-lab
     networks:
-      - lab-net
+      - default
 
 volumes:
   db_lab_data:
+  db_usuarios_lab_data:
 
 networks:
-  lab-net:
-    driver: bridge
+  default:
+    name: eros-afrodita-web_app-net
+    external: true
