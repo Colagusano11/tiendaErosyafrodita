@@ -52,6 +52,7 @@ import AlertModal from "./components/AlertModal";
 import WhatsAppButton from "./components/WhatsAppButton";
 import LaunchModal from "./components/LaunchModal";
 import CookieBanner from "./components/CookieBanner";
+import GoogleAnalytics from "./components/GoogleAnalytics";
 
 const App: React.FC = () => {
   return (
@@ -60,6 +61,7 @@ const App: React.FC = () => {
         <CartProvider>
           <WishlistProvider>
             <Router>
+              <GoogleAnalytics />
               <AlertModal />
               <AddToCartModal />
               <WhatsAppButton />

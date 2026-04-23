@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getProductos, deleteProducto, Producto, updateProducto, createProducto, updateBulkStatus, updateBulkPricing, Configuracion, syncWebImages, updateBulkOffer, syncCategories, getFilteredIds, getCategorias, getManufacturers, getDistribuidores } from "../api/products";
+import { getProductos, deleteProducto, Producto, updateProducto, createProducto, updateBulkStatus, updateBulkPricing, Configuracion, syncWebImages, updateBulkOffer, syncCategories, getFilteredIds, getCategorias, getManufacturers, getDistribuidores, filtrarProductos, syncAmazonImages, updateHomeConfig, getConfiguracion, getNuevos } from "../api/products";
 import AdminLayout from "../components/AdminLayout";
 import { useAlert } from "../context/AlertContext";
 import api from "../api/axios";
@@ -28,7 +28,7 @@ const AdminProductsPage: React.FC = () => {
 
   // --- Pestaña Nuevos Productos ---
   const [nuevosCount, setNuevosCount] = useState(0);
-  const [nuevosProducts, setNuevosProducts] = useState<any[]>([]);
+  const [nuevosProducts, setNuevosProducts] = useState<Producto[]>([]);
   const [nuevosLoading, setNuevosLoading] = useState(false);
   const [nuevosPage, setNuevosPage] = useState(0);
   const [nuevosTotalPages, setNuevosTotalPages] = useState(0);
@@ -75,9 +75,9 @@ const AdminProductsPage: React.FC = () => {
   const fetchNuevos = async (page = 0) => {
     setNuevosLoading(true);
     try {
-      const res = await api.get(`/productos/nuevos?page=${page}&size=20`);
-      setNuevosProducts(res.data.content ?? []);
-      setNuevosTotalPages(res.data.totalPages ?? 0);
+      const data = await getNuevos(page, 20);
+      setNuevosProducts(data.content ?? []);
+      setNuevosTotalPages(data.totalPages ?? 0);
       setNuevosPage(page);
     } catch { showAlert("Error", "No se pudieron cargar los productos nuevos", "error"); }
     finally { setNuevosLoading(false); }
@@ -88,7 +88,9 @@ const AdminProductsPage: React.FC = () => {
     if (isNaN(pvp) || pvp <= 0) { showAlert("Precio inválido", "Introduce un PVP mayor que 0", "error"); return; }
     setSavingPvp(s => ({ ...s, [id]: true }));
     try {
-      await api.put(`/productos/${id}`, { precioPVP: pvp });
+      await updateProducto(id, { precioPVP: pvp });
+      setNuevosProducts(p => p.filter(x => x.id !== id));
+      setNuevosCount(c => Math.max(0, c - 1));
       showAlert("Guardado", `PVP actualizado a ${pvp.toFixed(2)} €`, "success");
     } catch { showAlert("Error", "No se pudo actualizar el precio", "error"); }
     finally { setSavingPvp(s => ({ ...s, [id]: false })); }
@@ -122,7 +124,7 @@ const AdminProductsPage: React.FC = () => {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const data = await import("../api/products").then(m => m.filtrarProductos({
+      const data = await filtrarProductos({
         nombre: nameFilter,
         sku: skuFilter,
         distribuidor: providerFilter,
@@ -133,7 +135,7 @@ const AdminProductsPage: React.FC = () => {
         maxPrecio: maxPrice ? parseFloat(maxPrice) : undefined,
         page: currentPage,
         size: pageSize
-      }));
+      });
       
       setProducts(data.content);
       setTotalProducts(data.totalElements);
@@ -185,7 +187,7 @@ const AdminProductsPage: React.FC = () => {
 
   const fetchConfig = async () => {
     try {
-        const data = await import("../api/products").then(m => m.getConfiguracion());
+        const data = await getConfiguracion();
         setPricingConfig(data);
         return data;
     } catch (error) {
@@ -195,7 +197,6 @@ const AdminProductsPage: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchProducts();
     fetchCategories();
     fetchBrands();
     fetchProviders();
@@ -283,8 +284,11 @@ const AdminProductsPage: React.FC = () => {
             });
         } else if (selectedIds.length > 0) {
             idsToSend = selectedIds;
-        } else if (isSearchActive) {
-            idsToSend = products.map(p => p.id);
+        }
+
+        if (!idsToSend && !isAllSelected) {
+            showAlert("Atención", "Selecciona productos o selecciona 'Todo el catálogo' para realizar esta acción", "info");
+            return;
         }
 
         await updateBulkPricing(pricingConfig, idsToSend, distribuidor);
@@ -343,7 +347,6 @@ const AdminProductsPage: React.FC = () => {
   const handleUpdateHomeConfig = async () => {
     setSavingHome(true);
     try {
-      const { updateHomeConfig } = await import("../api/products");
       await updateHomeConfig(homeNovedades.join(","), homeRecomendados.join(","));
       showAlert("Éxito", "Configuración de inicio actualizada", "success");
       setIsHomeModalOpen(false);
@@ -362,9 +365,8 @@ const AdminProductsPage: React.FC = () => {
         // Opción: SANEAR CATÁLOGO (force=true)
         setSyncingAmazon(true);
         try {
-          const { syncAmazonImages } = await import("../api/products");
-          await syncAmazonImages(true);
-          showAlert("Sincronización iniciada", "Saneamiento iniciado. Se actualizarán todas las fotos que no sean oficiales de Amazon.", "success");
+          const res = await syncAmazonImages(true);
+          showAlert("Sincronización finalizada", `Saneamiento completado. Se han actualizado ${res.updated} productos con fotos de Amazon.`, "success");
           fetchProducts();
         } catch {
           showAlert("Error", "No se pudo sincronizar con Amazon", "error");
@@ -372,15 +374,14 @@ const AdminProductsPage: React.FC = () => {
           setSyncingAmazon(false);
         }
       },
-      "checkmark",
+      "success",
       "Sanear Catálogo",
       async () => {
         // Opción: SOLO HUECOS (force=false)
         setSyncingAmazon(true);
         try {
-          const { syncAmazonImages } = await import("../api/products");
-          await syncAmazonImages(false);
-          showAlert("Sincronización iniciada", "Búsqueda iniciada solo para productos sin imagen.", "success");
+          const res = await syncAmazonImages(false);
+          showAlert("Sincronización finalizada", `Búsqueda en huecos completada. Se han añadido ${res.updated} fotos nuevas.`, "success");
           fetchProducts();
         } catch {
           showAlert("Error", "No se pudo sincronizar con Amazon", "error");
@@ -570,6 +571,7 @@ const AdminProductsPage: React.FC = () => {
                         <option value="ACTIVOS" className="bg-charcoal text-white">ACTIVOS</option>
                         <option value="INACTIVOS" className="bg-charcoal text-white">OCULTOS</option>
                         <option value="OFERTAS" className="bg-charcoal text-white text-rose-400">EN OFERTA</option>
+                        <option value="BAJO_MARGEN" className="bg-charcoal text-orange-400">BAJO MARGEN</option>
                     </select>
                     <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 text-sm pointer-events-none opacity-50">unfold_more</span>
                </div>
@@ -679,7 +681,7 @@ const AdminProductsPage: React.FC = () => {
                 <div className="pt-6 border-t border-white/5 flex flex-col lg:flex-row items-center justify-between gap-6">
                     <div className="flex items-center gap-3 flex-wrap">
                         <button 
-                            onClick={() => setStatusFilter("BAJO_MARGEN")}
+                            onClick={() => setStatusFilter(prev => prev === "BAJO_MARGEN" ? "TODOS" : "BAJO_MARGEN")}
                             className={`h-11 px-5 rounded-2xl text-[9px] font-black uppercase transition-all flex items-center gap-2 group border ${
                                 statusFilter === "BAJO_MARGEN" 
                                 ? "bg-orange-500 text-white border-orange-600 shadow-lg shadow-orange-500/20" 

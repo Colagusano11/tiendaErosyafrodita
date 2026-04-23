@@ -141,8 +141,8 @@ const Header: React.FC = () => {
 
       {/* Mobile Drawer */}
       {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-[100] bg-black lg:hidden animate-fade-in">
-          <div className="absolute left-0 top-0 h-full w-[300px] bg-[#000000] p-8 shadow-[20px_0_60px_rgba(0,0,0,1)] animate-slide-right border-r border-white/5">
+        <div className="fixed inset-0 z-[100] bg-red-900 lg:hidden animate-fade-in">
+          <div className="absolute left-0 top-0 h-full w-[300px] bg-[#ff0000] p-8 shadow-[20px_0_60px_rgba(0,0,0,1)] animate-slide-right border-r border-white/5">
             <div className="flex justify-between items-center mb-10">
               <span className="text-[10px] font-black tracking-[0.4em] text-primary uppercase italic">Menú</span>
               <button 
