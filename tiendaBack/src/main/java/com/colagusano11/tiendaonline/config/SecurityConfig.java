@@ -48,14 +48,15 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/actuator/**").permitAll()
                 // Endpoints de Pedidos para Invitados (Permitir creación y confirmación sin JWT)
                 .requestMatchers(HttpMethod.POST, "/pedidos", "/api/pedidos", "/pedidos/confirmar", "/api/pedidos/confirmar").permitAll()
-                .requestMatchers(HttpMethod.POST, "/pedidos/pago/revolut", "/api/pedidos/pago/revolut").permitAll()
+                .requestMatchers(HttpMethod.POST, "/pedidos/pago/revolut", "/api/pedidos/pago/revolut", "/pedidos/pago/paypal", "/api/pedidos/pago/paypal", "/pedidos/pago/paypal/capture", "/api/pedidos/pago/paypal/capture").permitAll()
                 .requestMatchers(HttpMethod.POST, "/pedidos/pago/confirmar", "/api/pedidos/pago/confirmar").permitAll()
+                // Webhook de pago (sin JWT)
+                .requestMatchers(HttpMethod.POST, "/pagos/revolut/webhook", "/api/pagos/revolut/webhook", "/api/pagos/webhook/paypal").permitAll()
                 // El resto de pedidos (cambiar estados, borrar, etc) requiere ADMIN
                 .requestMatchers(HttpMethod.POST, "/pedidos/**", "/api/pedidos/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/pedidos/**", "/api/pedidos/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/pedidos/**", "/api/pedidos/**").hasRole("ADMIN")
-                // Webhook de pago (llamada externa de Revolut, sin JWT)
-                .requestMatchers(HttpMethod.POST, "/pagos/revolut/webhook", "/api/pagos/revolut/webhook").permitAll()
+
                 // Permitir acceso a los comandos de administración e importación — solo ADMIN autenticado
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 // Todo lo demás requiere autenticación JWT
