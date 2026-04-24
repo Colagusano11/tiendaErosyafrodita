@@ -99,6 +99,10 @@ public class FeedController {
 
         xml.append("</channel>\n");
         xml.append("</rss>");
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_XML)
+                .body(xml.toString());
+    }
 
     @GetMapping(value = "/sitemap.xml", produces = MediaType.APPLICATION_XML_VALUE)
     public ResponseEntity<String> getSitemap() {
