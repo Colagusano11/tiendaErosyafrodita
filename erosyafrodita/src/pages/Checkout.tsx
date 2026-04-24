@@ -228,7 +228,7 @@ const Checkout: React.FC = () => {
       const pedido = await crearPedido({
         ...payload,
         ...(LAUNCH_PROMO_ACTIVE ? { descuento: LAUNCH_DISCOUNT } : {}),
-        ...(!userEmail ? { items: items.map(i => ({ productoId: i.product.id, cantidad: i.quantity })) } : {})
+        items: items.map(i => ({ productoId: i.product.id, cantidad: i.quantity }))
       });
       setCreatedPedido(pedido);
       

@@ -125,10 +125,41 @@ public class PedidoServicieImpl implements PedidoServicie {
             factorPromo = BigDecimal.ONE.subtract(BigDecimal.valueOf(pedidoRequest.getDescuento()));
         }
 
-        // --- MODO REGISTRADO ---
-        if (usuarioId != null) {
+        // --- DETERMINAR LÍNEAS DEL PEDIDO ---
+        // Prioridad 1: Items enviados en el Request (Frontend)
+        if (pedidoRequest.getItems() != null && !pedidoRequest.getItems().isEmpty()) {
+            // Intentar vincular con un usuario existente por el email si no viene autenticado
+            if (usuarioId == null && pedidoRequest.getEmail() != null && !pedidoRequest.getEmail().isBlank()) {
+                try {
+                    UsuarioRegistroDto existente = usuarioFeignClient.verUser(pedidoRequest.getEmail());
+                    if (existente != null) {
+                        pedido.setUsuarioId(existente.getId());
+                        usuarioId = existente.getId();
+                        System.out.println(">>> Pedido de invitado vinculado a usuario existente: " + existente.getEmail());
+                    }
+                } catch (Exception e) {
+                    System.out.println(">>> No se encontró usuario para vincular el pedido: " + pedidoRequest.getEmail());
+                }
+            }
+
+            for (PedidoRequest.ItemRequest itemReq : pedidoRequest.getItems()) {
+                Producto p = productoRepository.findById(itemReq.getProductoId())
+                    .orElseThrow(() -> new RuntimeException("Producto no encontrado: " + itemReq.getProductoId()));
+                lineasPedido.add(crearLineaPedido(pedido, p, itemReq.getCantidad(), factorPromo));
+            }
+
+            // Si el usuario está registrado, vaciamos su carrito en DB tras usar los items del frontend
+            if (usuarioId != null) {
+                carritoRepository.findByUsuarioId(usuarioId).ifPresent(c -> {
+                    c.getItems().clear();
+                    carritoRepository.save(c);
+                });
+            }
+        } 
+        // Prioridad 2: Carrito en Base de Datos (solo para usuarios registrados)
+        else if (usuarioId != null) {
             Carrito carrito = carritoRepository.findByUsuarioId(usuarioId)
-                    .orElseThrow(() -> new IllegalStateException("El usuario no tiene carrito"));
+                    .orElseThrow(() -> new IllegalStateException("El usuario no tiene carrito ni ha enviado items"));
 
             if (carrito.getItems().isEmpty()) {
                 throw new IllegalStateException("El carrito está vacío");
@@ -140,31 +171,9 @@ public class PedidoServicieImpl implements PedidoServicie {
             // Vaciar carrito DB
             carrito.getItems().clear();
             carritoRepository.save(carrito);
-        } 
-        // --- MODO INVITADO ---
+        }
         else {
-            if (pedidoRequest.getItems() == null || pedidoRequest.getItems().isEmpty()) {
-                throw new IllegalStateException("No hay productos en el pedido del invitado");
-            }
-            // Intentar vincular con un usuario existente por el email del formulario
-            if (pedidoRequest.getEmail() != null && !pedidoRequest.getEmail().isBlank()) {
-                try {
-                    UsuarioRegistroDto existente = usuarioFeignClient.verUser(pedidoRequest.getEmail());
-                    if (existente != null) {
-                        pedido.setUsuarioId(existente.getId());
-                        System.out.println(">>> Pedido de invitado vinculado a usuario existente: " + existente.getEmail());
-                    }
-                } catch (Exception e) {
-                    // Si falla (ej. 404), simplemente sigue como invitado puro
-                    System.out.println(">>> No se encontró usuario para vincular el pedido de invitado: " + pedidoRequest.getEmail());
-                }
-            }
-
-            for (PedidoRequest.ItemRequest itemReq : pedidoRequest.getItems()) {
-                Producto p = productoRepository.findById(itemReq.getProductoId())
-                    .orElseThrow(() -> new RuntimeException("Producto no encontrado: " + itemReq.getProductoId()));
-                lineasPedido.add(crearLineaPedido(pedido, p, itemReq.getCantidad(), factorPromo));
-            }
+            throw new IllegalStateException("No hay productos para crear el pedido");
         }
 
         // Calcular total
