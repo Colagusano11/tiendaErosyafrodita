@@ -55,9 +55,24 @@ const Checkout: React.FC = () => {
     saveToProfile: false
   });
 
+  // Refs para evitar problemas de clausura en los callbacks del SDK de Revolut
+  const createdPedidoRef = React.useRef<PedidoSalida | null>(null);
+  const tempAddressRef = React.useRef(tempAddress);
+  
+  React.useEffect(() => {
+    createdPedidoRef.current = createdPedido;
+  }, [createdPedido]);
+
+  React.useEffect(() => {
+    tempAddressRef.current = tempAddress;
+  }, [tempAddress]);
+  
   const validatePhone = (phone: string) => {
+    if (!phone) return false;
+    // Limpiamos espacios, guiones y el prefijo +34 o 0034 si existe
+    const cleanPhone = phone.replace(/[\s\-]/g, "").replace(/^(\+34|0034)/, "");
     // Regex para España: Empieza por 6, 7, 8 o 9, seguido de 8 dígitos
-    return /^[6789]\d{8}$/.test(phone.replace(/\s/g, ""));
+    return /^[6789]\d{8}$/.test(cleanPhone);
   };
 
   const validateCP = (cp: string) => {
@@ -127,17 +142,35 @@ const Checkout: React.FC = () => {
       return;
     }
 
-    if (!validatePhone(tempAddress.telefono)) {
-      setError("El número de teléfono no es válido. Debe tener 9 dígitos y empezar por 6, 7, 8 o 9.");
+    const phoneToValidate = isUsingSavedAddress && userProfile 
+      ? (userProfile.phone || (userProfile as any).telefono || "") 
+      : tempAddress.telefono;
+
+    const cpToValidate = isUsingSavedAddress && userProfile
+      ? (userProfile.codigoPostal || "")
+      : tempAddress.codigoPostal;
+
+    if (!phoneToValidate) {
+      setError("Tu perfil no tiene un número de teléfono asociado. Por favor, completa tu perfil o usa otra dirección.");
+      showAlert("Teléfono necesario", "Necesitamos un teléfono de contacto para que la mensajería pueda entregarte el pedido.", "warning");
+      if (isUsingSavedAddress) setIsUsingSavedAddress(false);
       return;
     }
 
-    if (!validateCP(tempAddress.codigoPostal)) {
+    if (!validatePhone(phoneToValidate)) {
+      setError(`El número de teléfono "${phoneToValidate}" no es válido. Debe tener 9 dígitos (ej: 600000000).`);
+      showAlert("Teléfono no válido", "Por favor, introduce un número de teléfono válido de 9 dígitos.", "warning");
+      if (isUsingSavedAddress) setIsUsingSavedAddress(false);
+      return;
+    }
+
+    if (!validateCP(cpToValidate)) {
       setError("El Código Postal debe tener exactamente 5 dígitos.");
+      showAlert("Código Postal no válido", "El Código Postal debe tener exactamente 5 dígitos.", "warning");
       return;
     }
 
-    if (!userEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(tempAddress.email)) {
+    if (!isUsingSavedAddress && !userEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(tempAddress.email)) {
       setError("Por favor, introduce un correo electrónico válido.");
       return;
     }
@@ -149,7 +182,7 @@ const Checkout: React.FC = () => {
       ciudad: userProfile.poblacion || "",
       codigoPostal: userProfile.codigoPostal || "",
       provincia: userProfile.provincia || "",
-      telefono: userProfile.phone || (userProfile as any).telefono || "",
+      telefono: (userProfile.phone || (userProfile as any).telefono || "").replace(/\s/g, "").replace(/^\+34/, ""),
       pais: userProfile.pais || "España",
       email: userEmail || ""
     } : {
@@ -159,9 +192,9 @@ const Checkout: React.FC = () => {
       ciudad: tempAddress.poblacion,
       codigoPostal: tempAddress.codigoPostal,
       provincia: tempAddress.provincia,
-      telefono: tempAddress.telefono,
+      telefono: tempAddress.telefono.replace(/\s/g, "").replace(/^\+34/, ""),
       pais: tempAddress.pais,
-      email: tempAddress.email.trim()
+      email: userEmail || tempAddress.email.trim()
     };
 
     if (items.length === 0) {
@@ -232,7 +265,7 @@ const Checkout: React.FC = () => {
 
   // Efecto para montar el campo de tarjeta cuando Revolut esté listo
   React.useEffect(() => {
-    if (showPayment && rcInstance && !cardField) {
+    if (showPayment && rcInstance && !cardField && selectedMethod === 'card') {
       const card = rcInstance.createCardField({
         target: document.getElementById("revolut-card-field"),
         styles: {
@@ -244,9 +277,9 @@ const Checkout: React.FC = () => {
           }
         },
         onSuccess() {
-          const guestEmail = userEmail || tempAddress.email.trim();
+          const guestEmail = userEmail || tempAddressRef.current.email.trim();
           clearCart().then(() => {
-            navigate(`/success?pedidoId=${createdPedido?.idPedido}&email=${encodeURIComponent(guestEmail)}`);
+            navigate(`/success?pedidoId=${createdPedidoRef.current?.idPedido}&email=${encodeURIComponent(guestEmail)}`);
             window.location.reload();
           });
         },
@@ -258,7 +291,7 @@ const Checkout: React.FC = () => {
       });
       setCardField(card);
     }
-  }, [showPayment, rcInstance, cardField, selectedMethod, createdPedido, clearCart, navigate, showAlert]);
+  }, [showPayment, rcInstance, cardField, selectedMethod, userEmail, clearCart, navigate, showAlert]);
 
   // Efecto para verificar soporte de Apple/Google Pay e inicializar otros métodos
   React.useEffect(() => {
@@ -271,11 +304,11 @@ const Checkout: React.FC = () => {
              if (revolutPayDiv && !revolutPayDiv.hasChildNodes()) {
                 rcInstance.revolutPay.mount(revolutPayDiv, {
                   currency: 'EUR',
-                  totalAmount: Math.round(total * 100), // En céntimos suele pedirlo o decimal, pero rcInstance suele ajustarse
+                  totalAmount: createdPedidoRef.current ? Math.round(createdPedidoRef.current.total * 100) : Math.round(total * 100),
                   onSuccess: () => {
-                    const guestEmail = userEmail || tempAddress.email.trim();
+                    const guestEmail = userEmail || tempAddressRef.current.email.trim();
                     clearCart().then(() => {
-                      navigate(`/success?pedidoId=${createdPedido?.idPedido}&email=${encodeURIComponent(guestEmail)}`);
+                      navigate(`/success?pedidoId=${createdPedidoRef.current?.idPedido}&email=${encodeURIComponent(guestEmail)}`);
                       window.location.reload();
                     });
                   }
@@ -290,11 +323,11 @@ const Checkout: React.FC = () => {
               const pr = rcInstance.paymentRequest({
                 target: prDiv,
                 currency: 'EUR',
-                totalAmount: Math.round(total * 100),
+                totalAmount: createdPedidoRef.current ? Math.round(createdPedidoRef.current.total * 100) : Math.round(total * 100),
                 onSuccess: () => {
-                  const guestEmail = userEmail || tempAddress.email.trim();
+                  const guestEmail = userEmail || tempAddressRef.current.email.trim();
                   clearCart().then(() => {
-                    navigate(`/success?pedidoId=${createdPedido?.idPedido}&email=${encodeURIComponent(guestEmail)}`);
+                    navigate(`/success?pedidoId=${createdPedidoRef.current?.idPedido}&email=${encodeURIComponent(guestEmail)}`);
                     window.location.reload();
                   });
                 }
@@ -316,10 +349,10 @@ const Checkout: React.FC = () => {
       };
       initOtherMethods();
     }
-  }, [showPayment, rcInstance, selectedMethod, total, createdPedido, clearCart, navigate]);
+  }, [showPayment, rcInstance, selectedMethod, total, userEmail, clearCart, navigate]);
 
   const handleExecutePayment = async () => {
-    if (!cardField || !createdPedido) return;
+    if (!cardField || !createdPedidoRef.current) return;
     
     try {
       if (!cardholderName.trim()) {
@@ -334,7 +367,7 @@ const Checkout: React.FC = () => {
       // cardField.submit inicia el flujo. El resultado se maneja en los callbacks onSuccess y onError definidos arriba.
       await cardField.submit({
         name: cardholderName,
-        email: userEmail ? userEmail.trim() : (createdPedido?.email || tempAddress.email.trim() || "soporte@erosyafrodita.com")
+        email: userEmail ? userEmail.trim() : (createdPedidoRef.current?.email || tempAddressRef.current.email.trim() || "soporte@erosyafrodita.com")
       });
       
     } catch (err: any) {
@@ -435,13 +468,24 @@ const Checkout: React.FC = () => {
                           </div>
                           <div className="grid grid-cols-2 gap-4">
                             <input required className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-white focus:bg-background-dark transition-all" placeholder="PROVINCIA*" value={tempAddress.provincia} onChange={e => setTempAddress({...tempAddress, provincia: e.target.value})} />
-                            <input required className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-white focus:bg-background-dark transition-all" placeholder="TELÉFONO MÓVIL*" value={tempAddress.telefono} onChange={e => setTempAddress({...tempAddress, telefono: e.target.value})} />
+                            <input required className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-white focus:bg-background-dark transition-all" placeholder="TELÉFONO MÓVIL (9 dígitos)*" value={tempAddress.telefono} onChange={e => setTempAddress({...tempAddress, telefono: e.target.value})} />
                           </div>
+                          {userEmail && (
+                            <label className="flex items-center gap-2 cursor-pointer mt-2 group w-fit">
+                              <input 
+                                type="checkbox" 
+                                checked={tempAddress.saveToProfile} 
+                                onChange={e => setTempAddress({...tempAddress, saveToProfile: e.target.checked})}
+                                className="size-4 rounded border-white/10 bg-black/40 checked:bg-primary checked:border-primary transition-all cursor-pointer"
+                              />
+                              <span className="text-[10px] font-black uppercase tracking-widest text-white/40 group-hover:text-primary transition-colors">Guardar esta dirección en mi perfil</span>
+                            </label>
+                          )}
                           {!userEmail && (
                             <input 
                               type="email"
-                              className="w-full bg-primary/10 border border-primary/20 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-white focus:bg-background-dark transition-all placeholder:text-primary/40" 
-                              placeholder="CORREO ELECTRÓNICO (OBLIGATORIO PARA PAGAR)" 
+                              className="w-full bg-primary/10 border border-primary/20 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-white focus:bg-background-dark transition-all placeholder:text-primary/40 mt-2" 
+                              placeholder="CORREO ELECTRÓNICO (OBLIGATORIO PARA PAGAR)*" 
                               value={tempAddress.email} 
                               onChange={e => setTempAddress({...tempAddress, email: e.target.value})} 
                               required
@@ -451,8 +495,21 @@ const Checkout: React.FC = () => {
                       )}
                     </div>
 
-                    {/* Selector de Método de Pago */}
-                    <div className="flex flex-col gap-4 mt-8 pt-8 border-t border-white/5">
+                  </div>
+                </section>
+              ) : (
+                <section className="animate-fade-in">
+                  <h2 className="text-xl font-black mb-6 flex items-center gap-3">
+                    <span className="size-8 bg-emerald-400 text-charcoal rounded-lg flex items-center justify-center text-sm">
+                      <span className="material-symbols-outlined text-sm">lock</span>
+                    </span>
+                    Pago Seguro con Revolut
+                  </h2>
+                  
+                  <div className="bg-white/5 border border-white/10 rounded-3xl p-8 flex flex-col gap-8">
+                    
+                    {/* Selector de Método de Pago en el paso de pago */}
+                    <div className="flex flex-col gap-4 pb-6 border-b border-white/5">
                         <h3 className="text-xs font-black uppercase tracking-widest text-primary flex items-center gap-2">
                           <span className="material-symbols-outlined text-sm">payments</span>
                           Elige tu Método de Pago
@@ -486,18 +543,6 @@ const Checkout: React.FC = () => {
                           </div>
                         </div>
                     </div>
-                  </div>
-                </section>
-              ) : (
-                <section className="animate-fade-in">
-                  <h2 className="text-xl font-black mb-6 flex items-center gap-3">
-                    <span className="size-8 bg-emerald-400 text-charcoal rounded-lg flex items-center justify-center text-sm">
-                      <span className="material-symbols-outlined text-sm">lock</span>
-                    </span>
-                    Pago Seguro con Revolut
-                  </h2>
-                  
-                  <div className="bg-white/5 border border-white/10 rounded-3xl p-8 flex flex-col gap-8">
                     <div className={`${selectedMethod === 'card' ? 'flex flex-col gap-6 animate-fade-in' : 'hidden'}`}>
                       <p className="text-sm font-bold text-white/60 uppercase tracking-widest">Información de la tarjeta</p>
                       
@@ -615,17 +660,19 @@ const Checkout: React.FC = () => {
                   </div>
                 </div>
 
-                  <button
-                    type={showPayment ? "button" : "submit"}
-                    onClick={showPayment && selectedMethod === 'card' ? handleExecutePayment : undefined}
-                    disabled={loading || isPaying || (showPayment && selectedMethod === 'card' && !cardholderName.trim())}
-                    className="w-full h-16 bg-primary text-charcoal rounded-full font-black text-xs uppercase tracking-widest hover:bg-white hover:scale-105 transition-all shadow-2xl shadow-primary/10 flex items-center justify-center gap-3 disabled:opacity-30 disabled:grayscale disabled:scale-100 disabled:cursor-not-allowed"
-                  >
-                    {!showPayment ? (loading ? "Conectando..." : "Ir a Pagar") : (isPaying ? "Procesando..." : "Pagar")}
-                    <span className="material-symbols-outlined !text-[18px]">
-                      {showPayment ? 'payments' : 'lock'}
-                    </span>
-                  </button>
+                  {(!showPayment || selectedMethod === 'card') && (
+                    <button
+                      type={showPayment ? "button" : "submit"}
+                      onClick={showPayment && selectedMethod === 'card' ? handleExecutePayment : undefined}
+                      disabled={loading || isPaying || (showPayment && selectedMethod === 'card' && (!cardholderName.trim() || !cardField))}
+                      className="w-full h-16 bg-primary text-charcoal rounded-full font-black text-xs uppercase tracking-widest hover:bg-white hover:scale-105 transition-all shadow-2xl shadow-primary/10 flex items-center justify-center gap-3 disabled:opacity-30 disabled:grayscale disabled:scale-100 disabled:cursor-not-allowed"
+                    >
+                      {!showPayment ? (loading ? "Conectando..." : "Continuar al Pago") : (isPaying ? "Procesando..." : (!cardField ? "Cargando Pasarela..." : "Confirmar Pago"))}
+                      <span className="material-symbols-outlined !text-[18px]">
+                        {showPayment ? 'payments' : 'arrow_forward'}
+                      </span>
+                    </button>
+                  )}
 
                   {/* Trust Badges - Refuerzo de conversión */}
                   <div className="flex flex-col gap-4 mt-2">

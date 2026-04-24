@@ -136,8 +136,28 @@ public class ProductoServiceImpl implements ProductoService {
             try {
                 distEnum = Distribuidor.valueOf(distribuidor.toUpperCase());
             } catch (IllegalArgumentException e) {
-                // Si no es un enum válido, podrías manejarlo o dejarlo null
             }
+        }
+
+        // Lógica para Novedades por Marcas configuradas
+        if ("NOVEDADES".equalsIgnoreCase(status)) {
+            Configuracion config = getConfiguracion();
+            if (config.getNovedadesBrands() != null && !config.getNovedadesBrands().isBlank()) {
+                List<String> brands = java.util.Arrays.stream(config.getNovedadesBrands().split(","))
+                        .map(String::trim)
+                        .filter(s -> !s.isEmpty())
+                        .toList();
+                return productoRepository.searchAdvancedMultipleManufacturers(nombre, categoria, gender, distEnum, brands, sku, "ACTIVOS", minPrecio, maxPrecio, pageable);
+            }
+        }
+
+        // Lógica para múltiples marcas separadas por coma
+        if (manufacturer != null && manufacturer.contains(",")) {
+            List<String> brands = java.util.Arrays.stream(manufacturer.split(","))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .toList();
+            return productoRepository.searchAdvancedMultipleManufacturers(nombre, categoria, gender, distEnum, brands, sku, status, minPrecio, maxPrecio, pageable);
         }
 
         return productoRepository.searchAdvanced(nombre, categoria, gender, distEnum, manufacturer, sku, status, minPrecio, maxPrecio, pageable);
@@ -152,11 +172,28 @@ public class ProductoServiceImpl implements ProductoService {
             } catch (IllegalArgumentException e) {}
         }
 
-        // Para IDs, podemos usar una versión simplificada o reutilizar searchAdvanced con un tamaño grande
-        // Pero lo ideal es no cargar todos los objetos si solo queremos IDs. 
-        // Por consistencia y simplicidad ahora, pediremos una página muy grande o implementaremos un método específico.
-        // Dado el volumen (60k), mejor un método específico en el repo para IDs si es crítico, 
-        // pero searchAdvanced ya está optimizado en el repo.
+        // Lógica para Novedades
+        if ("NOVEDADES".equalsIgnoreCase(status)) {
+            Configuracion config = getConfiguracion();
+            if (config.getNovedadesBrands() != null && !config.getNovedadesBrands().isBlank()) {
+                List<String> brands = java.util.Arrays.stream(config.getNovedadesBrands().split(","))
+                        .map(String::trim)
+                        .filter(s -> !s.isEmpty())
+                        .toList();
+                return productoRepository.searchAdvancedMultipleManufacturers(nombre, categoria, gender, distEnum, brands, sku, "ACTIVOS", minPrecio, maxPrecio, Pageable.unpaged())
+                        .getContent().stream().map(Producto::getId).toList();
+            }
+        }
+
+        if (manufacturer != null && manufacturer.contains(",")) {
+            List<String> brands = java.util.Arrays.stream(manufacturer.split(","))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .toList();
+            return productoRepository.searchAdvancedMultipleManufacturers(nombre, categoria, gender, distEnum, brands, sku, status, minPrecio, maxPrecio, Pageable.unpaged())
+                    .getContent().stream().map(Producto::getId).toList();
+        }
+
         return productoRepository.searchAdvanced(nombre, categoria, gender, distEnum, manufacturer, sku, status, minPrecio, maxPrecio, Pageable.unpaged())
                 .getContent()
                 .stream()

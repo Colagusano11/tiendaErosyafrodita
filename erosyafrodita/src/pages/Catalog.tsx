@@ -313,7 +313,11 @@ const Catalog: React.FC = () => {
                 <span>Catálogo</span>
               </nav>
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tighter">
-                Nuestra <span className="text-primary italic font-serif">Colección</span>
+                {filtros.status === "NOVEDADES" ? (
+                  <>Nuestras <span className="text-primary italic font-serif">Novedades</span></>
+                ) : (
+                  <>Nuestra <span className="text-primary italic font-serif">Colección</span></>
+                )}
               </h1>
             </div>
             

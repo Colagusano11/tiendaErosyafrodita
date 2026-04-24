@@ -305,9 +305,12 @@ const HomePage: React.FC = () => {
         {/* Novedades */}
         <section className="px-4 lg:px-20 py-16 bg-charcoal/75">
           <div className="max-w-[1440px] mx-auto">
-            <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-white uppercase italic mb-8">
-              Novedades
-            </h2>
+            <Link to="/catalog?status=NOVEDADES" className="group block mb-8">
+              <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-white uppercase italic flex items-center gap-4 group-hover:text-primary transition-colors">
+                Novedades
+                <span className="material-symbols-outlined text-primary group-hover:translate-x-2 transition-transform">arrow_forward</span>
+              </h2>
+            </Link>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 lg:gap-6">
               {loading && (
                 <p className="text-white/60 col-span-full">
