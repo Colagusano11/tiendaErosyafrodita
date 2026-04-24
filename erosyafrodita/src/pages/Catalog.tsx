@@ -163,11 +163,37 @@ const Catalog: React.FC = () => {
     aplicarFiltros(reset);
   };
 
+  // Lógica de SEO dinámico para mejorar el posicionamiento en Google
+  const getDynamicSEO = () => {
+    let title = "Catálogo Exclusivo | Eros & Afrodita";
+    let description = "Explora nuestra colección curada de perfumes de lujo y cosmética premium. Encuentra tu esencia divina entre las mejores marcas del mundo.";
+
+    if (filtros.gender === "HOMBRE") {
+      title = "Perfumes Originales para Hombre | Eros & Afrodita";
+      description = "Descubre nuestra selección divina de fragancias masculinas. Perfumes originales de lujo para el hombre que busca distinción.";
+    } else if (filtros.gender === "MUJER") {
+      title = "Fragancias y Perfumes para Mujer | Eros & Afrodita";
+      description = "Sumérgete en la esencia de la feminidad con nuestros perfumes exclusivos para mujer. Lujo y elegancia en cada gota.";
+    } else if (filtros.categoria === "Cosmética") {
+      title = "Cosmética Premium y Cuidado de la Piel | Eros & Afrodita";
+      description = "Rituales de belleza para una piel radiante. Selección exclusiva de cosmética de alta gama inspirada en los dioses.";
+    } else if (filtros.manufacturer) {
+      title = `Perfumes de ${filtros.manufacturer} | Eros & Afrodita`;
+      description = `Explora toda la colección de ${filtros.manufacturer}. Fragancias originales y exclusivas de una de las marcas más prestigiosas del Olimpo.`;
+    } else if (filtros.nombre) {
+      title = `Resultados para "${filtros.nombre}" | Eros & Afrodita`;
+    }
+
+    return { title, description };
+  };
+
+  const { title: seoTitle, description: seoDescription } = getDynamicSEO();
+
   return (
     <div className="bg-background-dark text-white font-display min-h-screen flex flex-col selection:bg-primary/30">
       <SEO 
-        title="Catálogo Exclusivo | Eros & Afrodita"
-        description="Explora nuestra colección curada de perfumes de lujo y cosmética premium. Encuentra tu esencia divina entre las mejores marcas del mundo."
+        title={seoTitle}
+        description={seoDescription}
         keywords="catálogo perfumes, fragancias exclusivas, marcas de lujo, cosmética premium, eros y afrodita"
       />
       <Header />
