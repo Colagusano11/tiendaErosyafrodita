@@ -280,7 +280,6 @@ const Checkout: React.FC = () => {
           const guestEmail = userEmail || tempAddressRef.current.email.trim();
           clearCart().then(() => {
             navigate(`/success?pedidoId=${createdPedidoRef.current?.idPedido}&email=${encodeURIComponent(guestEmail)}`);
-            window.location.reload();
           });
         },
         onError(error: any) {
@@ -309,7 +308,6 @@ const Checkout: React.FC = () => {
                     const guestEmail = userEmail || tempAddressRef.current.email.trim();
                     clearCart().then(() => {
                       navigate(`/success?pedidoId=${createdPedidoRef.current?.idPedido}&email=${encodeURIComponent(guestEmail)}`);
-                      window.location.reload();
                     });
                   }
                 });
@@ -328,7 +326,6 @@ const Checkout: React.FC = () => {
                   const guestEmail = userEmail || tempAddressRef.current.email.trim();
                   clearCart().then(() => {
                     navigate(`/success?pedidoId=${createdPedidoRef.current?.idPedido}&email=${encodeURIComponent(guestEmail)}`);
-                    window.location.reload();
                   });
                 }
               });

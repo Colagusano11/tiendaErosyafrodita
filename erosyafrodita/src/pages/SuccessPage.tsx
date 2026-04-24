@@ -34,16 +34,15 @@ const SuccessPage: React.FC = () => {
         
         // Intentamos cargar el pedido
         let data: PedidoSalida;
-        try {
+        
+        // Si tenemos email en la URL, es probable que sea un invitado o una sesión nueva.
+        // Usamos rastrearPedido (público) para evitar el error 401 del interceptor de axios.
+        if (queryEmail) {
+          const { rastrearPedido } = await import("../api/order");
+          data = await rastrearPedido(finalPedidoId, queryEmail);
+        } else {
+          // Si no hay email, intentamos la vía normal (requiere estar logueado)
           data = await getPedidoById(finalPedidoId);
-        } catch (e) {
-          // Si falla (ej. 403 por ser invitado), intentamos rastrear con el email del query
-          if (queryEmail) {
-            const { rastrearPedido } = await import("../api/order");
-            data = await rastrearPedido(finalPedidoId, queryEmail);
-          } else {
-            throw e;
-          }
         }
 
         setPedido(data);
@@ -53,11 +52,10 @@ const SuccessPage: React.FC = () => {
           if (data.paymentId) {
             try {
               await confirmarPago(data.paymentId);
-              // Recargamos para ver el estado actualizado (Pagado)
-              const updated = await getPedidoById(finalPedidoId).catch(() => {
-                if(queryEmail) return import("../api/order").then(m => m.rastrearPedido(finalPedidoId, queryEmail));
-                throw new Error("No se pudo recargar");
-              });
+              // Recargamos para ver el estado actualizado
+              const updated = queryEmail 
+                ? await import("../api/order").then(m => m.rastrearPedido(finalPedidoId, queryEmail))
+                : await getPedidoById(finalPedidoId);
               setPedido(updated);
             } catch (e) {
               console.error("Error confirmando pago", e);
@@ -101,7 +99,30 @@ const SuccessPage: React.FC = () => {
               <p className="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto font-light leading-relaxed">
                 Gracias por confiar en <span className="text-white font-bold">Erosyafrodita</span>. 
                 {finalPedidoId && (
-                  <> Tu orden <span className="text-primary font-black">#{finalPedidoId}</span> ha sido procesada con éxito.</>
+                  <>
+                    <br />
+                    Tu orden es la <span className="text-primary font-black">#{finalPedidoId}</span>
+                    <button 
+                      onClick={() => {
+                        navigator.clipboard.writeText(finalPedidoId.toString());
+                        const btn = document.getElementById('copy-btn');
+                        if (btn) {
+                          const originalInner = btn.innerHTML;
+                          btn.innerHTML = '<span class="material-symbols-outlined text-sm">done</span>';
+                          btn.classList.add('bg-emerald-500/20', 'text-emerald-400');
+                          setTimeout(() => {
+                            btn.innerHTML = originalInner;
+                            btn.classList.remove('bg-emerald-500/20', 'text-emerald-400');
+                          }, 2000);
+                        }
+                      }}
+                      id="copy-btn"
+                      className="ml-3 inline-flex items-center justify-center size-8 rounded-full bg-white/5 border border-white/10 text-white/40 hover:text-primary hover:border-primary/30 transition-all active:scale-95"
+                      title="Copiar número de pedido"
+                    >
+                      <span className="material-symbols-outlined text-sm">content_copy</span>
+                    </button>
+                  </>
                 )}
               </p>
             </div>
