@@ -132,6 +132,40 @@ const HomePage: React.FC = () => {
         description="Descubre nuestra exclusiva colección de perfumes y cosmética premium. Ritual de belleza inspirado en los dioses para hombres y mujeres."
         keywords="perfumes de lujo, cosmética premium, Eros y Afrodita, belleza divina, fragancias exclusivas"
       />
+      {/* Schema.org JSON-LD para la Organización y Sitio Web */}
+      <script type="application/ld+json">
+        {JSON.stringify([
+          {
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            "name": "Eros & Afrodita",
+            "url": "https://erosyafrodita.com",
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": "https://erosyafrodita.com/#/catalog?search={search_term_string}",
+              "query-input": "required name=search_term_string"
+            }
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "name": "Eros & Afrodita",
+            "url": "https://erosyafrodita.com",
+            "logo": "https://erosyafrodita.com/logo-eros.png",
+            "contactPoint": {
+              "@type": "ContactPoint",
+              "telephone": "+34-600-000-000",
+              "contactType": "customer service",
+              "areaServed": "ES",
+              "availableLanguage": "Spanish"
+            },
+            "sameAs": [
+              "https://www.instagram.com/erosyafrodita",
+              "https://www.facebook.com/erosyafrodita"
+            ]
+          }
+        ])}
+      </script>
       <Header />
       <main className="flex-grow">
 

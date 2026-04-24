@@ -141,37 +141,68 @@ const Header: React.FC = () => {
 
       {/* Mobile Drawer */}
       {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-[100] bg-red-900 lg:hidden animate-fade-in">
-          <div className="absolute left-0 top-0 h-full w-[300px] bg-[#ff0000] p-8 shadow-[20px_0_60px_rgba(0,0,0,1)] animate-slide-right border-r border-white/5">
-            <div className="flex justify-between items-center mb-10">
-              <span className="text-[10px] font-black tracking-[0.4em] text-primary uppercase italic">Menú</span>
+        <div className="fixed inset-0 z-[100] lg:hidden animate-fade-in">
+          {/* Overlay */}
+          <div 
+            className="absolute inset-0 bg-background-dark/80 backdrop-blur-sm" 
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+          
+          {/* Menu Content */}
+          <div className="absolute left-0 top-0 h-full w-[300px] bg-charcoal p-8 shadow-[30px_0_60px_rgba(0,0,0,0.8)] animate-slide-right border-r border-white/5 flex flex-col">
+            <div className="flex justify-between items-center mb-12">
+              <div className="flex flex-col">
+                <span className="text-[10px] font-black tracking-[0.4em] text-primary uppercase italic leading-none">Menú</span>
+                <span className="text-[8px] font-black text-white/20 uppercase tracking-widest mt-1">Explora el Olimpo</span>
+              </div>
               <button 
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="size-10 rounded-full bg-white/5 flex items-center justify-center text-white/50"
+                className="size-10 rounded-full bg-white/5 flex items-center justify-center text-white/50 hover:bg-primary/20 hover:text-primary transition-all"
               >
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
 
-            
-            <nav className="flex flex-col gap-6">
-              <Link to="/catalog?genero=HOMBRE" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-black uppercase tracking-widest text-white hover:text-primary transition-colors">Hombre</Link>
-              <Link to="/catalog?genero=MUJER" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-black uppercase tracking-widest text-white hover:text-primary transition-colors">Mujer</Link>
-              <Link to="/catalog?status=NOVEDADES" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-black uppercase tracking-widest text-white hover:text-primary transition-colors">Novedades</Link>
-              <Link to="/catalog?status=OFERTAS" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-black uppercase tracking-widest text-primary italic">Ofertas</Link>
-              <div className="h-px bg-white/5 my-4" />
-              <Link to="/wishlist" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 text-white/60 hover:text-white transition-colors">
-                <span className="material-symbols-outlined">favorite</span> Mis Favoritos
+            <nav className="flex flex-col gap-1">
+              <Link to="/catalog?genero=HOMBRE" onClick={() => setIsMobileMenuOpen(false)} className="group flex items-center justify-between py-4 border-b border-white/5">
+                <span className="text-lg font-black uppercase tracking-widest text-white group-hover:text-primary transition-colors">Hombre</span>
+                <span className="material-symbols-outlined text-white/10 group-hover:text-primary transition-colors text-sm">arrow_forward_ios</span>
               </Link>
-              <Link to="/cart" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 text-white/60 hover:text-white transition-colors">
-                <span className="material-symbols-outlined">shopping_bag</span> Mi Bolsa
+              <Link to="/catalog?genero=MUJER" onClick={() => setIsMobileMenuOpen(false)} className="group flex items-center justify-between py-4 border-b border-white/5">
+                <span className="text-lg font-black uppercase tracking-widest text-white group-hover:text-primary transition-colors">Mujer</span>
+                <span className="material-symbols-outlined text-white/10 group-hover:text-primary transition-colors text-sm">arrow_forward_ios</span>
               </Link>
+              <Link to="/catalog?status=NOVEDADES" onClick={() => setIsMobileMenuOpen(false)} className="group flex items-center justify-between py-4 border-b border-white/5">
+                <span className="text-lg font-black uppercase tracking-widest text-white group-hover:text-primary transition-colors">Novedades</span>
+                <span className="material-symbols-outlined text-white/10 group-hover:text-primary transition-colors text-sm">new_releases</span>
+              </Link>
+              <Link to="/catalog?status=OFERTAS" onClick={() => setIsMobileMenuOpen(false)} className="group flex items-center justify-between py-4 border-b border-white/5">
+                <span className="text-lg font-black uppercase tracking-widest text-primary italic group-hover:text-white transition-colors">Ofertas</span>
+                <span className="material-symbols-outlined text-primary group-hover:text-white transition-colors text-sm">local_offer</span>
+              </Link>
+              
+              <div className="mt-8 space-y-4">
+                <Link to="/wishlist" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-4 text-white/60 hover:text-white transition-colors text-sm font-bold uppercase tracking-widest">
+                  <span className="material-symbols-outlined text-primary">favorite</span> Mis Favoritos
+                </Link>
+                <Link to="/cart" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-4 text-white/60 hover:text-white transition-colors text-sm font-bold uppercase tracking-widest">
+                  <span className="material-symbols-outlined text-primary">shopping_bag</span> Mi Bolsa
+                </Link>
+                <Link to="/profile" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-4 text-white/60 hover:text-white transition-colors text-sm font-bold uppercase tracking-widest">
+                  <span className="material-symbols-outlined text-primary">person</span> Mi Cuenta
+                </Link>
+              </div>
             </nav>
+
+            <div className="mt-auto pt-10">
+               <div className="p-6 rounded-2xl bg-white/5 border border-white/5">
+                  <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-2 text-center">Atención al Cliente</p>
+                  <a href="https://wa.me/34600000000" className="flex items-center justify-center gap-2 text-primary font-black text-xs uppercase tracking-widest">
+                    <span className="material-symbols-outlined text-sm">chat</span> WhatsApp Concierge
+                  </a>
+               </div>
+            </div>
           </div>
-          <div 
-            className="flex-grow h-full" 
-            onClick={() => setIsMobileMenuOpen(false)}
-          />
         </div>
       )}
     </header>

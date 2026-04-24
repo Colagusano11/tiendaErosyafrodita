@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /checkout/
+Disallow: /cart/
+Disallow: /profile/
+
+# Rastreo de imágenes para Google Merchant
+User-agent: Googlebot-Image
+Allow: /
+
+Sitemap: https://erosyafrodita.com/api/feeds/sitemap.xml

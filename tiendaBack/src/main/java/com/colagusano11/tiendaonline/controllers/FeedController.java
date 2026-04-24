@@ -100,6 +100,46 @@ public class FeedController {
         xml.append("</channel>\n");
         xml.append("</rss>");
 
+    @GetMapping(value = "/sitemap.xml", produces = MediaType.APPLICATION_XML_VALUE)
+    public ResponseEntity<String> getSitemap() {
+        List<Producto> productos = productoService.getAllProductos().stream()
+                .filter(Producto::isActivo)
+                .collect(Collectors.toList());
+
+        StringBuilder xml = new StringBuilder();
+        xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+        xml.append("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n");
+
+        // Home
+        xml.append("  <url>\n");
+        xml.append("    <loc>").append(baseUrl).append("/</loc>\n");
+        xml.append("    <changefreq>daily</changefreq>\n");
+        xml.append("    <priority>1.0</priority>\n");
+        xml.append("  </url>\n");
+
+        // Categorías principales (H / M)
+        xml.append("  <url>\n");
+        xml.append("    <loc>").append(baseUrl).append("/#/catalog?genero=HOMBRE</loc>\n");
+        xml.append("    <changefreq>weekly</changefreq>\n");
+        xml.append("    <priority>0.8</priority>\n");
+        xml.append("  </url>\n");
+        xml.append("  <url>\n");
+        xml.append("    <loc>").append(baseUrl).append("/#/catalog?genero=MUJER</loc>\n");
+        xml.append("    <changefreq>weekly</changefreq>\n");
+        xml.append("    <priority>0.8</priority>\n");
+        xml.append("  </url>\n");
+
+        // Productos
+        for (Producto p : productos) {
+            xml.append("  <url>\n");
+            xml.append("    <loc>").append(baseUrl).append("/#/product/").append(p.getId()).append("</loc>\n");
+            xml.append("    <changefreq>weekly</changefreq>\n");
+            xml.append("    <priority>0.7</priority>\n");
+            xml.append("  </url>\n");
+        }
+
+        xml.append("</urlset>");
+
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_XML)
                 .body(xml.toString());

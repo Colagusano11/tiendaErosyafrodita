@@ -220,24 +220,76 @@ const ProductDetail: React.FC = () => {
       />
       {/* Schema.org JSON-LD */}
       <script type="application/ld+json">
-        {JSON.stringify({
-          "@context": "https://schema.org/",
-          "@type": "Product",
-          "name": name,
-          "image": mainImg,
-          "description": product.descripcion,
-          "brand": {
-            "@type": "Brand",
-            "name": brand
+        {JSON.stringify([
+          {
+            "@context": "https://schema.org/",
+            "@type": "Product",
+            "name": name,
+            "image": mainImg,
+            "description": product.descripcion || `Descubre ${name} de ${brand}.`,
+            "sku": product.sku || product.id.toString(),
+            "gtin13": product.ean || undefined,
+            "brand": {
+              "@type": "Brand",
+              "name": brand
+            },
+            "offers": {
+              "@type": "Offer",
+              "url": window.location.href,
+              "priceCurrency": "EUR",
+              "price": precioFinal.toFixed(2),
+              "availability": product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+              "itemCondition": "https://schema.org/NewCondition",
+              "priceValidUntil": new Date(new Date().getFullYear(), 11, 31).toISOString().split('T')[0]
+            },
+            ...(reviewsTotal > 0 ? {
+              "aggregateRating": {
+                "@type": "AggregateRating",
+                "ratingValue": reviewsMedia,
+                "reviewCount": reviewsTotal,
+                "bestRating": "5",
+                "worstRating": "1"
+              },
+              "review": reviews.slice(0, 5).map(r => ({
+                "@type": "Review",
+                "reviewRating": {
+                  "@type": "Rating",
+                  "ratingValue": r.rating
+                },
+                "author": {
+                  "@type": "Person",
+                  "name": r.nombreUsuario
+                },
+                "reviewBody": r.comentario,
+                "datePublished": new Date(r.fecha).toISOString().split('T')[0]
+              }))
+            } : {})
           },
-          "offers": {
-            "@type": "Offer",
-            "url": window.location.href,
-            "priceCurrency": "EUR",
-            "price": precioFinal.toFixed(2),
-            "availability": product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Inicio",
+                "item": window.location.origin + "/#/"
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Catálogo",
+                "item": window.location.origin + "/#/catalog"
+              },
+              {
+                "@type": "ListItem",
+                "position": 3,
+                "name": name,
+                "item": window.location.href
+              }
+            ]
           }
-        })}
+        ])}
       </script>
       <Header />
       <main className="flex-grow w-full max-w-[1440px] mx-auto px-4 md:px-10 py-6 md:py-10">
