@@ -148,13 +148,9 @@ public class PedidoServicieImpl implements PedidoServicie {
                 lineasPedido.add(crearLineaPedido(pedido, p, itemReq.getCantidad(), factorPromo));
             }
 
-            // Si el usuario está registrado, vaciamos su carrito en DB tras usar los items del frontend
-            if (usuarioId != null) {
-                carritoRepository.findByUsuarioId(usuarioId).ifPresent(c -> {
-                    c.getItems().clear();
-                    carritoRepository.save(c);
-                });
-            }
+            // NOTA: Ya no vaciamos el carrito aquí. Se vaciará desde el frontend
+            // (o tras confirmación real del pago) para que el usuario no pierda
+            // los productos si cancela el proceso de pago en la pasarela.
         } 
         // Prioridad 2: Carrito en Base de Datos (solo para usuarios registrados)
         else if (usuarioId != null) {
@@ -168,9 +164,7 @@ public class PedidoServicieImpl implements PedidoServicie {
             for (CarritoItem itemCarrito : carrito.getItems()) {
                 lineasPedido.add(crearLineaPedido(pedido, itemCarrito.getProducto(), itemCarrito.getCantidad(), factorPromo));
             }
-            // Vaciar carrito DB
-            carrito.getItems().clear();
-            carritoRepository.save(carrito);
+            // NOTA: Tampoco vaciamos el carrito aquí por el mismo motivo.
         }
         else {
             throw new IllegalStateException("No hay productos para crear el pedido");
