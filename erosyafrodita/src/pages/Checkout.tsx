@@ -302,13 +302,15 @@ const Checkout: React.FC = () => {
              const revolutPayDiv = document.getElementById("revolut-pay-button");
              if (revolutPayDiv && !revolutPayDiv.hasChildNodes()) {
                 rcInstance.revolutPay.mount(revolutPayDiv, {
-                  currency: 'EUR',
-                  totalAmount: createdPedidoRef.current ? Math.round(createdPedidoRef.current.total * 100) : Math.round(total * 100),
                   onSuccess: () => {
                     const guestEmail = userEmail || tempAddressRef.current.email.trim();
                     clearCart().then(() => {
                       navigate(`/success?pedidoId=${createdPedidoRef.current?.idPedido}&email=${encodeURIComponent(guestEmail)}`);
                     });
+                  },
+                  onError: (err: any) => {
+                    console.error("Error en Revolut Pay:", err);
+                    setError("El pago con Revolut Pay no pudo completarse o fue cancelado.");
                   }
                 });
              }
@@ -320,13 +322,15 @@ const Checkout: React.FC = () => {
             if (prDiv && !prDiv.hasChildNodes()) {
               const pr = rcInstance.paymentRequest({
                 target: prDiv,
-                currency: 'EUR',
-                totalAmount: createdPedidoRef.current ? Math.round(createdPedidoRef.current.total * 100) : Math.round(total * 100),
                 onSuccess: () => {
                   const guestEmail = userEmail || tempAddressRef.current.email.trim();
                   clearCart().then(() => {
                     navigate(`/success?pedidoId=${createdPedidoRef.current?.idPedido}&email=${encodeURIComponent(guestEmail)}`);
                   });
+                },
+                onError: (err: any) => {
+                  console.error("Error en Apple/Google Pay:", err);
+                  setError("El pago con dispositivo no pudo completarse.");
                 }
               });
 
