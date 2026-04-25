@@ -536,11 +536,11 @@ const Checkout: React.FC = () => {
                             onClick={() => setSelectedMethod('mobile_pay')}
                             className={`p-4 rounded-xl border transition-all cursor-pointer flex flex-col items-center gap-2 text-center ${selectedMethod === 'mobile_pay' ? 'bg-primary/5 border-primary shadow-lg shadow-primary/10' : 'bg-black/20 border-white/5 hover:border-white/10'}`}
                           >
-                            <div className="flex gap-1 h-5 items-center justify-center">
-                              <span className="material-symbols-outlined text-lg">contactless</span>
-                              <span className="material-symbols-outlined text-lg">devices</span>
+                            <div className="flex gap-1 h-5 items-center justify-center text-white">
+                              <span className="material-symbols-outlined text-xl">phone_iphone</span>
+                              <span className="material-symbols-outlined text-sm">contactless</span>
                             </div>
-                            <span className="text-[10px] font-black uppercase tracking-widest">Digital Bag</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest">Apple / G Pay</span>
                           </div>
                         </div>
                     </div>
@@ -583,8 +583,8 @@ const Checkout: React.FC = () => {
                     <div className={`${selectedMethod === 'mobile_pay' ? 'flex flex-col items-center gap-6 py-10 animate-fade-in' : 'hidden'}`}>
                        <div className="text-center flex flex-col gap-2 mb-4">
                           <p className="text-white font-black text-xl uppercase tracking-widest flex items-center justify-center gap-2">
-                            <span className="material-symbols-outlined text-2xl">contactless</span>
-                            Digital Wallet
+                            <span className="material-symbols-outlined text-2xl">phone_iphone</span>
+                            Apple Pay / Google Pay
                           </p>
                           <p className="text-xs text-white/40 font-light">Pago seguro y rápido desde tu dispositivo</p>
                        </div>
