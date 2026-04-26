@@ -300,19 +300,34 @@ const Checkout: React.FC = () => {
           // 1. Revolut Pay
           if (selectedMethod === 'revolut_pay') {
              const revolutPayDiv = document.getElementById("revolut-pay-button");
-             if (revolutPayDiv && !revolutPayDiv.hasChildNodes()) {
-                rcInstance.revolutPay.mount(revolutPayDiv, {
-                  onSuccess: () => {
-                    const guestEmail = userEmail || tempAddressRef.current.email.trim();
-                    clearCart().then(() => {
-                      navigate(`/success?pedidoId=${createdPedidoRef.current?.idPedido}&email=${encodeURIComponent(guestEmail)}`);
+             console.log("Intentando montar Revolut Pay. Elemento encontrado:", !!revolutPayDiv);
+             if (revolutPayDiv) {
+                // Pequeño retraso para asegurar que el div es visible y tiene dimensiones
+                setTimeout(() => {
+                  revolutPayDiv.innerHTML = '';
+                  try {
+                    rcInstance.revolutPay.mount(revolutPayDiv, {
+                      onSuccess: () => {
+                        console.log("Revolut Pay: Pago exitoso");
+                        const guestEmail = userEmail || tempAddressRef.current.email.trim();
+                        clearCart().then(() => {
+                          navigate(`/success?pedidoId=${createdPedidoRef.current?.idPedido}&email=${encodeURIComponent(guestEmail)}`);
+                        });
+                      },
+                      onError: (err: any) => {
+                        console.error("Error detallado en Revolut Pay:", err);
+                        setError("El pago con Revolut Pay falló. Por favor, inténtalo de nuevo o usa tarjeta.");
+                        showAlert("Error en Revolut Pay", "No se pudo procesar el pago rápido. Inténtalo con tarjeta.", "error");
+                      },
+                      onCancel: () => {
+                        console.log("Revolut Pay: Usuario canceló");
+                      }
                     });
-                  },
-                  onError: (err: any) => {
-                    console.error("Error en Revolut Pay:", err);
-                    setError("El pago con Revolut Pay no pudo completarse o fue cancelado.");
+                    console.log("Revolut Pay: .mount() ejecutado correctamente");
+                  } catch (e) {
+                    console.error("Excepción al montar Revolut Pay:", e);
                   }
-                });
+                }, 100);
              }
           }
 
@@ -533,9 +548,9 @@ const Checkout: React.FC = () => {
                             className={`p-4 rounded-xl border transition-all cursor-pointer flex flex-col items-center gap-2 text-center ${selectedMethod === 'revolut_pay' ? 'bg-primary/5 border-primary shadow-lg shadow-primary/10' : 'bg-black/20 border-white/5 hover:border-white/10'}`}
                           >
                             <div className="h-5 flex items-center justify-center">
-                              <span className="font-black text-xs">Revolut <span className="text-primary italic">Pay</span></span>
+                              <span className="font-black text-xs">Revolut Pay</span>
                             </div>
-                            <span className="text-[10px] font-black uppercase tracking-widest">Rápido</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-primary italic">Pago Express</span>
                           </div>
                           <div 
                             onClick={() => setSelectedMethod('mobile_pay')}
@@ -552,7 +567,7 @@ const Checkout: React.FC = () => {
                             className={`p-4 rounded-xl border transition-all cursor-pointer flex flex-col items-center gap-2 text-center ${selectedMethod === 'paypal' ? 'bg-primary/5 border-primary shadow-lg shadow-primary/10' : 'bg-black/20 border-white/5 hover:border-white/10'}`}
                           >
                             <div className="h-5 flex items-center justify-center">
-                               <img src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_v3.jpg" className="h-4 object-contain brightness-0 invert opacity-60" alt="PayPal" />
+                               <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" className="h-4 object-contain" alt="PayPal" />
                             </div>
                             <span className="text-[10px] font-black uppercase tracking-widest">PayPal</span>
                           </div>
@@ -591,7 +606,7 @@ const Checkout: React.FC = () => {
                           <p className="text-primary font-black text-xl uppercase tracking-widest italic">Revolut Pay</p>
                           <p className="text-xs text-white/40 font-light">Confirma tu pago en un momento con tu cuenta Revolut</p>
                        </div>
-                       <div id="revolut-pay-button" className="w-full max-w-[300px]"></div>
+                       <div id="revolut-pay-button" className="w-full max-w-[300px] min-h-[50px]"></div>
                     </div>
 
                     <div className={`${selectedMethod === 'mobile_pay' ? 'flex flex-col items-center gap-6 py-10 animate-fade-in' : 'hidden'}`}>
