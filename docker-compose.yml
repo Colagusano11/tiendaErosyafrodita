@@ -111,6 +111,9 @@ services:
       AMAZON_CLIENT_SECRET: ${AMAZON_CLIENT_SECRET}
       AMAZON_REFRESH_TOKEN: ${AMAZON_REFRESH_TOKEN}
       AMAZON_MARKETPLACE_ID: ${AMAZON_MARKETPLACE_ID:-A1RKKUPIHCS9HS}
+      PAYPAL_CLIENT_ID: ${PAYPAL_CLIENT_ID}
+      PAYPAL_CLIENT_SECRET: ${PAYPAL_CLIENT_SECRET}
+      PAYPAL_MODE: ${PAYPAL_MODE}
     depends_on:
       db:
         condition: service_healthy
@@ -127,6 +130,7 @@ services:
       args:
         - VITE_API_URL=${VITE_API_URL:-/api}
         - VITE_GA_ID=${VITE_GA_ID}
+        - VITE_PAYPAL_CLIENT_ID=${VITE_PAYPAL_CLIENT_ID}
     image: eros-front:latest
     container_name: eros-frontend
     ports:

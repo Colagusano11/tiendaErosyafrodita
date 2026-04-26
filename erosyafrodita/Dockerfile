@@ -10,8 +10,10 @@ RUN npm ci          # mejor que npm install para Docker
 COPY . .
 ARG VITE_API_URL
 ARG VITE_GA_ID
+ARG VITE_PAYPAL_CLIENT_ID
 ENV VITE_API_URL=$VITE_API_URL
 ENV VITE_GA_ID=$VITE_GA_ID
+ENV VITE_PAYPAL_CLIENT_ID=$VITE_PAYPAL_CLIENT_ID
 RUN npm run build   # genera /app/dist
 
 # Etapa de producción con Nginx
