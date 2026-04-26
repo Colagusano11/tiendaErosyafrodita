@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 
-@Service
+@Service("revolutGateway")
 public class RevolutPaymentGateway implements PaymentGateway {
 
   private final WebClient webClient;
@@ -72,5 +72,10 @@ public class RevolutPaymentGateway implements PaymentGateway {
       e.printStackTrace();
       throw new RuntimeException("Error al conectar con la pasarela de Revolut: " + e.getMessage());
     }
+  }
+
+  @Override
+  public void capturePago(String paymentId) {
+    // Revolut captura automáticamente o vía webhook/client-side SDK
   }
 }

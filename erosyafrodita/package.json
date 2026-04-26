@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@paypal/react-paypal-js": "^9.1.1",
     "@revolut/checkout": "^1.1.25",
     "axios": "^1.13.2",
     "framer-motion": "^12.38.0",

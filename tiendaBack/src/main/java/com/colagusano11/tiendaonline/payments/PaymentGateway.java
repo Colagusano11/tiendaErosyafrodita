@@ -7,6 +7,7 @@ import com.colagusano11.tiendaonline.payments.dto.PaymentInitResponse;
 public interface PaymentGateway {
 
 PaymentInitResponse crearPago(Pedido pedido);
+void capturePago(String paymentId);
 
 
 }

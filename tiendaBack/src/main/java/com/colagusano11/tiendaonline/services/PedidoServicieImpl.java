@@ -32,7 +32,7 @@ public class PedidoServicieImpl implements PedidoServicie {
     private final PedidoRepository pedidoRepository;
     private final ProductoRepository productoRepository;
     private final CarritoRepository carritoRepository;
-    private final PaymentGateway paymentGateway;
+    private final Map<String, PaymentGateway> gateways;
     private final PedidoTrakingService pedidoTrak;
     private final PedidoMapper pedidoMapper;
     private final BtsApiClient btsApiClient;
@@ -45,7 +45,7 @@ public class PedidoServicieImpl implements PedidoServicie {
             PedidoRepository pedidoRepository,
             ProductoRepository productoRepository,
             CarritoRepository carritoRepository,
-            PaymentGateway paymentGateway,
+            Map<String, PaymentGateway> gateways,
             PedidoTrakingService pedidoTrak,
             PedidoMapper pedidoMapper,
             BtsApiClient btsApiClient,
@@ -56,7 +56,7 @@ public class PedidoServicieImpl implements PedidoServicie {
         this.pedidoRepository = pedidoRepository;
         this.productoRepository = productoRepository;
         this.carritoRepository = carritoRepository;
-        this.paymentGateway = paymentGateway;
+        this.gateways = gateways;
         this.pedidoTrak = pedidoTrak;
         this.pedidoMapper = pedidoMapper;
         this.btsApiClient = btsApiClient;
@@ -287,6 +287,20 @@ public class PedidoServicieImpl implements PedidoServicie {
 
         pedido.setEstado(PedidoEstado.PAGADO);
         pedido.setPaymentDate(LocalDateTime.now());
+        
+        // Intentar capturar el pago si la pasarela lo requiere (ej. PayPal)
+        try {
+            String gatewayKey = (pedido.getPaymentGateway() != null) ? pedido.getPaymentGateway() + "Gateway" : "revolutGateway";
+            PaymentGateway gateway = gateways.get(gatewayKey);
+            if (gateway != null) {
+                gateway.capturePago(paymentId);
+            }
+        } catch (Exception e) {
+            System.err.println("Error capturando pago: " + e.getMessage());
+            // No bloqueamos el flujo si ya tenemos el OK del frontend, 
+            // pero sería mejor manejar esto con cuidado.
+        }
+
         Pedido pedidoPagado = pedidoRepository.save(pedido);
 
         pedidoTrak.registrarPago(pedidoPagado);
@@ -301,17 +315,27 @@ public class PedidoServicieImpl implements PedidoServicie {
     }
 
     @Override
-    public PaymentInitResponse iniciarPago(Long id) {
+    public PaymentInitResponse iniciarPago(Long id, String gatewayName) {
 
         Pedido pedido = pedidoRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Pedido no encontrado"));
 
         pedido.setEstado(PedidoEstado.PENDIENTE_DE_PAGO);
 
-        PaymentInitResponse response = paymentGateway.crearPago(pedido);
+        // Fallback a revolut si no se especifica o no existe
+        String key = (gatewayName != null && gateways.containsKey(gatewayName + "Gateway")) 
+                     ? gatewayName + "Gateway" 
+                     : "revolutGateway";
+        
+        PaymentGateway gateway = gateways.get(key);
+        if (gateway == null) {
+            throw new RuntimeException("No hay pasarelas de pago configuradas");
+        }
+
+        pedido.setPaymentGateway(gatewayName != null ? gatewayName : "revolut");
+        PaymentInitResponse response = gateway.crearPago(pedido);
 
         // IMPORTANTE: Guardar el pedido de nuevo para persistir el paymentId devuelto
-        // por Revolut
         pedidoRepository.save(pedido);
 
         return response;

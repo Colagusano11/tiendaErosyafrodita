@@ -24,7 +24,7 @@ public interface PedidoServicie {
     void cambiarDevolucionSolicitada(Long idPedido);
     void cambiarDevuelto(Long idPedido);
     void cambiarCancelado(Long idPedido);
-    PaymentInitResponse iniciarPago(Long id);
+    PaymentInitResponse iniciarPago(Long id, String gateway);
     Pedido findByPaymentId(String paymentId);
     void marcarPedidoPagado(String revolutOrderId);
     void actualizarTracking(Long idPedido, String numSeguimiento, String urlSeguimiento);

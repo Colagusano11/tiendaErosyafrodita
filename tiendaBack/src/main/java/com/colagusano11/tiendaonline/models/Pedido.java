@@ -30,6 +30,7 @@ public class Pedido {
     private LocalDateTime paymentDate;
 
     private String paymentId;
+    private String paymentGateway;
 
     // Campos de envío desglosados
     private String nombre;
@@ -196,6 +197,14 @@ public class Pedido {
 
     public void setPaymentId(String paymentId) {
         this.paymentId = paymentId;
+    }
+
+    public String getPaymentGateway() {
+        return paymentGateway;
+    }
+
+    public void setPaymentGateway(String paymentGateway) {
+        this.paymentGateway = paymentGateway;
     }
 
     public Distribuidor getDistribuidor() {

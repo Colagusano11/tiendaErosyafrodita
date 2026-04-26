@@ -122,8 +122,8 @@ public class PedidoController {
     }
 
     @PostMapping("/{id}/pago/revolut")
-    public PaymentInitResponse iniciarPago(@PathVariable Long id) {
-        return pedidoService.iniciarPago(id);
+    public PaymentInitResponse iniciarPago(@PathVariable Long id, @RequestParam(required = false) String gateway) {
+        return pedidoService.iniciarPago(id, gateway != null ? gateway : "revolut");
     }
 
     @PutMapping("/{id}/estado")

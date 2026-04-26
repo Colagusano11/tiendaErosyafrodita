@@ -80,8 +80,8 @@ const OrderDetailPage: React.FC = () => {
     if (!pedido) return;
     try {
       setPaying(true);
-      const { iniciarPagoRevolut } = await import("../api/order");
-      const paymentInfo = await iniciarPagoRevolut(pedido.idPedido);
+      const { iniciarPago } = await import("../api/order");
+      const paymentInfo = await iniciarPago(pedido.idPedido);
       if (paymentInfo && paymentInfo.paymentUrl) {
         window.location.href = paymentInfo.paymentUrl;
       } else {

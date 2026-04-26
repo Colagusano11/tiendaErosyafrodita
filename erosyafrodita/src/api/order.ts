@@ -136,8 +136,10 @@ export interface PaymentInitResponse {
     paymentId: string;
 }
 
-export async function iniciarPagoRevolut(id: number): Promise<PaymentInitResponse> {
-    const response = await api.post<PaymentInitResponse>(`/pedidos/${id}/pago/revolut`);
+export async function iniciarPago(id: number, gateway: string = 'revolut'): Promise<PaymentInitResponse> {
+    const response = await api.post<PaymentInitResponse>(`/pedidos/${id}/pago/revolut`, null, {
+        params: { gateway }
+    });
     return response.data;
 }
 

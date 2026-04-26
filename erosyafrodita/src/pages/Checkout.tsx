@@ -10,7 +10,8 @@ import { userService, UserProfile } from "../api/userService";
 
 import { useAlert } from "../context/AlertContext";
 import RevolutCheckout from "@revolut/checkout";
-import { PedidoSalida } from "../api/order";
+import { PedidoSalida, iniciarPago } from "../api/order";
+import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 
 const Checkout: React.FC = () => {
   const { items, total, clearCart } = useCart();
@@ -34,7 +35,7 @@ const Checkout: React.FC = () => {
   const [createdPedido, setCreatedPedido] = useState<PedidoSalida | null>(null);
   const [isPaying, setIsPaying] = useState(false);
   const [cardholderName, setCardholderName] = useState("");
-  const [selectedMethod, setSelectedMethod] = useState<'card' | 'revolut_pay' | 'mobile_pay'>('card');
+  const [selectedMethod, setSelectedMethod] = useState<'card' | 'revolut_pay' | 'mobile_pay' | 'paypal'>('card');
   const [isMobilePaySupported, setIsMobilePaySupported] = useState(false);
   
   // Datos de dirección para el modal/nueva dirección
@@ -224,7 +225,6 @@ const Checkout: React.FC = () => {
 
 
       // 3. Crear el pedido
-      const { iniciarPagoRevolut } = await import("../api/order");
       const pedido = await crearPedido({
         ...payload,
         ...(LAUNCH_PROMO_ACTIVE ? { descuento: LAUNCH_DISCOUNT } : {}),
@@ -234,7 +234,7 @@ const Checkout: React.FC = () => {
       
       // 4. Iniciar el proceso de pago con Revolut (Obtener public_id)
       try {
-        const paymentData = await iniciarPagoRevolut(pedido.idPedido);
+        const paymentData = await iniciarPago(pedido.idPedido);
         
         if (paymentData && paymentData.paymentId) {
           // Guardamos el public_id y mostramos la sección de pago
@@ -390,8 +390,13 @@ const Checkout: React.FC = () => {
 
   // El total ya viene como PVP desde el backend a través del CartContext
 
-  return (
-    <div className="bg-background-dark text-white font-display antialiased min-h-screen flex flex-col">
+    return (
+      <PayPalScriptProvider options={{ 
+        "client-id": import.meta.env.VITE_PAYPAL_CLIENT_ID || "",
+        currency: "EUR",
+        intent: "capture"
+      }}>
+        <div className="bg-background-dark text-white font-display antialiased min-h-screen flex flex-col">
       <Header />
 
       <main className="flex-grow w-full max-w-[1440px] mx-auto py-6 sm:py-10 px-4 sm:px-10">
@@ -504,7 +509,7 @@ const Checkout: React.FC = () => {
                     <span className="size-8 bg-emerald-400 text-charcoal rounded-lg flex items-center justify-center text-sm">
                       <span className="material-symbols-outlined text-sm">lock</span>
                     </span>
-                    Pago Seguro con Revolut
+                    Pago Seguro
                   </h2>
                   
                   <div className="bg-white/5 border border-white/10 rounded-3xl p-8 flex flex-col gap-8">
@@ -515,7 +520,7 @@ const Checkout: React.FC = () => {
                           <span className="material-symbols-outlined text-sm">payments</span>
                           Elige tu Método de Pago
                         </h3>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                           <div 
                             onClick={() => setSelectedMethod('card')}
                             className={`p-4 rounded-xl border transition-all cursor-pointer flex flex-col items-center gap-2 text-center ${selectedMethod === 'card' ? 'bg-primary/5 border-primary shadow-lg shadow-primary/10' : 'bg-black/20 border-white/5 hover:border-white/10'}`}
@@ -541,6 +546,15 @@ const Checkout: React.FC = () => {
                               <span className="material-symbols-outlined text-sm">contactless</span>
                             </div>
                             <span className="text-[10px] font-black uppercase tracking-widest">Apple / G Pay</span>
+                          </div>
+                          <div 
+                            onClick={() => setSelectedMethod('paypal')}
+                            className={`p-4 rounded-xl border transition-all cursor-pointer flex flex-col items-center gap-2 text-center ${selectedMethod === 'paypal' ? 'bg-primary/5 border-primary shadow-lg shadow-primary/10' : 'bg-black/20 border-white/5 hover:border-white/10'}`}
+                          >
+                            <div className="h-5 flex items-center justify-center">
+                               <img src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_v3.jpg" className="h-4 object-contain brightness-0 invert opacity-60" alt="PayPal" />
+                            </div>
+                            <span className="text-[10px] font-black uppercase tracking-widest">PayPal</span>
                           </div>
                         </div>
                     </div>
@@ -592,6 +606,34 @@ const Checkout: React.FC = () => {
                        {!isMobilePaySupported && (
                          <p className="text-[10px] text-red-400 font-bold uppercase tracking-widest">Verificando compatibilidad...</p>
                        )}
+                    </div>
+
+                    <div className={`${selectedMethod === 'paypal' ? 'flex flex-col items-center gap-6 py-10 animate-fade-in' : 'hidden'}`}>
+                       <div className="text-center flex flex-col gap-2 mb-8">
+                          <p className="text-[#0070ba] font-black text-xl uppercase tracking-widest flex items-center justify-center gap-2">
+                            PayPal
+                          </p>
+                          <p className="text-xs text-white/40 font-light">Paga con tu saldo, cuenta bancaria o tarjeta a través de PayPal</p>
+                       </div>
+                       <div className="w-full max-w-[350px]">
+                          <PayPalButtons 
+                            style={{ layout: "vertical", color: "gold", shape: "pill", label: "pay" }}
+                            createOrder={async () => {
+                              if (!createdPedido) throw new Error("No hay pedido creado");
+                              const data = await iniciarPago(createdPedido.idPedido, "paypal");
+                              return data.paymentId;
+                            }}
+                            onApprove={async (data) => {
+                              const guestEmail = userEmail || tempAddressRef.current.email.trim();
+                              await clearCart();
+                              navigate(`/success?pedidoId=${createdPedido?.idPedido}&email=${encodeURIComponent(guestEmail)}&paymentId=${data.orderID}`);
+                            }}
+                            onError={(err) => {
+                              console.error("PayPal Error:", err);
+                              setError("Hubo un error con PayPal. Por favor, inténtalo de nuevo.");
+                            }}
+                          />
+                       </div>
                     </div>
 
                     <div className="flex justify-start mt-2">
@@ -698,7 +740,8 @@ const Checkout: React.FC = () => {
       <Footer />
 
 
-    </div>
+      </div>
+    </PayPalScriptProvider>
   );
 };
 
