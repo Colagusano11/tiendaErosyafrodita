@@ -18,6 +18,7 @@ const Checkout: React.FC = () => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isRetrying, setIsRetrying] = useState(false);
   
   const { user: userEmail } = useAuth();
   const { showAlert } = useAlert();
@@ -283,8 +284,13 @@ const Checkout: React.FC = () => {
           });
         },
         onError(error: any) {
-          setError(error?.message || "Hubo un problema al validar o procesar tu tarjeta.");
-          showAlert("Error en tarjeta", error?.message || "Revisa los detalles introducidos y vuelve a intentarlo.", "error");
+          console.error("Error en tarjeta:", error);
+          setError("Error en el pago. Reintentando en 3 segundos...");
+          setIsRetrying(true);
+          setTimeout(() => {
+            setIsRetrying(false);
+            handleExecutePayment();
+          }, 3000);
           setIsPaying(false);
         }
       });
@@ -316,8 +322,14 @@ const Checkout: React.FC = () => {
                       },
                       onError: (err: any) => {
                         console.error("Error detallado en Revolut Pay:", err);
-                        setError("El pago con Revolut Pay falló. Por favor, inténtalo de nuevo o usa tarjeta.");
-                        showAlert("Error en Revolut Pay", "No se pudo procesar el pago rápido. Inténtalo con tarjeta.", "error");
+                        setError("Error en Revolut Pay. Reintentando en 3 segundos...");
+                        setIsRetrying(true);
+                        setTimeout(() => {
+                          setIsRetrying(false);
+                          // Forzamos un re-montaje o re-intento si es posible
+                          setSelectedMethod('card'); 
+                          setTimeout(() => setSelectedMethod('revolut_pay'), 100);
+                        }, 3000);
                       },
                       onCancel: () => {
                         console.log("Revolut Pay: Usuario canceló");
@@ -343,10 +355,16 @@ const Checkout: React.FC = () => {
                     navigate(`/success?pedidoId=${createdPedidoRef.current?.idPedido}&email=${encodeURIComponent(guestEmail)}`);
                   });
                 },
-                onError: (err: any) => {
-                  console.error("Error en Apple/Google Pay:", err);
-                  setError("El pago con dispositivo no pudo completarse.");
-                }
+                  onError: (err: any) => {
+                    console.error("Error en Apple/Google Pay:", err);
+                    setError("Error en Mobile Pay. Reintentando en 3 segundos...");
+                    setIsRetrying(true);
+                    setTimeout(() => {
+                      setIsRetrying(false);
+                      setSelectedMethod('card');
+                      setTimeout(() => setSelectedMethod('mobile_pay'), 100);
+                    }, 3000);
+                  }
               });
 
               const canPay = await pr.canMakePayment();
@@ -645,7 +663,13 @@ const Checkout: React.FC = () => {
                             }}
                             onError={(err) => {
                               console.error("PayPal Error:", err);
-                              setError("Hubo un error con PayPal. Por favor, inténtalo de nuevo.");
+                              setError("Error en PayPal. Reintentando en 3 segundos...");
+                              setIsRetrying(true);
+                              setTimeout(() => {
+                                setIsRetrying(false);
+                                setSelectedMethod('card');
+                                setTimeout(() => setSelectedMethod('paypal'), 100);
+                              }, 3000);
                             }}
                           />
                        </div>
