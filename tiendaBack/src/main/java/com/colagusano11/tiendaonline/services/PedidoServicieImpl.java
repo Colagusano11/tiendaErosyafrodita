@@ -312,6 +312,20 @@ public class PedidoServicieImpl implements PedidoServicie {
 
         Pedido pedidoPagado = pedidoRepository.save(pedido);
 
+        // --- GESTIÓN DE STOCK: Reducir stock de los productos vendidos ---
+        if (pedidoPagado.getLineas() != null) {
+            for (PedidoProducto linea : pedidoPagado.getLineas()) {
+                Producto p = linea.getProducto();
+                if (p != null) {
+                    int quantity = (linea.getCantidad() != null) ? linea.getCantidad() : 0;
+                    int currentStock = (p.getStock() != null) ? p.getStock() : 0;
+                    p.setStock(Math.max(0, currentStock - quantity));
+                    productoRepository.save(p);
+                    System.out.println("Stock actualizado para producto #" + p.getId() + ": " + currentStock + " -> " + p.getStock());
+                }
+            }
+        }
+
         pedidoTrak.registrarPago(pedidoPagado);
 
         // Disparar email de confirmación solo tras el pago exitoso
