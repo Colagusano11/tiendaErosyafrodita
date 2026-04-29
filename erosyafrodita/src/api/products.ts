@@ -25,6 +25,7 @@ export interface Producto {
   precioOferta: number;
   precioOriginal?: number;
   precioUnitario?: number;
+  slug: string | null;
 }
 
 export interface PaginatedResponse<T> {
@@ -70,9 +71,9 @@ export async function getFilteredIds(filtro: FiltroProductos & { status?: string
   return res.data;
 }
 
-// Detalle por id
-export async function getProductoById(id: number | string): Promise<Producto> {
-  const res = await api.get<Producto>(`/productos/${id}`);
+// Detalle por id o slug
+export async function getProductoById(idOrSlug: number | string): Promise<Producto> {
+  const res = await api.get<Producto>(`/productos/${idOrSlug}`);
   return transformProduct(res.data);
 }
 

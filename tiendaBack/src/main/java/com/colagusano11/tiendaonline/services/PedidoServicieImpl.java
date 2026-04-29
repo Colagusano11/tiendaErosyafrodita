@@ -281,9 +281,20 @@ public class PedidoServicieImpl implements PedidoServicie {
     }
 
     @Override
+    @Transactional
     public void marcarPedidoPagado(String paymentId) {
         Pedido pedido = pedidoRepository.findByPaymentId(paymentId)
                 .orElseThrow(() -> new IllegalStateException("Pedido no encontrado para el paymentId: " + paymentId));
+
+        // --- PROTECCIÓN: Evitar procesar pedidos ya pagados o cancelados ---
+        if (pedido.getEstado() == PedidoEstado.PAGADO) {
+            System.out.println("El pedido #" + pedido.getId() + " ya está marcado como PAGADO. Ignorando.");
+            return;
+        }
+        if (pedido.getEstado() == PedidoEstado.CANCELADO) {
+            System.err.println("Se intentó marcar como PAGADO un pedido CANCELADO (#" + pedido.getId() + ").");
+            return;
+        }
 
         pedido.setEstado(PedidoEstado.PAGADO);
         pedido.setPaymentDate(LocalDateTime.now());
@@ -297,8 +308,6 @@ public class PedidoServicieImpl implements PedidoServicie {
             }
         } catch (Exception e) {
             System.err.println("Error capturando pago: " + e.getMessage());
-            // No bloqueamos el flujo si ya tenemos el OK del frontend, 
-            // pero sería mejor manejar esto con cuidado.
         }
 
         Pedido pedidoPagado = pedidoRepository.save(pedido);

@@ -31,9 +31,14 @@ public class ProductoController {
 
     public ProductoController(){}
 
-    @GetMapping("/{id}")
-    public Producto getProducto(@PathVariable Long id){
-        return productoService.getProducto(id);
+    @GetMapping("/{identifier}")
+    public ResponseEntity<Producto> getProducto(@PathVariable String identifier){
+        try {
+            Long id = Long.parseLong(identifier);
+            return ResponseEntity.ok(productoService.getProducto(id));
+        } catch (NumberFormatException e) {
+            return ResponseEntity.ok(productoService.getProductoBySlug(identifier));
+        }
     }
 
     @GetMapping("/ean/{ean}/opciones")

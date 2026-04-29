@@ -17,9 +17,11 @@ const SEO: React.FC<SEOProps> = ({
   url = "https://erosyafrodita.com"
 }) => {
   const siteTitle = title.includes("Eros & Afrodita") ? title : `${title} | Eros & Afrodita`;
+  const canonicalUrl = window.location.origin + window.location.pathname;
 
   return (
     <Helmet>
+      <link rel="canonical" href={canonicalUrl} />
       {/* HTML Meta Tags */}
       <title>{siteTitle}</title>
       <meta name="description" content={description} />

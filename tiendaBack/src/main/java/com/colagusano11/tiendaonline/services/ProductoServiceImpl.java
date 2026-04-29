@@ -46,6 +46,13 @@ public class ProductoServiceImpl implements ProductoService {
     }
 
     @Override
+    public Producto getProductoBySlug(String slug) {
+        return productoRepository.findBySlug(slug).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Producto no encontrado"));
+    }
+
+
+    @Override
     public List<Producto> getAllProductos() {
         return productoRepository.findAll();
     }

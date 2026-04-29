@@ -15,6 +15,7 @@ import java.util.Map;
 public interface ProductoService{
 
     Producto getProducto(Long id);
+    Producto getProductoBySlug(String slug);
 
 
    

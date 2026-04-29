@@ -27,20 +27,6 @@ const OrderDetailPage: React.FC = () => {
         setLoading(true);
         const data = await getPedidoById(Number(id));
         setPedido(data);
-
-        // PLAN B: Si el pedido está pendiente pero tenemos paymentId, intentamos confirmar
-        if (data.estado === "PENDIENTE_DE_PAGO" || data.estado === "PENDIENTE") {
-          if (data.paymentId) {
-            try {
-              await confirmarPago(data.paymentId);
-              // Si tiene éxito, recargamos el estado
-              const updated = await getPedidoById(Number(id));
-              setPedido(updated);
-            } catch (e) {
-              console.log("Aún no se ha detectado el pago.");
-            }
-          }
-        }
       } catch (err: any) {
         setError(err.message ?? "No se pudo cargar el pedido.");
       } finally {

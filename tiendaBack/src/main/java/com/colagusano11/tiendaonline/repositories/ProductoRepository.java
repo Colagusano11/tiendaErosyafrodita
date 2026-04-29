@@ -14,8 +14,8 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>{
     Optional<Producto> findByNombre(String nombre);
     List<Producto> findAllByOrderByPrecioAsc();
     List<Producto> findAllByOrderByPrecioDesc();
-    Optional<Producto> findById(Long id);
     Optional<Producto> findByEan(String ean);
+    Optional<Producto> findBySlug(String slug);
     Optional<Producto> findByEanAndDistribuidor(String ean, Distribuidor distribuidor);
     List<Producto> findAllByEanOrderByPrecioAsc(String ean);
     

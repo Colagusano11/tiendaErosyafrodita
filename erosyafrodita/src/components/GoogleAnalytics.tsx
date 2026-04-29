@@ -1,6 +1,16 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
+declare global {
+  interface Window {
+    gtag: (
+      command: string,
+      id: string,
+      config?: any
+    ) => void;
+  }
+}
+
 const GoogleAnalytics = () => {
     const location = useLocation();
 

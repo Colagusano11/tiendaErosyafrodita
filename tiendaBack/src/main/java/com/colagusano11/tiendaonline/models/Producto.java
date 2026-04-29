@@ -59,6 +59,10 @@ public class Producto {
     private BigDecimal precioOferta;
 
     private boolean alertaMargen = false;
+    
+    @Column(unique = true)
+    private String slug;
+
 
     @PrePersist
     @PreUpdate
@@ -81,7 +85,15 @@ public class Producto {
                 }
             }
         }
+        
+        // Generar slug automático
+        if (this.nombre != null) {
+            this.slug = this.nombre.toLowerCase()
+                .replaceAll("[^a-z0-9\\s]", "")
+                .replaceAll("\\s+", "-");
+        }
     }
+
 
     public Producto() {
 
@@ -277,5 +289,13 @@ public class Producto {
 
     public void setAlertaMargen(boolean alertaMargen) {
         this.alertaMargen = alertaMargen;
+    }
+
+    public String getSlug() {
+        return slug;
+    }
+
+    public void setSlug(String slug) {
+        this.slug = slug;
     }
 }

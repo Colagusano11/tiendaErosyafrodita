@@ -10,7 +10,7 @@ import { userService, UserProfile } from "../api/userService";
 
 import { useAlert } from "../context/AlertContext";
 import RevolutCheckout from "@revolut/checkout";
-import { PedidoSalida, iniciarPago } from "../api/order";
+import { PedidoSalida, iniciarPago, confirmarPago } from "../api/order";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 
 const Checkout: React.FC = () => {
@@ -24,6 +24,20 @@ const Checkout: React.FC = () => {
   const { showAlert } = useAlert();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
+  React.useEffect(() => {
+    if (items.length > 0 && typeof window.gtag === 'function') {
+      window.gtag('event', 'begin_checkout', {
+        currency: 'EUR',
+        value: Number(total),
+        items: items.map(item => ({
+          item_id: item.product.id.toString(),
+          item_name: item.product.nombre,
+          price: Number(item.product.precioPVP || item.product.precio),
+          quantity: Number(item.quantity)
+        }))
+      });
+    }
+  }, [items.length, total]); // Use items.length to avoid unnecessary triggers
 
   const navigate = useNavigate();
   const [isUsingSavedAddress, setIsUsingSavedAddress] = useState(true);
@@ -207,19 +221,19 @@ const Checkout: React.FC = () => {
     try {
       setLoading(true);
 
-      // 1. Guardar dirección en el perfil si se marcó en el modal
+      // 1. Guardar dirección en el perfil si se marcó
       if (!isUsingSavedAddress && tempAddress.saveToProfile && userProfile && userEmail) {
         await userService.updateUserProfile(userEmail, {
           ...userProfile,
-          direccionPrimaria: addr.calle,
-          numero: addr.numero,
-          escalera: addr.escalera,
-          piso: addr.piso,
-          puerta: addr.puerta,
-          poblacion: addr.poblacion,
-          provincia: addr.provincia,
-          codigoPostal: addr.codigoPostal,
-          pais: addr.pais
+          direccionPrimaria: tempAddress.calle,
+          numero: tempAddress.numero,
+          escalera: tempAddress.escalera,
+          piso: tempAddress.piso,
+          puerta: tempAddress.puerta,
+          poblacion: tempAddress.poblacion,
+          provincia: tempAddress.provincia,
+          codigoPostal: tempAddress.codigoPostal,
+          pais: tempAddress.pais
         });
       }
 
@@ -266,37 +280,57 @@ const Checkout: React.FC = () => {
 
   // Efecto para montar el campo de tarjeta cuando Revolut esté listo
   React.useEffect(() => {
-    if (showPayment && rcInstance && !cardField && selectedMethod === 'card') {
+    if (!showPayment || !rcInstance || selectedMethod !== 'card') return;
+
+    // Evitar montajes duplicados
+    const container = document.getElementById("revolut-card-field");
+    if (!container || container.hasChildNodes()) return;
+
+    try {
       const card = rcInstance.createCardField({
-        target: document.getElementById("revolut-card-field"),
+        target: container,
         styles: {
           default: {
             color: "#ffffff",
-            placeholder: {
-              color: "rgba(255, 255, 255, 0.3)"
-            }
+            placeholder: { color: "rgba(255, 255, 255, 0.3)" }
           }
         },
-        onSuccess() {
-          const guestEmail = userEmail || tempAddressRef.current.email.trim();
-          clearCart().then(() => {
-            navigate(`/success?pedidoId=${createdPedidoRef.current?.idPedido}&email=${encodeURIComponent(guestEmail)}`);
-          });
+        onSuccess: async () => {
+          setIsPaying(true);
+          try {
+            const guestEmail = userEmail || tempAddressRef.current.email.trim();
+            const currentPedido = createdPedidoRef.current;
+            
+            // Verificamos que tenemos el publicId antes de confirmar
+            if (publicId) await confirmarPago(publicId);
+            
+            // SOLO vaciamos el carrito DESPUÉS de confirmar con éxito el pago
+            await clearCart();
+            
+            navigate(`/success?pedidoId=${currentPedido?.idPedido}&email=${encodeURIComponent(guestEmail)}`);
+          } catch (e) {
+            console.error("Error finalizando pago Revolut:", e);
+            showAlert("Error de Pago", "El pago se ha procesado pero no hemos podido confirmar el pedido. Por favor contacta con soporte.", "error");
+          } finally {
+            setIsPaying(false);
+          }
         },
-        onError(error: any) {
-          console.error("Error en tarjeta:", error);
-          setError("Error en el pago. Reintentando en 3 segundos...");
-          setIsRetrying(true);
-          setTimeout(() => {
-            setIsRetrying(false);
-            handleExecutePayment();
-          }, 3000);
+        onError: (err: any) => {
+          console.error("Revolut Card Error:", err);
+          setError("Error en el pago. Por favor, revisa los datos de tu tarjeta.");
           setIsPaying(false);
         }
       });
       setCardField(card);
+    } catch (e) {
+      console.error("Error creating card field:", e);
     }
-  }, [showPayment, rcInstance, cardField, selectedMethod, userEmail, clearCart, navigate, showAlert]);
+
+    return () => {
+      if (container) container.innerHTML = "";
+      setCardField(null);
+    };
+  }, [showPayment, rcInstance, selectedMethod, userEmail, clearCart, navigate, showAlert, publicId]);
 
   // Efecto para verificar soporte de Apple/Google Pay e inicializar otros métodos
   React.useEffect(() => {
@@ -313,12 +347,20 @@ const Checkout: React.FC = () => {
                   revolutPayDiv.innerHTML = '';
                   try {
                     rcInstance.revolutPay.mount(revolutPayDiv, {
-                      onSuccess: () => {
+                      onSuccess: async () => {
                         console.log("Revolut Pay: Pago exitoso");
-                        const guestEmail = userEmail || tempAddressRef.current.email.trim();
-                        clearCart().then(() => {
-                          navigate(`/success?pedidoId=${createdPedidoRef.current?.idPedido}&email=${encodeURIComponent(guestEmail)}`);
-                        });
+                        try {
+                          const guestEmail = userEmail || tempAddressRef.current.email.trim();
+                          const currentPedido = createdPedidoRef.current;
+                          
+                          if (publicId) await confirmarPago(publicId);
+                          await clearCart();
+                          
+                          navigate(`/success?pedidoId=${currentPedido?.idPedido}&email=${encodeURIComponent(guestEmail)}`);
+                        } catch (e) {
+                          console.error("Error finalizando Revolut Pay:", e);
+                          showAlert("Error de Pago", "El pago se ha procesado pero no hemos podido confirmar el pedido.", "error");
+                        }
                       },
                       onError: (err: any) => {
                         console.error("Error detallado en Revolut Pay:", err);
@@ -349,12 +391,20 @@ const Checkout: React.FC = () => {
             if (prDiv && !prDiv.hasChildNodes()) {
               const pr = rcInstance.paymentRequest({
                 target: prDiv,
-                onSuccess: () => {
-                  const guestEmail = userEmail || tempAddressRef.current.email.trim();
-                  clearCart().then(() => {
-                    navigate(`/success?pedidoId=${createdPedidoRef.current?.idPedido}&email=${encodeURIComponent(guestEmail)}`);
-                  });
-                },
+                  onSuccess: async () => {
+                    try {
+                      const guestEmail = userEmail || tempAddressRef.current.email.trim();
+                      const currentPedido = createdPedidoRef.current;
+
+                      if (publicId) await confirmarPago(publicId);
+                      await clearCart();
+                      
+                      navigate(`/success?pedidoId=${currentPedido?.idPedido}&email=${encodeURIComponent(guestEmail)}`);
+                    } catch (e) {
+                      console.error("Error finalizando Mobile Pay:", e);
+                      showAlert("Error de Pago", "El pago se ha procesado pero no hemos podido confirmar el pedido.", "error");
+                    }
+                  },
                   onError: (err: any) => {
                     console.error("Error en Apple/Google Pay:", err);
                     setError("Error en Mobile Pay. Reintentando en 3 segundos...");
@@ -425,7 +475,7 @@ const Checkout: React.FC = () => {
 
     return (
       <PayPalScriptProvider options={{ 
-        "client-id": import.meta.env.VITE_PAYPAL_CLIENT_ID || "",
+        clientId: import.meta.env.VITE_PAYPAL_CLIENT_ID || "",
         currency: "EUR",
         intent: "capture"
       }}>
@@ -658,6 +708,7 @@ const Checkout: React.FC = () => {
                             }}
                             onApprove={async (data) => {
                               const guestEmail = userEmail || tempAddressRef.current.email.trim();
+                              await confirmarPago(data.orderID);
                               await clearCart();
                               navigate(`/success?pedidoId=${createdPedido?.idPedido}&email=${encodeURIComponent(guestEmail)}&paymentId=${data.orderID}`);
                             }}

@@ -74,8 +74,8 @@ public class PayPalPaymentGateway implements PaymentGateway {
         applicationContext.put("brand_name", "Eros & Afrodita");
         applicationContext.put("landing_page", "BILLING");
         applicationContext.put("user_action", "PAY_NOW");
-        applicationContext.put("return_url", frontendUrl + "/#/success?pedidoId=" + pedido.getId());
-        applicationContext.put("cancel_url", frontendUrl + "/#/checkout?error=cancelled");
+        applicationContext.put("return_url", frontendUrl + "/success?pedidoId=" + pedido.getId());
+        applicationContext.put("cancel_url", frontendUrl + "/checkout?error=cancelled");
         body.put("application_context", applicationContext);
 
         try {

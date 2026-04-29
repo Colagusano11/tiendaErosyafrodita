@@ -14,6 +14,8 @@ const Header: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && searchTerm.trim()) {
@@ -33,6 +35,19 @@ const Header: React.FC = () => {
 
   const itemCount = items.reduce((sum, i) => sum + i.quantity, 0);
   const wishlistCount = wishlist.length;
+
+  // Cerrar búsqueda si se hace clic fuera
+  React.useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (isSearchOpen && !target.closest('.search-container')) {
+        setIsSearchOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isSearchOpen]);
+
 
   return (
     <header className="sticky top-0 z-50 w-full bg-charcoal border-b border-white/10 backdrop-blur-md bg-charcoal/95">
@@ -77,6 +92,28 @@ const Header: React.FC = () => {
 
         {/* Icons */}
         <div className="flex items-center gap-2 sm:gap-6">
+          {/* Buscador Expandible */}
+          <div className="relative flex items-center search-container">
+            <div className={`flex items-center bg-black/40 border border-white/10 rounded-full transition-all duration-500 overflow-hidden ${isSearchOpen ? 'w-[180px] sm:w-[260px] px-4 opacity-100' : 'w-0 opacity-0 border-none'}`}>
+              <input
+                type="text"
+                placeholder="Buscar esencia..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={handleSearch}
+                className="bg-transparent text-white text-xs outline-none w-full py-2 placeholder:text-white/20"
+              />
+            </div>
+            <button 
+              onClick={() => setIsSearchOpen(!isSearchOpen)}
+              className={`size-9 sm:size-10 rounded-full flex items-center justify-center transition-all ${isSearchOpen ? 'text-primary' : 'bg-charcoal-lighter text-white/80 hover:bg-primary hover:text-charcoal'}`}
+            >
+              <span className="material-symbols-outlined text-[18px] sm:text-[20px]">
+                {isSearchOpen ? 'close' : 'search'}
+              </span>
+            </button>
+          </div>
+
           {/* Favoritos */}
           <Link
             to="/wishlist"

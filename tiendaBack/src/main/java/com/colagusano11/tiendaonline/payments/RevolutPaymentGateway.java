@@ -41,10 +41,10 @@ public class RevolutPaymentGateway implements PaymentGateway {
     }
     
     // Redirección tras el pago (Revolut v1.0 suele usar 'completed_url', v2 usa 'redirect_url')
-    String returnUrl = this.frontendUrl + "/#/success?pedidoId=" + pedido.getId();
+    String returnUrl = this.frontendUrl + "/success?pedidoId=" + pedido.getId();
     body.put("completed_url", returnUrl);
     body.put("redirect_url", returnUrl);
-    body.put("cancelled_url", this.frontendUrl + "/#/checkout?error=cancelled");
+    body.put("cancelled_url", this.frontendUrl + "/checkout?error=cancelled");
 
     try {
       java.util.Map<String, Object> response = webClient.post()

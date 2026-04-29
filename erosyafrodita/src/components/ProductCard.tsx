@@ -10,6 +10,8 @@ import { useAuth } from "../context/AuthContext";
 import { useAlert } from "../context/AlertContext";
 import { suscribirAvisoStock } from "../api/stock";
 import { useImageGallery } from "../hooks/useImageGallery";
+import StockAlertModal from "./StockAlertModal";
+
 
 interface ProductCardProps {
   product: Producto;
@@ -21,6 +23,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onHide }) => {
   const { toggleWishlist, isInWishlist } = useWishlist();
   const { isAuthenticated, user: userEmail } = useAuth();
   const { showAlert } = useAlert();
+  const [isStockModalOpen, setIsStockModalOpen] = React.useState(false);
+
   
   // Usamos el hook para obtener solo las imágenes que funcionan
   const { validUrls, loading: imgLoading } = useImageGallery([
@@ -58,22 +62,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onHide }) => {
   const handleNotify = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
-    let email = userEmail;
-    
-    if (!isAuthenticated || !email) {
-      // Si no está logueado, le pedimos un email
-      const inputEmail = window.prompt("Introduce tu email para avisarte cuando vuelva a haber stock:");
-      if (!inputEmail) return;
-      
-      // Validación básica de email
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inputEmail)) {
-        showAlert("Email inválido", "Por favor, introduce un correo electrónico correcto.", "error");
-        return;
-      }
-      email = inputEmail;
-    }
+    setIsStockModalOpen(true);
+  };
 
+  const onStockAlertSubmit = async (email: string) => {
     try {
       await suscribirAvisoStock({ email, productoId: product.id });
       showAlert(
@@ -83,8 +75,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onHide }) => {
       );
     } catch (err) {
       showAlert("Error", "No pudimos crear el aviso. Inténtalo más tarde.", "error");
+      throw err;
     }
   };
+
 
   return (
     <motion.div 
@@ -97,7 +91,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onHide }) => {
     >
       {/* Invisible link overlay for the whole card */}
       <Link 
-        to={`/product/${product.id}`} 
+        to={`/product/${product.slug || product.id}`} 
         className="absolute inset-0 z-[1]" 
         aria-label={`Ver detalles de ${name}`}
       />
@@ -186,7 +180,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onHide }) => {
           </button>
         </div>
       </div>
+      <StockAlertModal 
+        isOpen={isStockModalOpen}
+        onClose={() => setIsStockModalOpen(false)}
+        onSubmit={onStockAlertSubmit}
+        productName={product.nombre}
+      />
     </motion.div>
+
   );
 };
 

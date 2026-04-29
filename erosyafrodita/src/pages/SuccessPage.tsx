@@ -47,21 +47,21 @@ const SuccessPage: React.FC = () => {
 
         setPedido(data);
 
-        // 2. Si el pedido sigue "Pendiente de pago", intentamos confirmarlo ahora
-        if (data.estado === "PENDIENTE_DE_PAGO" || data.estado === "PENDIENTE") {
-          if (data.paymentId) {
-            try {
-              await confirmarPago(data.paymentId);
-              // Recargamos para ver el estado actualizado
-              const updated = queryEmail 
-                ? await import("../api/order").then(m => m.rastrearPedido(finalPedidoId, queryEmail))
-                : await getPedidoById(finalPedidoId);
-              setPedido(updated);
-            } catch (e) {
-              console.error("Error confirmando pago", e);
-            }
-          }
+        // GA4: Evento purchase
+        if (typeof window.gtag === 'function') {
+          window.gtag('event', 'purchase', {
+            transaction_id: data.idPedido.toString(),
+            value: Number(data.total),
+            currency: 'EUR',
+            items: data.productos.map(p => ({
+              item_id: p.idProducto.toString(),
+              item_name: p.nombreProducto,
+              price: Number(p.precioUnitario),
+              quantity: Number(p.cantidad)
+            }))
+          });
         }
+
       } catch (err: any) {
         setError(err.message ?? "No se pudo cargar el pedido.");
       } finally {

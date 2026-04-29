@@ -129,6 +129,22 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
       setItems(newItems);
       localStorage.setItem(LOCAL_CART_KEY, JSON.stringify(newItems));
       calculateGuestTotal(newItems);
+      
+      // GA4: Evento add_to_cart (Invitado)
+      if (typeof window.gtag === 'function') {
+        const price = product.precioPVP || product.precio;
+        window.gtag('event', 'add_to_cart', {
+          currency: 'EUR',
+          value: Number(price) * Number(quantity),
+          items: [{
+            item_id: product.id.toString(),
+            item_name: product.nombre,
+            price: Number(price),
+            quantity: Number(quantity)
+          }]
+        });
+      }
+
       if (showModal) {
         setLastAddedProduct(product);
         setIsModalOpen(true);
@@ -161,6 +177,22 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
       const addRaw = Number(data.total);
       setTotal(LAUNCH_PROMO_ACTIVE ? Math.round(addRaw * (1 - LAUNCH_DISCOUNT) * 100) / 100 : addRaw);
 
+      // GA4: Evento add_to_cart (Registrado)
+      if (typeof window.gtag === 'function') {
+        const price = product.precioPVP || product.precio;
+        window.gtag('event', 'add_to_cart', {
+          currency: 'EUR',
+          value: Number(price) * Number(quantity),
+          items: [{
+            item_id: product.id.toString(),
+            item_name: product.nombre,
+            price: Number(price),
+            quantity: Number(quantity)
+          }]
+        });
+      }
+
+
       if (showModal) {
         setLastAddedProduct(product);
         setIsModalOpen(true);
@@ -178,10 +210,28 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
 
     // --- MODO INVITADO ---
     if (!isAuthenticated) {
+      const itemToRemove = items.find(i => i.product.id === productId);
       const newItems = items.filter(i => i.product.id !== productId);
       setItems(newItems);
       localStorage.setItem(LOCAL_CART_KEY, JSON.stringify(newItems));
       calculateGuestTotal(newItems);
+
+      // GA4: Evento remove_from_cart (Invitado)
+      if (typeof window.gtag === 'function' && itemToRemove) {
+        const price = itemToRemove.product.precioPVP || itemToRemove.product.precio;
+        window.gtag('event', 'remove_from_cart', {
+          currency: 'EUR',
+          value: Number(price) * Number(itemToRemove.quantity),
+          items: [{
+            item_id: itemToRemove.product.id.toString(),
+            item_name: itemToRemove.product.nombre,
+            price: Number(price),
+            quantity: Number(itemToRemove.quantity)
+          }]
+        });
+      }
+
+
       setLoading(false);
       return;
     }
@@ -203,9 +253,25 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
         quantity: i.cantidad,
       }));
 
+      const itemToRemove = items.find(i => i.product.id === productId);
       setItems(mapped);
       const removeRaw = Number(data.total);
       setTotal(LAUNCH_PROMO_ACTIVE ? Math.round(removeRaw * (1 - LAUNCH_DISCOUNT) * 100) / 100 : removeRaw);
+
+      // GA4: Evento remove_from_cart (Registrado)
+      if (typeof window.gtag === 'function' && itemToRemove) {
+        const price = itemToRemove.product.precioPVP || itemToRemove.product.precio;
+        window.gtag('event', 'remove_from_cart', {
+          currency: 'EUR',
+          value: price * itemToRemove.quantity,
+          items: [{
+            item_id: itemToRemove.product.id.toString(),
+            item_name: itemToRemove.product.nombre,
+            price: price,
+            quantity: itemToRemove.quantity
+          }]
+        });
+      }
     } finally {
       setLoading(false);
     }

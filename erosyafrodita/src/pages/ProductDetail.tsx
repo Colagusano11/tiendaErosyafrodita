@@ -14,6 +14,8 @@ import { LAUNCH_PROMO_ACTIVE, LAUNCH_DISCOUNT, applyPromo } from "../config/prom
 import { useImageGallery } from "../hooks/useImageGallery";
 import { useAlert } from "../context/AlertContext";
 import { suscribirAvisoStock } from "../api/stock";
+import StockAlertModal from "../components/StockAlertModal";
+
 
 // Marcas curadas de Novedades (Sincronizado con Home)
 const NOVEDADES_BRANDS = [
@@ -34,7 +36,8 @@ function shuffleArray<T>(arr: T[]): T[] {
 }
 
 const ProductDetail: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  const { slug } = useParams<{ slug: string }>();
+
   const { addItem } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const { showAlert } = useAlert();
@@ -49,6 +52,8 @@ const ProductDetail: React.FC = () => {
   // Variantes y Recomendados
   const [variantes, setVariantes] = useState<Producto[]>([]);
   const [recomendados, setRecomendados] = useState<Producto[]>([]);
+  const [isStockModalOpen, setIsStockModalOpen] = useState(false);
+
 
   // Filtramos imágenes que no cargan
   const { validUrls, loading: imgLoading } = useImageGallery([
@@ -69,13 +74,14 @@ const ProductDetail: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!id) return;
+    if (!slug) return;
 
     (async () => {
       try {
         setLoading(true);
-        const data = await getProductoById(Number(id));
+        const data = await getProductoById(slug);
         setProduct(data);
+
         
         // Cargar variantes (otros tamaños)
         const v = await getVariantes(data);
@@ -97,26 +103,42 @@ const ProductDetail: React.FC = () => {
         
         setRecomendados(finalPool.slice(0, 12)); // Subimos a 12
         
+        // GA4: Evento view_item
+        if (typeof window.gtag === 'function') {
+          const price = data.precioPVP || data.precio;
+          window.gtag('event', 'view_item', {
+            currency: 'EUR',
+            value: price,
+            items: [{
+              item_id: data.id.toString(),
+              item_name: data.nombre,
+              price: price,
+              item_brand: data.manufacturer
+            }]
+          });
+        }
+        
       } catch (e: any) {
         setError(e.message ?? "No se pudo cargar el producto");
       } finally {
         setLoading(false);
       }
     })();
-  }, [id]);
+  }, [slug]);
 
   useEffect(() => {
-    if (!id) return;
-    getResenas(Number(id)).then(data => {
+    if (!product?.id) return;
+    getResenas(product.id).then(data => {
       setReviews(data.resenas);
       setReviewsMedia(data.media);
       setReviewsTotal(data.total);
     });
 
     if (isAuthenticated) {
-      checkPurchaseStatus(Number(id)).then(setHasPurchased);
+      checkPurchaseStatus(product.id).then(setHasPurchased);
     }
-  }, [id, isAuthenticated]);
+  }, [product?.id, isAuthenticated]);
+
 
   // Si no hay imagen seleccionada, usamos la primera válida
   useEffect(() => {
@@ -131,10 +153,11 @@ const ProductDetail: React.FC = () => {
     setSubmitError(null);
     setSubmitting(true);
     try {
-      const resena = await crearResena(Number(id), newRating, newComment.trim());
+      if (!product) return;
+      const resena = await crearResena(product.id, newRating, newComment.trim());
       setReviews(prev => [resena, ...prev]);
       setReviewsTotal(t => t + 1);
-      setReviewsMedia(prev => Math.round(((prev * (reviewsTotal) + newRating) / (reviewsTotal + 1)) * 10) / 10);
+      setReviewsMedia(prev => Math.round(((prev * reviewsTotal + newRating) / (reviewsTotal + 1)) * 10) / 10);
       setNewRating(0);
       setNewComment("");
     } catch (e: any) {
@@ -144,21 +167,12 @@ const ProductDetail: React.FC = () => {
     }
   };
 
-  const handleNotify = async () => {
-    if (!product) return;
-    
-    let email = userEmail;
-    
-    if (!isAuthenticated || !email) {
-      const inputEmail = window.prompt("Introduce tu email para avisarte cuando vuelva a haber stock:");
-      if (!inputEmail) return;
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inputEmail)) {
-        showAlert("Email inválido", "Por favor, introduce un correo electrónico correcto.", "error");
-        return;
-      }
-      email = inputEmail;
-    }
+  const handleNotify = () => {
+    setIsStockModalOpen(true);
+  };
 
+  const onStockAlertSubmit = async (email: string) => {
+    if (!product) return;
     try {
       await suscribirAvisoStock({ email, productoId: product.id });
       showAlert(
@@ -168,8 +182,10 @@ const ProductDetail: React.FC = () => {
       );
     } catch (err) {
       showAlert("Error", "No pudimos crear el aviso. Inténtalo más tarde.", "error");
+      throw err;
     }
   };
+
 
   if (loading) {
     return (
@@ -413,7 +429,7 @@ const ProductDetail: React.FC = () => {
                     {variantes.map(v => (
                       <Link 
                         key={v.id} 
-                        to={`/product/${v.id}`}
+                        to={`/product/${v.slug || v.id}`}
                         className="px-4 py-2 rounded-xl border border-white/5 text-white/30 text-[9px] font-black hover:border-primary hover:text-white transition-all bg-white/5"
                       >
                         {v.nombre.match(/\d+\s*ml/i)?.[0] || "Ver opción"}
@@ -606,7 +622,14 @@ const ProductDetail: React.FC = () => {
         </section>
       </main>
       <Footer />
+      <StockAlertModal 
+        isOpen={isStockModalOpen}
+        onClose={() => setIsStockModalOpen(false)}
+        onSubmit={onStockAlertSubmit}
+        productName={product.nombre}
+      />
     </div>
+
   );
 };
 
