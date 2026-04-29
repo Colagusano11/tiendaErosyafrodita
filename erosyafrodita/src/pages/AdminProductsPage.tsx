@@ -918,7 +918,7 @@ const AdminProductsPage: React.FC = () => {
                                 
                                 const ivaFactor = 1 + (iva / 100);
                                 const netIncome = salePrice / ivaFactor;
-                                const totalCost = costPrice + envio + (comisionTarjeta / ivaFactor);
+                                const totalCost = costPrice + envio + comisionTarjeta;
                                 const profit = netIncome - totalCost;
                                 const margin = (profit / netIncome) * 100;
   

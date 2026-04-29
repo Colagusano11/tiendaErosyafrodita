@@ -28,33 +28,33 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>{
 
     @org.springframework.data.jpa.repository.Modifying(clearAutomatically = true)
     @org.springframework.data.jpa.repository.Query("UPDATE Producto p SET " +
-            "p.precioPVP = ((p.precio + :envio) * :ivaFactor / :divisorMargen) + :comisionTarjeta, " +
-            "p.alertaMargen = (CASE WHEN (((p.precio + :envio) * :ivaFactor / :divisorMargen) + :comisionTarjeta < (p.precio + 5) * 1.21) THEN true ELSE false END), " +
-            "p.activo = (CASE WHEN (((p.precio + :envio) * :ivaFactor / :divisorMargen) + :comisionTarjeta < (p.precio + 5) * 1.21) THEN false ELSE p.activo END) " +
+            "p.precioPVP = (p.precio + :envio + :comisionTarjeta) / :divisorMargen * :ivaFactor, " +
+            "p.alertaMargen = (CASE WHEN ((p.precio + :envio + :comisionTarjeta) / :divisorMargen * :ivaFactor < (p.precio + 5) * 1.21) THEN true ELSE false END), " +
+            "p.activo = (CASE WHEN ((p.precio + :envio + :comisionTarjeta) / :divisorMargen * :ivaFactor < (p.precio + 5) * 1.21) THEN false ELSE p.activo END) " +
             "WHERE p.precio IS NOT NULL")
     void updateAllPricing(java.math.BigDecimal ivaFactor, java.math.BigDecimal divisorMargen, java.math.BigDecimal envio, java.math.BigDecimal comisionTarjeta);
 
     @org.springframework.data.jpa.repository.Modifying(clearAutomatically = true)
     @org.springframework.data.jpa.repository.Query("UPDATE Producto p SET " +
-            "p.precioPVP = ((p.precio + :envio) * :ivaFactor / :divisorMargen) + :comisionTarjeta, " +
-            "p.alertaMargen = (CASE WHEN (((p.precio + :envio) * :ivaFactor / :divisorMargen) + :comisionTarjeta < (p.precio + 5) * 1.21) THEN true ELSE false END), " +
-            "p.activo = (CASE WHEN (((p.precio + :envio) * :ivaFactor / :divisorMargen) + :comisionTarjeta < (p.precio + 5) * 1.21) THEN false ELSE p.activo END) " +
+            "p.precioPVP = (p.precio + :envio + :comisionTarjeta) / :divisorMargen * :ivaFactor, " +
+            "p.alertaMargen = (CASE WHEN ((p.precio + :envio + :comisionTarjeta) / :divisorMargen * :ivaFactor < (p.precio + 5) * 1.21) THEN true ELSE false END), " +
+            "p.activo = (CASE WHEN ((p.precio + :envio + :comisionTarjeta) / :divisorMargen * :ivaFactor < (p.precio + 5) * 1.21) THEN false ELSE p.activo END) " +
             "WHERE p.distribuidor = :distribuidor AND p.precio IS NOT NULL")
     void updateProviderPricing(java.math.BigDecimal ivaFactor, java.math.BigDecimal divisorMargen, java.math.BigDecimal envio, java.math.BigDecimal comisionTarjeta, Distribuidor distribuidor);
 
     @org.springframework.data.jpa.repository.Modifying
     @org.springframework.data.jpa.repository.Query("UPDATE Producto p SET " +
-            "p.precioPVP = ((p.precio + :envio) * :ivaFactor / :divisorMargen) + :comisionTarjeta, " +
-            "p.alertaMargen = (CASE WHEN (((p.precio + :envio) * :ivaFactor / :divisorMargen) + :comisionTarjeta < (p.precio + 5) * 1.21) THEN true ELSE false END), " +
-            "p.activo = (CASE WHEN (((p.precio + :envio) * :ivaFactor / :divisorMargen) + :comisionTarjeta < (p.precio + 5) * 1.21) THEN false ELSE p.activo END) " +
+            "p.precioPVP = (p.precio + :envio + :comisionTarjeta) / :divisorMargen * :ivaFactor, " +
+            "p.alertaMargen = (CASE WHEN ((p.precio + :envio + :comisionTarjeta) / :divisorMargen * :ivaFactor < (p.precio + 5) * 1.21) THEN true ELSE false END), " +
+            "p.activo = (CASE WHEN ((p.precio + :envio + :comisionTarjeta) / :divisorMargen * :ivaFactor < (p.precio + 5) * 1.21) THEN false ELSE p.activo END) " +
             "WHERE p.id IN :ids AND p.precio IS NOT NULL")
     void updateSelectedPricing(List<Long> ids, java.math.BigDecimal ivaFactor, java.math.BigDecimal divisorMargen, java.math.BigDecimal envio, java.math.BigDecimal comisionTarjeta);
 
     @org.springframework.data.jpa.repository.Modifying(clearAutomatically = true)
     @org.springframework.data.jpa.repository.Query("UPDATE Producto p SET " +
-            "p.precioPVP = ((p.precio + :envio) * :ivaFactor / :divisorMargen) + :comisionTarjeta, " +
-            "p.alertaMargen = (CASE WHEN (((p.precio + :envio) * :ivaFactor / :divisorMargen) + :comisionTarjeta < (p.precio + 5) * 1.21) THEN true ELSE false END), " +
-            "p.activo = (CASE WHEN (((p.precio + :envio) * :ivaFactor / :divisorMargen) + :comisionTarjeta < (p.precio + 5) * 1.21) THEN false ELSE p.activo END) " +
+            "p.precioPVP = (p.precio + :envio + :comisionTarjeta) / :divisorMargen * :ivaFactor, " +
+            "p.alertaMargen = (CASE WHEN ((p.precio + :envio + :comisionTarjeta) / :divisorMargen * :ivaFactor < (p.precio + 5) * 1.21) THEN true ELSE false END), " +
+            "p.activo = (CASE WHEN ((p.precio + :envio + :comisionTarjeta) / :divisorMargen * :ivaFactor < (p.precio + 5) * 1.21) THEN false ELSE p.activo END) " +
             "WHERE p.id IN :ids AND p.distribuidor = :distribuidor AND p.precio IS NOT NULL")
     void updateSelectedProviderPricing(List<Long> ids, java.math.BigDecimal ivaFactor, java.math.BigDecimal divisorMargen, java.math.BigDecimal envio, java.math.BigDecimal comisionTarjeta, Distribuidor distribuidor);
 
