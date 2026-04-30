@@ -215,7 +215,7 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>{
             "(:status = 'OFERTAS' AND p.enOferta = true) OR " +
             "(:status = 'BAJO_MARGEN' AND p.activo = true AND p.precioPVP < ((p.precio + 5) * 1.21)) OR " +
             "(:status = 'ALERTA_MARGEN' AND p.alertaMargen = true) OR " +
-            "((:status = '' OR :status = 'ACTIVOS') AND p.activo = true) OR " +
+            "((:status = '' OR :status = 'ACTIVOS') AND p.activo = true AND (p.imagen IS NOT NULL AND p.imagen <> '' AND p.imagen NOT LIKE '%no_image%' AND p.imagen NOT LIKE '%no_photo%')) OR " +
             "(:status IS NULL AND p.activo = true AND (p.imagen IS NOT NULL AND p.imagen <> '')))")
     Page<Producto> searchAdvancedMultipleManufacturers(
             @org.springframework.data.repository.query.Param("nombre") String nombre,
@@ -249,7 +249,7 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>{
             "(:status = 'OFERTAS' AND p.enOferta = true) OR " +
             "(:status = 'BAJO_MARGEN' AND p.activo = true AND p.precioPVP < ((p.precio + 5) * 1.21)) OR " +
             "(:status = 'ALERTA_MARGEN' AND p.alertaMargen = true) OR " +
-            "((:status = '' OR :status = 'ACTIVOS') AND p.activo = true) OR " +
+            "((:status = '' OR :status = 'ACTIVOS') AND p.activo = true AND (p.imagen IS NOT NULL AND p.imagen <> '' AND p.imagen NOT LIKE '%no_image%' AND p.imagen NOT LIKE '%no_photo%')) OR " +
             "(:status IS NULL AND p.activo = true AND (p.imagen IS NOT NULL AND p.imagen <> '')))")
     Page<Producto> searchAdvanced(
             @org.springframework.data.repository.query.Param("nombre") String nombre,
