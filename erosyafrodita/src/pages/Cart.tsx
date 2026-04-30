@@ -6,7 +6,7 @@ import { useCart } from "../context/CartContext";
 import { LAUNCH_PROMO_ACTIVE, LAUNCH_DISCOUNT } from "../config/promo";
 
 const Cart: React.FC = () => {
-  const { items, addItem, removeItem, clearCart, total: rawTotal } = useCart();
+  const { items, addItem, removeItem, updateQuantity, clearCart, total: rawTotal } = useCart();
 
   // El total ya viene como PVP desde el backend
   const total: number = rawTotal;
@@ -69,7 +69,7 @@ const Cart: React.FC = () => {
                       <div className="flex items-center bg-background-dark rounded-full p-1 border border-border-dark">
                         <button
                           className="size-8 flex items-center justify-center rounded-full hover:bg-surface-dark text-gray-400"
-                          onClick={() => removeItem(product.id)}
+                          onClick={() => updateQuantity(product.id, quantity - 1)}
                         >
                           <span className="material-symbols-outlined !text-[18px]">
                             remove
@@ -80,7 +80,7 @@ const Cart: React.FC = () => {
                         </span>
                         <button
                           className="size-8 flex items-center justify-center rounded-full hover:bg-surface-dark text-gray-400"
-                          onClick={() => addItem(product, 1, false)}
+                          onClick={() => updateQuantity(product.id, quantity + 1)}
                         >
                           <span className="material-symbols-outlined !text-[18px]">
                             add

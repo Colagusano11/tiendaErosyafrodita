@@ -10,6 +10,7 @@ import { useAuth } from "./AuthContext";
 import type { Producto } from "../api/products";
 import {
   apiAgregarAlCarrito,
+  apiModificarCantidad,
   apiEliminarProducto,
   apiGetCarrito,
   apiVaciarCarrito,
@@ -25,6 +26,7 @@ interface CartContextType {
   items: CartItem[];
   addItem: (product: Producto, quantity?: number, showModal?: boolean) => Promise<void>;
   removeItem: (productId: number) => Promise<void>;
+  updateQuantity: (productId: number, newQuantity: number) => Promise<void>;
   clearCart: () => Promise<void>;
   total: number;
   loading: boolean;
@@ -277,6 +279,57 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  // Actualizar cantidad de un producto (sumar o restar 1)
+  const updateQuantity = async (productId: number, newQuantity: number) => {
+    if (newQuantity <= 0) {
+      await removeItem(productId);
+      return;
+    }
+
+    setLoading(true);
+
+    // --- MODO INVITADO ---
+    if (!isAuthenticated) {
+      const newItems = items.map(item => 
+        item.product.id === productId ? { ...item, quantity: newQuantity } : item
+      );
+      setItems(newItems);
+      localStorage.setItem(LOCAL_CART_KEY, JSON.stringify(newItems));
+      calculateGuestTotal(newItems);
+      setLoading(false);
+      return;
+    }
+
+    // --- MODO REGISTRADO ---
+    try {
+      const data = await apiModificarCantidad({
+        idProducto: productId,
+        cantidad: newQuantity
+      });
+
+      const mapped: CartItem[] = data.items.map((i) => ({
+        product: {
+          id: i.idProducto,
+          nombre: i.nombreProducto,
+          imagen: i.imagen ?? "",
+          precio: i.precioUnitario,
+          precioPVP: i.precioUnitario,
+          manufacturer: "",
+          categoria: "",
+        } as Producto,
+        quantity: i.cantidad,
+      }));
+
+      setItems(mapped);
+      const rawTotal = Number(data.total);
+      setTotal(LAUNCH_PROMO_ACTIVE ? Math.round(rawTotal * (1 - LAUNCH_DISCOUNT) * 100) / 100 : rawTotal);
+    } catch (e) {
+      console.error("Error al actualizar cantidad:", e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Vaciar carrito completo
   const clearCart = async () => {
     setLoading(true);
@@ -304,6 +357,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
         items,
         addItem,
         removeItem,
+        updateQuantity,
         clearCart,
         total,
         loading,

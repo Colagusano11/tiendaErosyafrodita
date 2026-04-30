@@ -30,6 +30,11 @@ export async function apiAgregarAlCarrito(payload: CarritoRequest): Promise<Carr
   return response.data;
 }
 
+export async function apiModificarCantidad(payload: CarritoRequest): Promise<CarritoSalida> {
+  const response = await api.put<CarritoSalida>('/carrito/cantidad', payload);
+  return response.data;
+}
+
 export async function apiVaciarCarrito(): Promise<void> {
   await api.delete('/carrito/vaciar');
 }

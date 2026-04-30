@@ -42,6 +42,26 @@ public class CarritoController {
         return ResponseEntity.ok(dto);
     }
 
+    @PutMapping("/cantidad")
+    public ResponseEntity<?> modificarCantidad(
+            @RequestBody CarritoRequest request,
+            @AuthenticationPrincipal UsuarioRegistroDto usuario) {
+
+        if (usuario == null) {
+            return ResponseEntity.status(401).body("Debes iniciar sesión.");
+        }
+
+        Producto producto = productoService.findById(request.getIdProducto());
+        if (producto == null) {
+            return ResponseEntity.status(404).body("Producto no encontrado.");
+        }
+
+        carritoService.modificarCantidadProducto(usuario, producto, request.getCantidad());
+        var carrito = carritoService.obtenerCarritoUsuario(usuario);
+        CarritoSalida dto = carritoService.mapearCarrito(carrito);
+        return ResponseEntity.ok(dto);
+    }
+
     @GetMapping
     public ResponseEntity<?> verCarrito(@AuthenticationPrincipal UsuarioRegistroDto usuario) {
         if (usuario == null) {
