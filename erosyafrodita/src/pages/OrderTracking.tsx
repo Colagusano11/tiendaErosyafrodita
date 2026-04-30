@@ -182,12 +182,74 @@ const TrackOrder: React.FC = () => {
                                 </div>
                             </div>
 
+                            {/* Product Details Section */}
+                            <div className="bg-surface-dark rounded-[2.5rem] border border-white/5 overflow-hidden shadow-2xl mb-8">
+                                <div className="bg-white/5 px-8 py-6 border-b border-white/5">
+                                    <h3 className="text-xs font-black uppercase tracking-[0.2em] text-white/40 flex items-center gap-2">
+                                        <span className="material-symbols-outlined text-sm">shopping_basket</span>
+                                        Artículos en el Ritual
+                                    </h3>
+                                </div>
+                                <div className="p-8 md:p-10 space-y-8">
+                                    {pedido.productos.map((prod, idx) => (
+                                        <div key={idx} className="flex flex-col sm:flex-row items-center gap-6 group/item">
+                                            <div className="size-24 shrink-0 rounded-2xl overflow-hidden bg-background-dark border border-white/5 p-2 transition-all group-hover/item:border-primary/30 flex items-center justify-center">
+                                                {prod.imagen ? (
+                                                    <img src={prod.imagen} alt={prod.nombreProducto} className="max-w-full max-h-full object-contain" />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center bg-white/5 uppercase text-[10px] font-bold text-gray-600">No Img</div>
+                                                )}
+                                            </div>
+                                            <div className="flex-grow text-center sm:text-left">
+                                                <h4 className="text-white font-bold text-lg md:text-xl tracking-tight leading-tight group-hover/item:text-primary transition-colors">
+                                                    {prod.nombreProducto}
+                                                </h4>
+                                                <div className="flex flex-wrap justify-center sm:justify-start gap-y-2 gap-x-4 mt-2">
+                                                    <p className="text-gray-500 text-[10px] uppercase tracking-widest font-black">
+                                                        SKU: <span className="text-white/40">{prod.sku ?? "---"}</span>
+                                                    </p>
+                                                    {prod.ean && (
+                                                        <p className="text-gray-500 text-[10px] uppercase tracking-widest font-black">
+                                                            EAN: <span className="text-white/40">{prod.ean}</span>
+                                                        </p>
+                                                    )}
+                                                    <p className="text-gray-500 text-[10px] uppercase tracking-widest font-black">
+                                                        Cant: <span className="text-white/40">{prod.cantidad}</span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="text-white font-black text-xl">
+                                                    {prod.precioTotalLinea.toFixed(2)}<span className="text-primary text-xs ml-1">€</span>
+                                                </p>
+                                                <p className="text-white/20 text-[10px] uppercase font-bold tracking-widest">
+                                                    {prod.precioUnitario.toFixed(2)}€ / ud
+                                                </p>
+                                            </div>
+                                        </div>
+                                    ))}
+
+                                    <div className="pt-8 border-t border-white/5 space-y-4">
+                                        <div className="flex justify-between items-baseline">
+                                            <span className="text-white/40 text-[10px] font-black uppercase tracking-[0.2em]">Importe Total Pagado</span>
+                                            <span className="text-4xl font-black text-primary drop-shadow-[0_0_15px_rgba(242,185,13,0.3)]">
+                                                {pedido.total.toFixed(2)}<span className="text-xl ml-1">€</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             {/* Action Card */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="bg-surface-dark p-8 rounded-[2rem] border border-white/5">
                                     <h3 className="text-white/40 text-[10px] font-black uppercase tracking-widest mb-4">Detalles del Destinatario</h3>
                                     <p className="text-xl font-bold mb-1">{pedido.nombre} {pedido.apellidos}</p>
                                     <p className="text-white/50 text-sm leading-relaxed">{pedido.calle}, {pedido.codigoPostal} {pedido.ciudad}</p>
+                                    <div className="mt-4 pt-4 border-t border-white/5">
+                                        <p className="text-[10px] text-white/40 font-black uppercase tracking-widest">Contacto</p>
+                                        <p className="text-sm font-bold text-primary mt-1">{pedido.email}</p>
+                                    </div>
                                 </div>
                                 <div className="bg-primary/5 p-8 rounded-[2rem] border border-primary/20 flex flex-col justify-center">
                                     <h3 className="text-primary/60 text-[10px] font-black uppercase tracking-widest mb-4">¿Necesitas ayuda?</h3>
