@@ -21,6 +21,16 @@ export function useImageGallery(urls: (string | null | undefined)[]) {
     let completed = 0;
     const results: string[] = [];
 
+    const checkFinished = () => {
+      completed++;
+      if (completed === imagesToTest.length) {
+        // Mantenemos el orden original de las URLs válidas
+        const orderedValid = imagesToTest.filter(u => results.includes(u));
+        setValidUrls(orderedValid);
+        setLoading(false);
+      }
+    };
+
     imagesToTest.forEach((url) => {
       // Filtramos posters de "No image" que vienen de proveedores
       const isPlaceholder = 
@@ -47,16 +57,6 @@ export function useImageGallery(urls: (string | null | undefined)[]) {
         checkFinished();
       };
     });
-
-    const checkFinished = () => {
-      completed++;
-      if (completed === imagesToTest.length) {
-        // Mantenemos el orden original de las URLs válidas
-        const orderedValid = imagesToTest.filter(u => results.includes(u));
-        setValidUrls(orderedValid);
-        setLoading(false);
-      }
-    };
   }, [urls.join(",")]); // Re-ejecutar si la lista de URLs cambia
 
   return { validUrls, loading };
