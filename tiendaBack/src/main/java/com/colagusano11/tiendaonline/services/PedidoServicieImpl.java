@@ -665,4 +665,9 @@ public class PedidoServicieImpl implements PedidoServicie {
         return pedidoRepository.findByIdAndEmail(id, email)
                 .map(pedidoMapper::toSalida);
     }
+
+    @Override
+    public Pedido save(Pedido pedido) {
+        return pedidoRepository.save(pedido);
+    }
 }

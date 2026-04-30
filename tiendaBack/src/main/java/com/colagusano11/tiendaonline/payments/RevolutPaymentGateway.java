@@ -61,8 +61,8 @@ public class RevolutPaymentGateway implements PaymentGateway {
       String publicId = (String) response.get("public_id");
       String checkoutUrl = (String) response.get("checkout_url");
       
-      // Guardamos el ID de pago de Revolut en el pedido
-      pedido.setPaymentId((String) response.get("id"));
+      // Guardamos el public_id de Revolut como identificador de pago, ya que es el que el frontend devolverá
+      pedido.setPaymentId(publicId);
 
       return new PaymentInitResponse(
           checkoutUrl,

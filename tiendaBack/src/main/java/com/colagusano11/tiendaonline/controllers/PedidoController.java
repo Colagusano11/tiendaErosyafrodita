@@ -96,6 +96,24 @@ public class PedidoController {
         return ResponseEntity.noContent().build();
     }
 
+    // ENDPOINT DE EMERGENCIA PARA PEDIDOS QUE SE QUEDARON EN "PENDIENTE DE PAGO"
+    @PostMapping("/rescatar/{idPedido}")
+    public ResponseEntity<?> rescatarPedido(@PathVariable Long idPedido) {
+        Pedido pedido = pedidoService.findById(idPedido);
+        if (pedido == null) return ResponseEntity.notFound().build();
+        
+        // Generamos un ID de pago manual si no tiene uno útil
+        String pId = pedido.getPaymentId();
+        if (pId == null || pId.isBlank()) {
+            pId = "RESCATE-" + System.currentTimeMillis();
+            pedido.setPaymentId(pId);
+            pedidoService.save(pedido);
+        }
+        
+        pedidoService.marcarPedidoPagado(pId);
+        return ResponseEntity.ok("Pedido #" + idPedido + " rescatado con éxito. Estado: PAGADO. Email enviado.");
+    }
+
     @PostMapping("/{id}/enviado")
     public void cambiarEnviado(@PathVariable Long id) {
         pedidoService.cambiarEnviado(id);
