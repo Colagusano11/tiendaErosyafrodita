@@ -65,7 +65,7 @@ public class ProductoController {
             @RequestParam(required = false) String status,
             @RequestParam(required = false, defaultValue = "precioAsc") String orden,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size
+            @RequestParam(defaultValue = "24") int size
     ) {
         return productoService.filtrarProductos(manufacturer, nombre, sku, distribuidor, rangoPrecio, minPrecio, maxPrecio, orden, gender, categoria, status, page, size);
     }
@@ -89,7 +89,7 @@ public class ProductoController {
     @GetMapping("/venta")
     public Page<ProductoVenta> getAllProductosVenta(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size
+            @RequestParam(defaultValue = "24") int size
     ){
         return productoService.getAllProductosVenta(page, size);
     }
@@ -231,7 +231,7 @@ public class ProductoController {
     @GetMapping("/nuevos")
     public org.springframework.data.domain.Page<Producto> getNuevos(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @RequestParam(defaultValue = "24") int size) {
         return productoService.getNuevos(page, size);
     }
 

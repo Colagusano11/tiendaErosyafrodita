@@ -20,7 +20,7 @@ const Catalog: React.FC = () => {
     page: 0,
     totalPages: 0,
     totalElements: 0,
-    size: 20
+    size: 24
   });
   
   // Inicializamos filtros desde la URL si existen
@@ -34,7 +34,7 @@ const Catalog: React.FC = () => {
   const [filtros, setFiltros] = useState<FiltroProductos>({
     maxPrecio: initialMaxPrecio ? parseInt(initialMaxPrecio) : 500,
     page: 0,
-    size: 20,
+    size: 24,
     nombre: initialSearch || undefined,
     categoria: initialCat || undefined,
     gender: initialGender || undefined,
@@ -110,7 +110,7 @@ const Catalog: React.FC = () => {
   const fetchInitial = async () => {
     try {
       setLoading(true);
-      const data = await getProductos(0, 20);
+      const data = await getProductos(0, 24);
       setProductos(data.content);
       setPaginacion({
         page: data.number,
@@ -159,7 +159,7 @@ const Catalog: React.FC = () => {
   };
 
   const clearFilters = () => {
-    const reset = { maxPrecio: 500, page: 0, size: 20, orden: "fechaDesc" };
+    const reset = { maxPrecio: 500, page: 0, size: 24, orden: "fechaDesc" };
     aplicarFiltros(reset);
   };
 
