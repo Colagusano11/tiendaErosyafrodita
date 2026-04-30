@@ -22,6 +22,18 @@ export function useImageGallery(urls: (string | null | undefined)[]) {
     const results: string[] = [];
 
     imagesToTest.forEach((url) => {
+      // Filtramos posters de "No image" que vienen de proveedores
+      const isPlaceholder = 
+        url.toLowerCase().includes("no_photo") || 
+        url.toLowerCase().includes("no-image") || 
+        url.toLowerCase().includes("placeholder") ||
+        url.toLowerCase().includes("not-available");
+
+      if (isPlaceholder) {
+        checkFinished();
+        return;
+      }
+
       const img = new Image();
       img.src = url;
       img.onload = () => {

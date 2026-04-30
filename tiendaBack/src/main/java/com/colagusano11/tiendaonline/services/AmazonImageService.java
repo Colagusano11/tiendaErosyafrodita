@@ -107,8 +107,18 @@ public class AmazonImageService {
             }
 
             // 2. MODO "SOLO HUECOS": Si NO estamos saneando y el producto ya tiene alguna foto, saltamos.
-            if (!forceOverwrite && p.getImagen() != null && !p.getImagen().trim().isEmpty()) {
-                System.out.println("[AMAZON-SYNC] SKIP: " + p.getSku() + " ya tiene imagen (Modo Solo Huecos).");
+            // Consideramos "hueco" si es nulo, vacío o es un poster de "no photo"
+            boolean hasValidImage = p.getImagen() != null && !p.getImagen().trim().isEmpty();
+            if (hasValidImage) {
+                String imgLower = p.getImagen().toLowerCase();
+                if (imgLower.contains("no_photo") || imgLower.contains("no-image") || 
+                    imgLower.contains("placeholder") || imgLower.contains("not-available")) {
+                    hasValidImage = false;
+                }
+            }
+
+            if (!forceOverwrite && hasValidImage) {
+                System.out.println("[AMAZON-SYNC] SKIP: " + p.getSku() + " ya tiene imagen válida (Modo Solo Huecos).");
                 continue;
             }
 
