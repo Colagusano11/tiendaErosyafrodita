@@ -146,7 +146,7 @@ public class ProductoServiceImpl implements ProductoService {
             }
         }
 
-        // Lógica para Novedades por Marcas configuradas
+        // Lógica para Novedades por Marcas configuradas (AGRUPADO)
         if ("NOVEDADES".equalsIgnoreCase(status)) {
             Configuracion config = getConfiguracion();
             if (config.getNovedadesBrands() != null && !config.getNovedadesBrands().isBlank()) {
@@ -154,17 +154,14 @@ public class ProductoServiceImpl implements ProductoService {
                         .map(String::trim)
                         .filter(s -> !s.isEmpty())
                         .toList();
-                return productoRepository.searchAdvancedMultipleManufacturers(nombre, categoria, gender, distEnum, brands, sku, "ACTIVOS", minPrecio, maxPrecio, pageable);
+                // Usamos la versión agrupada para novedades
+                return productoRepository.searchAdvancedNativeGrouped(nombre, categoria, gender, distEnum, manufacturer, sku, minPrecio, maxPrecio, pageable);
             }
         }
 
-        // Lógica para múltiples marcas separadas por coma
-        if (manufacturer != null && manufacturer.contains(",")) {
-            List<String> brands = java.util.Arrays.stream(manufacturer.split(","))
-                    .map(String::trim)
-                    .filter(s -> !s.isEmpty())
-                    .toList();
-            return productoRepository.searchAdvancedMultipleManufacturers(nombre, categoria, gender, distEnum, brands, sku, status, minPrecio, maxPrecio, pageable);
+        // Lógica para el Catálogo Web (AGRUPADO)
+        if ("ACTIVOS".equalsIgnoreCase(status) || status == null || status.isEmpty()) {
+            return productoRepository.searchAdvancedNativeGrouped(nombre, categoria, gender, distEnum, manufacturer, sku, minPrecio, maxPrecio, pageable);
         }
 
         return productoRepository.searchAdvanced(nombre, categoria, gender, distEnum, manufacturer, sku, status, minPrecio, maxPrecio, pageable);
@@ -179,26 +176,13 @@ public class ProductoServiceImpl implements ProductoService {
             } catch (IllegalArgumentException e) {}
         }
 
-        // Lógica para Novedades
-        if ("NOVEDADES".equalsIgnoreCase(status)) {
-            Configuracion config = getConfiguracion();
-            if (config.getNovedadesBrands() != null && !config.getNovedadesBrands().isBlank()) {
-                List<String> brands = java.util.Arrays.stream(config.getNovedadesBrands().split(","))
-                        .map(String::trim)
-                        .filter(s -> !s.isEmpty())
-                        .toList();
-                return productoRepository.searchAdvancedMultipleManufacturers(nombre, categoria, gender, distEnum, brands, sku, "ACTIVOS", minPrecio, maxPrecio, Pageable.unpaged())
-                        .getContent().stream().map(Producto::getId).toList();
-            }
-        }
-
-        if (manufacturer != null && manufacturer.contains(",")) {
-            List<String> brands = java.util.Arrays.stream(manufacturer.split(","))
-                    .map(String::trim)
-                    .filter(s -> !s.isEmpty())
-                    .toList();
-            return productoRepository.searchAdvancedMultipleManufacturers(nombre, categoria, gender, distEnum, brands, sku, status, minPrecio, maxPrecio, Pageable.unpaged())
-                    .getContent().stream().map(Producto::getId).toList();
+        // Lógica para el Catálogo Web (AGRUPADO)
+        if ("ACTIVOS".equalsIgnoreCase(status) || "NOVEDADES".equalsIgnoreCase(status) || status == null || status.isEmpty()) {
+             return productoRepository.searchAdvancedNativeGrouped(nombre, categoria, gender, distEnum, manufacturer, sku, minPrecio, maxPrecio, Pageable.unpaged())
+                .getContent()
+                .stream()
+                .map(Producto::getId)
+                .toList();
         }
 
         return productoRepository.searchAdvanced(nombre, categoria, gender, distEnum, manufacturer, sku, status, minPrecio, maxPrecio, Pageable.unpaged())

@@ -229,36 +229,40 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>{
             @org.springframework.data.repository.query.Param("maxPrecio") java.math.BigDecimal maxPrecio,
             Pageable pageable);
 
-    @org.springframework.data.jpa.repository.Query("SELECT p FROM Producto p WHERE " +
-            "(:nombre IS NULL OR (" +
-            "  LOWER(p.nombre) LIKE LOWER(CONCAT('%', :nombre, '%')) OR " +
-            "  LOWER(p.manufacturer) LIKE LOWER(CONCAT('%', :nombre, '%')) OR " +
-            "  LOWER(p.categoria) LIKE LOWER(CONCAT('%', :nombre, '%')) OR " +
-            "  LOWER(p.sku) LIKE LOWER(CONCAT('%', :nombre, '%')) OR " +
-            "  LOWER(p.ean) LIKE LOWER(CONCAT('%', :nombre, '%'))" +
-            ")) AND " +
-            "(:categoria IS NULL OR LOWER(p.categoria) = LOWER(:categoria)) AND " +
-            "(:gender IS NULL OR UPPER(p.gender) = UPPER(:gender)) AND " +
-            "(:distribuidor IS NULL OR p.distribuidor = :distribuidor) AND " +
-            "(:manufacturador IS NULL OR p.manufacturer = :manufacturador) AND " +
-            "(:sku IS NULL OR p.sku LIKE CONCAT('%', :sku, '%') OR p.ean LIKE CONCAT('%', :sku, '%')) AND " +
-            "(:minPrecio IS NULL OR p.precio >= :minPrecio) AND " +
-            "(:maxPrecio IS NULL OR p.precio <= :maxPrecio) AND " +
-            "(:status = 'TODOS' OR " +
-            "(:status = 'INACTIVOS' AND p.activo = false) OR " +
-            "(:status = 'OFERTAS' AND p.enOferta = true) OR " +
-            "(:status = 'BAJO_MARGEN' AND p.activo = true AND p.precioPVP < ((p.precio + 5) * 1.21)) OR " +
-            "(:status = 'ALERTA_MARGEN' AND p.alertaMargen = true) OR " +
-            "((:status = '' OR :status = 'ACTIVOS') AND p.activo = true AND (p.imagen IS NOT NULL AND p.imagen <> '' AND p.imagen NOT LIKE '%no_image%' AND p.imagen NOT LIKE '%no_photo%')) OR " +
-            "(:status IS NULL AND p.activo = true AND (p.imagen IS NOT NULL AND p.imagen <> '')))")
-    Page<Producto> searchAdvanced(
+    @org.springframework.data.jpa.repository.Query(value = "SELECT * FROM (" +
+            "  SELECT p.*, ROW_NUMBER() OVER(" +
+            "    PARTITION BY (CASE WHEN ean IS NULL OR ean = '' OR ean = '0' THEN CAST(id AS CHAR) ELSE ean END) " +
+            "    ORDER BY (CASE WHEN stock > 0 THEN 0 ELSE 1 END) ASC, precio ASC, id ASC" +
+            "  ) as rn " +
+            "  FROM productos p WHERE " +
+            "  (:nombre IS NULL OR (LOWER(p.nombre) LIKE LOWER(CONCAT('%', :nombre, '%')) OR LOWER(p.manufacturer) LIKE LOWER(CONCAT('%', :nombre, '%')) OR LOWER(p.categoria) LIKE LOWER(CONCAT('%', :nombre, '%')) OR LOWER(p.sku) LIKE LOWER(CONCAT('%', :nombre, '%')) OR LOWER(p.ean) LIKE LOWER(CONCAT('%', :nombre, '%')))) AND " +
+            "  (:categoria IS NULL OR LOWER(p.categoria) = LOWER(:categoria)) AND " +
+            "  (:gender IS NULL OR UPPER(p.gender) = UPPER(:gender)) AND " +
+            "  (:distribuidor IS NULL OR p.distribuidor = :distribuidor) AND " +
+            "  (:manufacturador IS NULL OR p.manufacturer = :manufacturador) AND " +
+            "  (:sku IS NULL OR p.sku LIKE CONCAT('%', :sku, '%') OR p.ean LIKE CONCAT('%', :sku, '%')) AND " +
+            "  (:minPrecio IS NULL OR p.precio >= :minPrecio) AND " +
+            "  (:maxPrecio IS NULL OR p.precio <= :maxPrecio) AND " +
+            "  (p.activo = true AND (p.imagen IS NOT NULL AND p.imagen <> '' AND p.imagen NOT LIKE '%no_image%' AND p.imagen NOT LIKE '%no_photo%'))" +
+            ") t WHERE rn = 1", 
+            countQuery = "SELECT count(DISTINCT CASE WHEN ean IS NULL OR ean = '' OR ean = '0' THEN CAST(id AS CHAR) ELSE ean END) FROM productos p WHERE " +
+                         "(:nombre IS NULL OR (LOWER(p.nombre) LIKE LOWER(CONCAT('%', :nombre, '%')) OR LOWER(p.manufacturer) LIKE LOWER(CONCAT('%', :nombre, '%')) OR LOWER(p.categoria) LIKE LOWER(CONCAT('%', :nombre, '%')) OR LOWER(p.sku) LIKE LOWER(CONCAT('%', :nombre, '%')) OR LOWER(p.ean) LIKE LOWER(CONCAT('%', :nombre, '%')))) AND " +
+                         "(:categoria IS NULL OR LOWER(p.categoria) = LOWER(:categoria)) AND " +
+                         "(:gender IS NULL OR UPPER(p.gender) = UPPER(:gender)) AND " +
+                         "(:distribuidor IS NULL OR p.distribuidor = :distribuidor) AND " +
+                         "(:manufacturador IS NULL OR p.manufacturer = :manufacturador) AND " +
+                         "(:sku IS NULL OR p.sku LIKE CONCAT('%', :sku, '%') OR p.ean LIKE CONCAT('%', :sku, '%')) AND " +
+                         "(:minPrecio IS NULL OR p.precio >= :minPrecio) AND " +
+                         "(:maxPrecio IS NULL OR p.precio <= :maxPrecio) AND " +
+                         "(p.activo = true AND (p.imagen IS NOT NULL AND p.imagen <> '' AND p.imagen NOT LIKE '%no_image%' AND p.imagen NOT LIKE '%no_photo%'))",
+            nativeQuery = true)
+    Page<Producto> searchAdvancedNativeGrouped(
             @org.springframework.data.repository.query.Param("nombre") String nombre,
             @org.springframework.data.repository.query.Param("categoria") String categoria,
             @org.springframework.data.repository.query.Param("gender") String gender,
             @org.springframework.data.repository.query.Param("distribuidor") Distribuidor distribuidor,
             @org.springframework.data.repository.query.Param("manufacturador") String manufacturador,
             @org.springframework.data.repository.query.Param("sku") String sku,
-            @org.springframework.data.repository.query.Param("status") String status,
             @org.springframework.data.repository.query.Param("minPrecio") java.math.BigDecimal minPrecio,
             @org.springframework.data.repository.query.Param("maxPrecio") java.math.BigDecimal maxPrecio,
             Pageable pageable);
