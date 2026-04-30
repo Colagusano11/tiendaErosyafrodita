@@ -112,7 +112,8 @@ public class AmazonImageService {
             if (hasValidImage) {
                 String imgLower = p.getImagen().toLowerCase();
                 if (imgLower.contains("no_photo") || imgLower.contains("no-image") || 
-                    imgLower.contains("placeholder") || imgLower.contains("not-available")) {
+                    imgLower.contains("no_image") || imgLower.contains("placeholder") || 
+                    imgLower.contains("not-available") || imgLower.contains("notavailable")) {
                     hasValidImage = false;
                 }
             }

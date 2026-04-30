@@ -26,8 +26,11 @@ export function useImageGallery(urls: (string | null | undefined)[]) {
       const isPlaceholder = 
         url.toLowerCase().includes("no_photo") || 
         url.toLowerCase().includes("no-image") || 
+        url.toLowerCase().includes("no_image") ||
         url.toLowerCase().includes("placeholder") ||
-        url.toLowerCase().includes("not-available");
+        url.toLowerCase().includes("not-available") ||
+        url.toLowerCase().includes("notavailable") ||
+        url.toLowerCase().includes("image-available");
 
       if (isPlaceholder) {
         checkFinished();
