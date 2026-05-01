@@ -4,8 +4,15 @@ import { useIdealo, ProductoErosAfrodita } from '../services/idealo';
 interface Producto {
   sku: string;
   nombre: string;
-  precio: number;
+  precio: number;        // Coste base (para referencia interna)
+  precioPVP: number;     // Precio de venta normal
+  precioOferta?: number; // Precio rebajado
+  enOferta: boolean;     // Estado de oferta
   marca?: string;
+  manufacturer?: string;
+  imagen?: string;
+  categoria?: string;
+  ean?: string;
 }
 
 export const IdealoSync: React.FC = () => {
@@ -23,8 +30,8 @@ export const IdealoSync: React.FC = () => {
         const response = await fetch('/api/productos');
         if (response.ok) {
           const data = await response.json();
-          // Tomar solo los primeros 100 para no saturar
-          setProductos(data.slice(0, 100));
+          // Cargar el catálogo completo
+          setProductos(data);
         }
       } catch (err) {
         console.error('Error cargando productos:', err);
@@ -44,6 +51,13 @@ export const IdealoSync: React.FC = () => {
     }
   };
 
+  const calcularPrecioFinal = (p: Producto) => {
+    if (p.enOferta && p.precioOferta && p.precioOferta > 0) {
+      return p.precioOferta;
+    }
+    return p.precioPVP || p.precio; // Fallback al coste si no hay PVP
+  };
+
   const handleSincronizarTodos = async () => {
     if (!conectado) {
       setStatus('❌ Primero verifica la conexión');
@@ -60,19 +74,21 @@ export const IdealoSync: React.FC = () => {
     for (let i = 0; i < productos.length; i++) {
       const producto = productos[i];
       try {
+        const precioFinal = calcularPrecioFinal(producto);
+
         const productoData: ProductoErosAfrodita = {
           id: producto.sku,
           nombre: producto.nombre,
-          precio: producto.precio,
+          precio: precioFinal,
           iva: 21,
           descripcion: producto.nombre,
-          imagenes: [`https://erosyafrodita.com/img/${producto.sku}.jpg`],
-          categoria: 'Belleza > Perfumes',
-          marca: producto.marca || 'Eros y Afrodita',
+          imagenes: [producto.imagen || `https://erosyafrodita.com/img/${producto.sku}.jpg`],
+          categoria: producto.categoria || 'Belleza > Perfumes',
+          marca: producto.manufacturer || producto.marca || 'Eros y Afrodita',
           stock: 10,
           disponible: true,
           url: `https://erosyafrodita.com/producto/${producto.sku}`,
-          ean: producto.sku,
+          ean: producto.ean || producto.sku,
         };
 
         await sincronizarProducto(productoData);
@@ -84,13 +100,11 @@ export const IdealoSync: React.FC = () => {
 
       setProgreso({ actual: i + 1, total: productos.length });
 
-      // Delay entre requests para no saturar
       if ((i + 1) % 10 === 0) {
         setStatus(`📊 Progreso: ${i + 1}/${productos.length} - ✅ ${exitosos} ❌ ${fallidos}`);
-        await new Promise(resolve => setTimeout(resolve, 2000)); // Pausa cada 10 productos
+        await new Promise(resolve => setTimeout(resolve, 2000));
       }
 
-      // Delay entre requests
       await new Promise(resolve => setTimeout(resolve, 500));
     }
 
@@ -102,23 +116,25 @@ export const IdealoSync: React.FC = () => {
     try {
       setStatus(`Sincronizando ${producto.sku}...`);
       
+      const precioFinal = calcularPrecioFinal(producto);
+
       const productoData: ProductoErosAfrodita = {
         id: producto.sku,
         nombre: producto.nombre,
-        precio: producto.precio,
+        precio: precioFinal,
         iva: 21,
         descripcion: producto.nombre,
-        imagenes: [`https://erosyafrodita.com/img/${producto.sku}.jpg`],
-        categoria: 'Belleza > Perfumes',
-        marca: producto.marca || 'Eros y Afrodita',
+        imagenes: [producto.imagen || `https://erosyafrodita.com/img/${producto.sku}.jpg`],
+        categoria: producto.categoria || 'Belleza > Perfumes',
+        marca: producto.manufacturer || producto.marca || 'Eros y Afrodita',
         stock: 10,
         disponible: true,
         url: `https://erosyafrodita.com/producto/${producto.sku}`,
-        ean: producto.sku,
+        ean: producto.ean || producto.sku,
       };
 
       await sincronizarProducto(productoData);
-      setStatus(`✅ ${producto.sku} sincronizado`);
+      setStatus(`✅ ${producto.sku} sincronizado a ${precioFinal}€`);
     } catch (err) {
       setStatus(`❌ Error ${producto.sku}: ${err instanceof Error ? err.message : 'Error'}`);
     }
@@ -182,7 +198,7 @@ export const IdealoSync: React.FC = () => {
                   <tr key={producto.sku}>
                     <td className="px-4 py-2 text-sm text-gray-900">{producto.sku}</td>
                     <td className="px-4 py-2 text-sm text-gray-500 truncate max-w-xs">{producto.nombre}</td>
-                    <td className="px-4 py-2 text-sm text-gray-900">{producto.precio?.toFixed(2)}€</td>
+                    <td className="px-4 py-2 text-sm text-gray-900">{calcularPrecioFinal(producto).toFixed(2)}€</td>
                     <td className="px-4 py-2">
                       <button
                         onClick={() => handleSincronizarUno(producto)}
