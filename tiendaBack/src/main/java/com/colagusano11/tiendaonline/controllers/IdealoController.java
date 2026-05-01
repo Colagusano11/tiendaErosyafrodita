@@ -32,6 +32,28 @@ public class IdealoController {
     private long tokenExpiry = 0;
 
     private final RestTemplate restTemplate = new RestTemplate();
+    private final com.colagusano11.tiendaonline.services.IdealoService idealoService;
+
+    public IdealoController(com.colagusano11.tiendaonline.services.IdealoService idealoService) {
+        this.idealoService = idealoService;
+    }
+
+    @PostMapping("/sync")
+    public ResponseEntity<?> triggerManualSync() {
+        try {
+            // Ejecutamos en un hilo separado para no bloquear la respuesta
+            new Thread(() -> {
+                idealoService.syncAllProducts();
+            }).start();
+            
+            return ResponseEntity.ok(Map.of(
+                "status", "success",
+                "message", "Sincronización masiva iniciada en el servidor"
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
 
     @GetMapping("/status")
     public ResponseEntity<?> getStatus() {

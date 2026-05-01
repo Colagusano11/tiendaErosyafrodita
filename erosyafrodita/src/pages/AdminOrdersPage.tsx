@@ -281,9 +281,8 @@ const AdminOrdersPage: React.FC = () => {
                                             type="checkbox"
                                             checked={allVisibleSelected}
                                             onChange={toggleSelectAll}
-                                            disabled={pedidosConProveedor.length === 0}
-                                            className="size-4 accent-primary cursor-pointer disabled:cursor-not-allowed disabled:opacity-30"
-                                            title={allVisibleSelected ? 'Deseleccionar todos' : 'Seleccionar todos con proveedor'}
+                                            className="size-4 accent-primary cursor-pointer"
+                                            title={allVisibleSelected ? 'Deseleccionar todos' : 'Seleccionar todos los pedidos'}
                                         />
                                     </th>
                                     <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">ID / Fecha</th>
@@ -303,9 +302,8 @@ const AdminOrdersPage: React.FC = () => {
                                                 type="checkbox"
                                                 checked={selectedIds.has(pedido.idPedido)}
                                                 onChange={() => toggleSelect(pedido.idPedido)}
-                                                disabled={!pedido.pedidoProveedorId}
-                                                className="size-4 accent-primary cursor-pointer disabled:cursor-not-allowed disabled:opacity-30"
-                                                title={pedido.pedidoProveedorId ? 'Seleccionar para sincronizar' : 'Sin proveedor tramitado'}
+                                                className="size-4 accent-primary cursor-pointer"
+                                                title="Seleccionar pedido"
                                             />
                                         </td>
                                         <td className="p-6">
@@ -357,9 +355,21 @@ const AdminOrdersPage: React.FC = () => {
                                         </td>
                                         <td className="p-6">
                                             <div className="flex flex-col gap-1">
-                                                <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border inline-block w-fit ${getStatusColor(pedido.estado)}`}>
-                                                    {formatStatusLabel(pedido.estado)}
-                                                </span>
+                                                <select
+                                                    value={pedido.estado}
+                                                    onChange={(e) => handleStatusChange(pedido.idPedido, e.target.value as PedidoEstado)}
+                                                    className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border bg-transparent cursor-pointer outline-none transition-all ${getStatusColor(pedido.estado)}`}
+                                                >
+                                                    <option value="PENDIENTE" className="bg-charcoal text-white">Pendiente</option>
+                                                    <option value="PENDIENTE_DE_PAGO" className="bg-charcoal text-white">Espera Pago</option>
+                                                    <option value="PAGADO" className="bg-charcoal text-white">Confirmado</option>
+                                                    <option value="RECIBIDO" className="bg-charcoal text-white">Preparando</option>
+                                                    <option value="ENVIADO" className="bg-charcoal text-white">En Camino</option>
+                                                    <option value="ENTREGADO" className="bg-charcoal text-white">Entregado</option>
+                                                    <option value="CANCELADO" className="bg-charcoal text-white">Cancelado</option>
+                                                    <option value="DEVOLUCION_SOLICITADA" className="bg-charcoal text-white">Devolución</option>
+                                                    <option value="DEVUELTO" className="bg-charcoal text-white">Devuelto</option>
+                                                </select>
                                                 <p className="text-[8px] text-slate-500 font-bold uppercase tracking-widest pl-1">
                                                     Ext: {formatExternalStatus(pedido.estadoProveedor)}
                                                 </p>

@@ -14,6 +14,14 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
     List<Pedido> findByUsuarioIdOrderByFechaDesc(Long usuarioId);
 
     Optional<Pedido> findByPaymentId(String paymentId);
+    
+    List<com.colagusano11.tiendaonline.models.PedidoEstado> estados = List.of(
+        com.colagusano11.tiendaonline.models.PedidoEstado.PAGADO, 
+        com.colagusano11.tiendaonline.models.PedidoEstado.RECIBIDO, 
+        com.colagusano11.tiendaonline.models.PedidoEstado.ENVIADO
+    );
+    
+    List<Pedido> findByEstadoIn(List<com.colagusano11.tiendaonline.models.PedidoEstado> estados);
 
     @org.springframework.data.jpa.repository.Query("SELECT COUNT(p) > 0 FROM Pedido p JOIN p.lineas l WHERE p.usuarioId = :usuarioId AND l.producto.id = :productoId AND p.estado IN (com.colagusano11.tiendaonline.models.PedidoEstado.PAGADO, com.colagusano11.tiendaonline.models.PedidoEstado.RECIBIDO, com.colagusano11.tiendaonline.models.PedidoEstado.ENVIADO, com.colagusano11.tiendaonline.models.PedidoEstado.ENTREGADO)")
     boolean hasUserPurchasedProduct(Long usuarioId, Long productoId);

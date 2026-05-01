@@ -64,7 +64,7 @@ public class SecurityConfig {
                 // Webhook de pago (llamada externa de Revolut, sin JWT)
                 .requestMatchers(HttpMethod.POST, "/pagos/revolut/webhook", "/api/pagos/revolut/webhook").permitAll()
                 // Permitir acceso a los comandos de administración e importación — solo ADMIN autenticado
-                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/admin/**", "/api/admin/dashboard/**").hasRole("ADMIN")
                 // Todo lo demás requiere autenticación JWT
                 .anyRequest().authenticated()
             )

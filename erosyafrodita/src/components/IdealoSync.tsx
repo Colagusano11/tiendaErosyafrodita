@@ -159,7 +159,28 @@ export const IdealoSync: React.FC = () => {
             disabled={loading || sincronizando || productos.length === 0}
             className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
           >
-            Sincronizar {productos.length} Productos
+            Sincronizar Navegador ({productos.length})
+          </button>
+
+          <button
+            onClick={async () => {
+              try {
+                setStatus('⏳ Iniciando sincronización en el servidor...');
+                const res = await fetch('/api/idealo/sync', { method: 'POST' });
+                if (res.ok) {
+                  setStatus('✅ Sincronización masiva iniciada en segundo plano en el servidor.');
+                } else {
+                  setStatus('❌ Error al iniciar sincronización en el servidor');
+                }
+              } catch (err) {
+                setStatus('❌ Error de conexión con el servidor');
+              }
+            }}
+            disabled={loading || sincronizando}
+            className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 disabled:opacity-50 flex items-center gap-2"
+          >
+            <span className="material-symbols-outlined">dns</span>
+            Sincronización Total (Servidor)
           </button>
         </div>
 

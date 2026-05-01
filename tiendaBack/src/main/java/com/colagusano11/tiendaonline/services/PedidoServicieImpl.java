@@ -670,4 +670,9 @@ public class PedidoServicieImpl implements PedidoServicie {
     public Pedido save(Pedido pedido) {
         return pedidoRepository.save(pedido);
     }
+
+    @Override
+    public List<Pedido> findAll() {
+        return pedidoRepository.findAll();
+    }
 }

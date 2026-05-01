@@ -34,4 +34,5 @@ public interface PedidoServicie {
     Pedido findById(Long id);
     Optional<PedidoSalida> rastrearPedido(Long id, String email);
     Pedido save(Pedido pedido);
+    List<Pedido> findAll();
 }

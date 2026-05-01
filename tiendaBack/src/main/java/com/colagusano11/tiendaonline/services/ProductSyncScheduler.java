@@ -13,13 +13,59 @@ public class ProductSyncScheduler {
     private final ProductoBTSService btsService;
     private final ProductoNovaengelService novaService;
     private final ProductoService productoService;
+    private final IdealoService idealoService;
+    private final com.colagusano11.tiendaonline.repositories.PedidoRepository pedidoRepository;
+    private final PedidoServicie pedidoService;
 
     public ProductSyncScheduler(ProductoBTSService btsService,
                                 ProductoNovaengelService novaService,
-                                ProductoService productoService) {
+                                ProductoService productoService,
+                                IdealoService idealoService,
+                                com.colagusano11.tiendaonline.repositories.PedidoRepository pedidoRepository,
+                                PedidoServicie pedidoService) {
         this.btsService = btsService;
         this.novaService = novaService;
         this.productoService = productoService;
+        this.idealoService = idealoService;
+        this.pedidoRepository = pedidoRepository;
+        this.pedidoService = pedidoService;
+    }
+
+    /**
+     * Sincronización automática con Idealo cada 4 horas
+     */
+    @Scheduled(cron = "0 0 */4 * * ?", zone = "Europe/Madrid")
+    public void idealoAutoSync() {
+        log.info("🌐 Iniciando sincronización automática con Idealo");
+        try {
+            idealoService.syncAllProducts();
+        } catch (Exception e) {
+            log.error("❌ Error en idealoAutoSync: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * Sincronización de tracking de pedidos activos cada hora
+     */
+    @Scheduled(cron = "0 30 * * * ?", zone = "Europe/Madrid")
+    public void ordersTrackingSync() {
+        log.info("📦 Iniciando sincronización automática de tracking de pedidos");
+        try {
+            List<com.colagusano11.tiendaonline.models.PedidoEstado> estadosActivos = List.of(
+                com.colagusano11.tiendaonline.models.PedidoEstado.PAGADO,
+                com.colagusano11.tiendaonline.models.PedidoEstado.RECIBIDO,
+                com.colagusano11.tiendaonline.models.PedidoEstado.ENVIADO
+            );
+            List<com.colagusano11.tiendaonline.models.Pedido> pedidos = pedidoRepository.findByEstadoIn(estadosActivos);
+            
+            for (com.colagusano11.tiendaonline.models.Pedido p : pedidos) {
+                if (p.getPedidoProveedorId() != null) {
+                    pedidoService.syncTrackingConProveedor(p.getId());
+                }
+            }
+        } catch (Exception e) {
+            log.error("❌ Error en ordersTrackingSync: {}", e.getMessage());
+        }
     }
 
     /**
