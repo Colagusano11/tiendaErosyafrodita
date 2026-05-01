@@ -1,0 +1,14 @@
+🚀 Iniciando sincronización con Idealo...
+📊 Shop ID: 337535
+⏰ Inicio: Fri May  1 00:00:32 UTC 2026
+---
+📥 Obteniendo catálogo de productos...
+📦 Total productos a sincronizar: 30568
+📦 Tamaño de lote: 50
+⏱️  Delay entre requests: 2s
+---
+./sync-idealo.sh: line 38: /usr/bin/python3: Argument list too long
+---
+✅ Sincronización finalizada
+⏰ Fin: Fri May  1 00:00:35 UTC 2026
+📊 Shop ID: 337535

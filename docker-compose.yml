@@ -114,6 +114,9 @@ services:
       PAYPAL_CLIENT_ID: ${PAYPAL_CLIENT_ID}
       PAYPAL_CLIENT_SECRET: ${PAYPAL_CLIENT_SECRET}
       PAYPAL_MODE: ${PAYPAL_MODE}
+      IDEALO_CLIENT_ID: ${IDEALO_CLIENT_ID}
+      IDEALO_CLIENT_SECRET: ${IDEALO_CLIENT_SECRET}
+      IDEALO_SHOP_ID: ${IDEALO_SHOP_ID}
     depends_on:
       db:
         condition: service_healthy

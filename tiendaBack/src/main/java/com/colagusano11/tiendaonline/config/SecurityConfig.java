@@ -55,6 +55,12 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/pedidos/**", "/api/pedidos/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/pedidos/**", "/api/pedidos/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/pedidos/**", "/api/pedidos/**").hasRole("ADMIN")
+                // Endpoints de Idealo (acceso autenticado o desde frontend)
+                .requestMatchers(HttpMethod.GET, "/api/idealo/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/idealo/**").permitAll()
+                .requestMatchers(HttpMethod.PUT, "/api/idealo/**").permitAll()
+                .requestMatchers(HttpMethod.PATCH, "/api/idealo/**").permitAll()
+                .requestMatchers(HttpMethod.DELETE, "/api/idealo/**").permitAll()
                 // Webhook de pago (llamada externa de Revolut, sin JWT)
                 .requestMatchers(HttpMethod.POST, "/pagos/revolut/webhook", "/api/pagos/revolut/webhook").permitAll()
                 // Permitir acceso a los comandos de administración e importación — solo ADMIN autenticado
