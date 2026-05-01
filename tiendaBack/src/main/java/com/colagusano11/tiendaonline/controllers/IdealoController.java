@@ -12,7 +12,7 @@ import java.util.Base64;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/idealo")
+@RequestMapping("/idealo")
 @CrossOrigin(origins = "*")
 public class IdealoController {
 
