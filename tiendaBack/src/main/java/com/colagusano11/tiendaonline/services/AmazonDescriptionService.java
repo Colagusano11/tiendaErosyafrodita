@@ -51,6 +51,7 @@ public class AmazonDescriptionService {
 
     private String getAccessToken() {
         try {
+            System.out.println("[AMAZON-DEBUG] Intentando obtener token (Desc) con ID: " + (clientId != null ? clientId.substring(0, 10) + "..." : "NULL"));
             String url = "https://api.amazon.com/auth/o2/token";
             MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
             body.add("grant_type", "refresh_token");

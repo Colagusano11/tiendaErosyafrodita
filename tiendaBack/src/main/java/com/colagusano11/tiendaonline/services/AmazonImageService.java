@@ -44,6 +44,7 @@ public class AmazonImageService {
      */
     private String getAccessToken() {
         try {
+            System.out.println("[AMAZON-DEBUG] Intentando obtener token con ID: " + (clientId != null ? clientId.substring(0, 10) + "..." : "NULL"));
             String url = "https://api.amazon.com/auth/o2/token";
             
             MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
