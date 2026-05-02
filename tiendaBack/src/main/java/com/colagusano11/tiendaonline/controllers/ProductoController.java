@@ -249,10 +249,19 @@ public class ProductoController {
     @Autowired
     private com.colagusano11.tiendaonline.services.AmazonImageService amazonImageService;
 
+    @Autowired
+    private com.colagusano11.tiendaonline.services.AmazonDescriptionService amazonDescriptionService;
+
     @PostMapping("/admin/sync-images-amazon")
     public ResponseEntity<Map<String, Object>> syncImagesAmazon(@RequestParam(defaultValue = "false") boolean forceOverwrite) {
         amazonImageService.syncImagesAsync(forceOverwrite);
-        return ResponseEntity.ok(Map.of("message", "Sincronización iniciada en segundo plano"));
+        return ResponseEntity.ok(Map.of("message", "Sincronización de imágenes iniciada en segundo plano"));
+    }
+
+    @PostMapping("/admin/sync-descriptions-amazon")
+    public ResponseEntity<Map<String, Object>> syncDescriptionsAmazon() {
+        amazonDescriptionService.syncDescriptionsAsync();
+        return ResponseEntity.ok(Map.of("message", "Sincronización de descripciones iniciada en segundo plano"));
     }
 
 }

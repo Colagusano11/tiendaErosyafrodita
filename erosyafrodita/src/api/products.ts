@@ -171,6 +171,11 @@ export async function syncAmazonImages(forceOverwrite = false): Promise<{ update
   return res.data;
 }
 
+export async function syncAmazonDescriptions(): Promise<{ message: string }> {
+  const res = await api.post<{ message: string }>('/productos/admin/sync-descriptions-amazon');
+  return res.data;
+}
+
 export async function updateBulkOffer(ids: number[] | null, enOferta: boolean, descuento: number, filters?: FiltroProductos): Promise<void> {
   await api.put("/productos/bulk-offer", { ids, enOferta, descuento, filters });
 }

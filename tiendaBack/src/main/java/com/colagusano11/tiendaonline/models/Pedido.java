@@ -59,6 +59,12 @@ public class Pedido {
     @Column(name = "estado_proveedor")
     private String estadoProveedor;
 
+    // Campos Contables Avanzados
+    private BigDecimal gastosEnvio = BigDecimal.ZERO;
+    private BigDecimal comisionPasarela = BigDecimal.ZERO;
+    private BigDecimal impuestos = BigDecimal.ZERO; // IVA 21%
+    private BigDecimal beneficioNeto = BigDecimal.ZERO;
+
     public Pedido() {
     }
 
@@ -245,5 +251,37 @@ public class Pedido {
 
     public void setEstadoProveedor(String estadoProveedor) {
         this.estadoProveedor = estadoProveedor;
+    }
+
+    public BigDecimal getGastosEnvio() {
+        return gastosEnvio;
+    }
+
+    public void setGastosEnvio(BigDecimal gastosEnvio) {
+        this.gastosEnvio = gastosEnvio;
+    }
+
+    public BigDecimal getComisionPasarela() {
+        return comisionPasarela;
+    }
+
+    public void setComisionPasarela(BigDecimal comisionPasarela) {
+        this.comisionPasarela = comisionPasarela;
+    }
+
+    public BigDecimal getImpuestos() {
+        return impuestos;
+    }
+
+    public void setImpuestos(BigDecimal impuestos) {
+        this.impuestos = impuestos;
+    }
+
+    public BigDecimal getBeneficioNeto() {
+        return beneficioNeto;
+    }
+
+    public void setBeneficioNeto(BigDecimal beneficioNeto) {
+        this.beneficioNeto = beneficioNeto;
     }
 }

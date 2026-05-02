@@ -439,9 +439,16 @@ const ProductDetail: React.FC = () => {
                 </div>
               )}
 
-              <p className="text-white/40 text-[11px] leading-relaxed mb-8 max-w-lg font-light">
-                {product.descripcion || "Una obra maestra olfativa diseñada para aquellos que buscan dejar una huella divina. Ingredientes seleccionados para garantizar la máxima pureza y longevidad en la piel."}
-              </p>
+              {product.descripcion && product.descripcion.includes("<") ? (
+                <div 
+                  className="premium-description-container mb-8 max-w-lg"
+                  dangerouslySetInnerHTML={{ __html: product.descripcion }}
+                />
+              ) : (
+                <p className="text-white/40 text-[11px] leading-relaxed mb-8 max-w-lg font-light">
+                  {product.descripcion || "Una obra maestra olfativa diseñada para aquellos que buscan dejar una huella divina. Ingredientes seleccionados para garantizar la máxima pureza y longevidad en la piel."}
+                </p>
+              )}
 
               <div className="flex flex-wrap gap-4 mb-10">
                 <button

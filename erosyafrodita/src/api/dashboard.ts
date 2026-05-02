@@ -3,6 +3,9 @@ import api from "./axios";
 export interface DashboardStats {
     totalVentas: number;
     totalCoste: number;
+    totalComisiones: number;
+    totalEnvios: number;
+    totalImpuestos: number;
     beneficioNeto: number;
     totalPedidos: number;
     pedidosValidos: number;

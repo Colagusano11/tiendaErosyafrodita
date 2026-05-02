@@ -64,6 +64,7 @@ const AdminProductsPage: React.FC = () => {
   const [homeRecomendados, setHomeRecomendados] = useState<string[]>([]);
   const [savingHome, setSavingHome] = useState(false);
   const [syncingAmazon, setSyncingAmazon] = useState(false);
+  const [syncingDescriptions, setSyncingDescriptions] = useState(false);
 
   const fetchNuevosCount = async () => {
     try {
@@ -393,6 +394,18 @@ const AdminProductsPage: React.FC = () => {
     );
   };
 
+  const handleSyncAmazonDescriptions = async () => {
+    setSyncingDescriptions(true);
+    try {
+      await api.post("/productos/admin/sync-descriptions-amazon");
+      showAlert("Sincronización iniciada", "Se están enriqueciendo las descripciones con Amazon SP-API en segundo plano.", "success");
+    } catch {
+      showAlert("Error", "No se pudo iniciar la sincronización de descripciones", "error");
+    } finally {
+      setSyncingDescriptions(false);
+    }
+  };
+
   const isSearchActive = skuFilter || nameFilter || brandFilter || categoryFilter || providerFilter || statusFilter !== "TODOS";
 
   const toggleSelectAll = () => {
@@ -648,9 +661,22 @@ const AdminProductsPage: React.FC = () => {
                             {syncingAmazon ? (
                                 <div className="size-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
                             ) : (
-                                <span className="material-symbols-outlined text-lg">sync_alt</span>
+                                <span className="material-symbols-outlined text-lg">image</span>
                             )}
-                            Sincronizar Amazon
+                            Fotos Amazon
+                        </button>
+
+                        <button 
+                            onClick={handleSyncAmazonDescriptions}
+                            disabled={syncingDescriptions}
+                            className="h-12 px-6 bg-blue-600 text-white rounded-2xl text-[10px] font-black uppercase hover:scale-105 active:scale-95 transition-all flex items-center gap-3 group shadow-xl shadow-blue-600/20 disabled:opacity-50"
+                        >
+                            {syncingDescriptions ? (
+                                <div className="size-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                            ) : (
+                                <span className="material-symbols-outlined text-lg">description</span>
+                            )}
+                            Textos Amazon
                         </button>
 
                         <div className="hidden lg:block w-px h-8 bg-white/10 mx-2"></div>
