@@ -86,11 +86,19 @@ public class Producto {
             }
         }
         
-        // Generar slug automático
+        // Generar slug automático único (Nombre + EAN/SKU)
         if (this.nombre != null) {
-            this.slug = this.nombre.toLowerCase()
+            String baseSlug = this.nombre.toLowerCase()
                 .replaceAll("[^a-z0-9\\s]", "")
                 .replaceAll("\\s+", "-");
+            
+            // Añadimos EAN o SKU para garantizar unicidad
+            String suffix = (this.ean != null && !this.ean.isEmpty()) ? this.ean : (this.sku != null ? this.sku : "");
+            if (!suffix.isEmpty()) {
+                this.slug = baseSlug + "-" + suffix;
+            } else {
+                this.slug = baseSlug;
+            }
         }
     }
 
