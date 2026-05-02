@@ -50,7 +50,7 @@ const Header: React.FC = () => {
 
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-charcoal border-b border-white/10 backdrop-blur-md bg-charcoal/95">
+    <header className="sticky top-0 z-50 w-full bg-charcoal border-b border-white/10 lg:backdrop-blur-md lg:bg-charcoal/95">
       <div className="max-w-[1440px] mx-auto flex items-center justify-between px-4 lg:px-10 py-3">
         {/* Navigation / Burger (Mobile) */}
         <div className="flex xl:hidden">
@@ -186,7 +186,7 @@ const Header: React.FC = () => {
           />
           
           {/* Menu Content */}
-          <div className="absolute left-0 top-0 h-full w-[300px] bg-charcoal p-8 shadow-[30px_0_60px_rgba(0,0,0,0.8)] animate-slide-right border-r border-white/5 flex flex-col">
+          <div className="absolute left-0 top-0 h-full w-[300px] bg-[#121212] p-8 shadow-[30px_0_60px_rgba(0,0,0,0.8)] animate-slide-right border-r border-white/5 flex flex-col">
             <div className="flex justify-between items-center mb-12">
               <div className="flex flex-col">
                 <span className="text-[10px] font-black tracking-[0.4em] text-primary uppercase italic leading-none">Menú</span>

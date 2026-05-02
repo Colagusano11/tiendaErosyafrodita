@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -62,7 +63,7 @@ public class IdealoService {
                 offer.put("imageUrls", List.of(p.getImagen()));
                 
                 // Lógica de precio (PVP o Oferta)
-                BigDecimal precioFinal = (p.getEnOferta() != null && p.getEnOferta() && p.getPrecioOferta() != null) 
+                BigDecimal precioFinal = (p.isEnOferta() && p.getPrecioOferta() != null) 
                                          ? p.getPrecioOferta() : p.getPrecioPVP();
                 
                 if (precioFinal == null || precioFinal.compareTo(BigDecimal.ZERO) <= 0) continue;

@@ -2,6 +2,7 @@ package com.colagusano11.tiendaonline.controllers;
 
 import com.colagusano11.tiendaonline.models.Pedido;
 import com.colagusano11.tiendaonline.models.PedidoEstado;
+import com.colagusano11.tiendaonline.models.PedidoProducto;
 import com.colagusano11.tiendaonline.services.PedidoServicie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +42,7 @@ public class DashboardController {
 
         // 2. Coste Total (Lo que pagamos a proveedores)
         BigDecimal totalCoste = pedidosValidos.stream()
-                .flatMap(p -> p.getProductos().stream())
+                .flatMap(p -> p.getLineas().stream())
                 .map(pp -> {
                     BigDecimal coste = pp.getPrecioPVP(); // En PedidoProducto, precioPVP suele ser el coste del proveedor
                     return (coste != null ? coste : BigDecimal.ZERO).multiply(new BigDecimal(pp.getCantidad()));
@@ -69,7 +71,7 @@ public class DashboardController {
                 .collect(Collectors.groupingBy(
                         p -> p.getFecha().toLocalDate().toString(),
                         Collectors.mapping(p -> {
-                            BigDecimal coste = p.getProductos().stream()
+                            BigDecimal coste = p.getLineas().stream()
                                     .map(pp -> (pp.getPrecioPVP() != null ? pp.getPrecioPVP() : BigDecimal.ZERO).multiply(new BigDecimal(pp.getCantidad())))
                                     .reduce(BigDecimal.ZERO, BigDecimal::add);
                             return p.getTotal().subtract(coste);
