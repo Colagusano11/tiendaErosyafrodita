@@ -64,12 +64,24 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             String role = claims.get("role", String.class);
 
             if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                // Obtener datos completos del usuario (con id) desde el microservicio de usuarios
+                // Obtener datos completos del usuario desde el microservicio de usuarios
                 UsuarioRegistroDto usuario = usuarioFeignClient.verUser(email);
 
                 if (usuario != null) {
+                    // Normalización de roles para Spring Security (debe empezar por ROLE_)
+                    String authorityRole = (role != null) ? role : "ROLE_USER";
+                    
+                    // Asegurar que el email maestro siempre sea ADMIN
+                    if ("erosyafrodita.com@gmail.com".equalsIgnoreCase(email)) {
+                        authorityRole = "ROLE_ADMIN";
+                    } else if ("ADMIN".equalsIgnoreCase(authorityRole)) {
+                        authorityRole = "ROLE_ADMIN";
+                    } else if (!authorityRole.startsWith("ROLE_")) {
+                        authorityRole = "ROLE_" + authorityRole.toUpperCase();
+                    }
+
                     List<SimpleGrantedAuthority> authorities = List.of(
-                            new SimpleGrantedAuthority(role != null ? role : "ROLE_USER")
+                            new SimpleGrantedAuthority(authorityRole)
                     );
 
                     UsernamePasswordAuthenticationToken authToken =
