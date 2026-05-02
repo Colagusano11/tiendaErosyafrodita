@@ -64,8 +64,8 @@ public class SecurityConfig {
                 // Webhook de pago (llamada externa de Revolut, sin JWT)
                 .requestMatchers(HttpMethod.POST, "/pagos/revolut/webhook", "/api/pagos/revolut/webhook").permitAll()
                 // Cupones: Permitir verlos a todos, pero solo ADMIN puede crear/borrar
-                .requestMatchers(HttpMethod.GET, "/api/cupones/**", "/cupones/**").permitAll()
-                .requestMatchers("/admin/**", "/api/admin/dashboard/**", "/api/cupones/**", "/cupones/**").hasAnyAuthority("ADMIN", "ROLE_ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/cupones", "/api/cupones/**", "/cupones", "/cupones/**").permitAll()
+                .requestMatchers("/admin/**", "/api/admin/dashboard/**", "/api/cupones", "/api/cupones/**", "/cupones", "/cupones/**").hasAnyAuthority("ADMIN", "ROLE_ADMIN")
                 // Todo lo demás requiere autenticación JWT
                 .anyRequest().authenticated()
             )
