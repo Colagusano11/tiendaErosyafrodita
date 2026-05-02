@@ -16,6 +16,7 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         { path: "/admin", label: "Dashboard", icon: "dashboard" },
         { path: "/admin/orders", label: "Pedidos Globales", icon: "shopping_cart" },
         { path: "/admin/products", label: "Gestión Productos", icon: "inventory_2" },
+        { path: "/admin/coupons", label: "Cupones & Ofertas", icon: "loyalty" },
         { path: "/admin/users", label: "Clientes", icon: "group" },
         { path: "/admin/idealo", label: "Idealo Sync", icon: "sync_alt" },
     ];

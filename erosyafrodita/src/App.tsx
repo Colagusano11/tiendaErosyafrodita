@@ -41,6 +41,7 @@ const Privacidad = lazy(() => import("./document/Privacidad"));
 const OrderTracking = lazy(() => import("./pages/OrderTracking")); // Guest tracking
 const IdealoSyncPage = lazy(() => import("./pages/IdealoSyncPage"));
 const DashboardPage = lazy(() => import("./pages/DashboardPage"));
+const AdminCouponsPage = lazy(() => import("./pages/AdminCouponsPage"));
 
 // Component Imports
 import AdminRoute from "./components/AdminRoute";
@@ -97,6 +98,7 @@ const App: React.FC = () => {
                     <Route path="/admin/products" element={<AdminProductsPage />} />
                     <Route path="/admin/users" element={<AdminUsersPage />} />
                     <Route path="/admin/idealo" element={<IdealoSyncPage />} />
+                    <Route path="/admin/coupons" element={<AdminCouponsPage />} />
                   </Route>
 
                   <Route path="*" element={<Navigate to="/" replace />} />

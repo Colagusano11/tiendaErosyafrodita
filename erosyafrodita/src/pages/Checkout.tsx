@@ -240,9 +240,13 @@ const Checkout: React.FC = () => {
 
 
       // 3. Crear el pedido
+      const appliedDiscount = appliedCoupon 
+        ? appliedCoupon.porcentajeDescuento / 100 
+        : (LAUNCH_PROMO_ACTIVE ? LAUNCH_DISCOUNT : 0);
+
       const pedido = await crearPedido({
         ...payload,
-        ...(LAUNCH_PROMO_ACTIVE ? { descuento: LAUNCH_DISCOUNT } : {}),
+        descuento: appliedDiscount,
         items: items.map(i => ({ productoId: i.product.id, cantidad: i.quantity }))
       });
       setCreatedPedido(pedido);
@@ -331,6 +335,38 @@ const Checkout: React.FC = () => {
       setCardField(null);
     };
   }, [showPayment, rcInstance, selectedMethod, userEmail, clearCart, navigate, showAlert, publicId]);
+
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{ codigo: string, porcentajeDescuento: number } | null>(null);
+  const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) return;
+    setIsValidatingCoupon(true);
+    try {
+      const { validarCupon } = await import("../api/coupons");
+      const coupon = await validarCupon(couponCode);
+      setAppliedCoupon(coupon);
+      showAlert("Cupón Aplicado", `Se ha aplicado un ${coupon.porcentajeDescuento}% de descuento`, "success");
+    } catch (err) {
+      showAlert("Cupón no válido", "El código introducido no existe o ha expirado", "error");
+      setAppliedCoupon(null);
+    } finally {
+      setIsValidatingCoupon(false);
+    }
+  };
+
+  const calculateDiscountedTotal = () => {
+    let currentTotal = total;
+    if (appliedCoupon) {
+      currentTotal = currentTotal * (1 - appliedCoupon.porcentajeDescuento / 100);
+    } else if (LAUNCH_PROMO_ACTIVE) {
+      currentTotal = currentTotal * (1 - LAUNCH_DISCOUNT);
+    }
+    return currentTotal;
+  };
+
+  const finalTotal = calculateDiscountedTotal();
 
   // Efecto para verificar soporte de Apple/Google Pay e inicializar otros métodos
   React.useEffect(() => {
@@ -433,7 +469,7 @@ const Checkout: React.FC = () => {
       };
       initOtherMethods();
     }
-  }, [showPayment, rcInstance, selectedMethod, total, userEmail, clearCart, navigate]);
+  }, [showPayment, rcInstance, selectedMethod, finalTotal, userEmail, clearCart, navigate]);
 
   const handleExecutePayment = async () => {
     if (!cardField || !createdPedidoRef.current) return;
@@ -764,22 +800,65 @@ const Checkout: React.FC = () => {
                 </div>
 
                 <div className="flex flex-col gap-3 border-t border-white/5 pt-8">
-                  {LAUNCH_PROMO_ACTIVE && (
+                  {/* Cupón / Descuento */}
+                  <div className="flex flex-col gap-3 mb-4">
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-1">¿Tienes un cupón?</p>
+                    <div className="flex gap-2">
+                      <input 
+                        type="text" 
+                        placeholder="CÓDIGO"
+                        value={couponCode}
+                        onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                        disabled={!!appliedCoupon || isValidatingCoupon}
+                        className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs font-black uppercase tracking-widest outline-none focus:border-primary/50 transition-all disabled:opacity-50"
+                      />
+                      {appliedCoupon ? (
+                        <button 
+                          type="button"
+                          onClick={() => { setAppliedCoupon(null); setCouponCode(""); }}
+                          className="px-4 bg-red-500/10 text-red-400 border border-red-500/20 rounded-xl hover:bg-red-500 hover:text-white transition-all flex items-center justify-center"
+                        >
+                          <span className="material-symbols-outlined text-sm">close</span>
+                        </button>
+                      ) : (
+                        <button 
+                          type="button"
+                          onClick={handleApplyCoupon}
+                          disabled={!couponCode || isValidatingCoupon}
+                          className="px-6 bg-white/10 hover:bg-primary hover:text-charcoal border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50"
+                        >
+                          {isValidatingCoupon ? '...' : 'Aplicar'}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {(appliedCoupon || LAUNCH_PROMO_ACTIVE) && (
                     <div className="flex justify-between text-xs text-white/40 uppercase tracking-widest">
                       <span>Precio original</span>
                       <span className="font-bold text-white/40 line-through">
-                        {(total / (1 - LAUNCH_DISCOUNT)).toFixed(2)}€
+                        {total.toFixed(2)}€
                       </span>
                     </div>
                   )}
-                  {LAUNCH_PROMO_ACTIVE && (
+                  {appliedCoupon ? (
+                    <div className="flex justify-between text-xs uppercase tracking-widest animate-in fade-in slide-in-from-right-2 duration-300">
+                      <span className="text-primary font-black flex items-center gap-1">
+                        <span className="material-symbols-outlined text-sm">loyalty</span>
+                        Cupón: {appliedCoupon.codigo} (-{appliedCoupon.porcentajeDescuento}%)
+                      </span>
+                      <span className="font-black text-primary">
+                        -{(total * appliedCoupon.porcentajeDescuento / 100).toFixed(2)}€
+                      </span>
+                    </div>
+                  ) : LAUNCH_PROMO_ACTIVE && (
                     <div className="flex justify-between text-xs uppercase tracking-widest">
                       <span className="text-primary font-black flex items-center gap-1">
                         <span className="material-symbols-outlined text-sm">rocket_launch</span>
                         Descuento Lanzamiento -{Math.round(LAUNCH_DISCOUNT * 100)}%
                       </span>
                       <span className="font-black text-primary">
-                        -{(total / (1 - LAUNCH_DISCOUNT) * LAUNCH_DISCOUNT).toFixed(2)}€
+                        -{(total * LAUNCH_DISCOUNT).toFixed(2)}€
                       </span>
                     </div>
                   )}
@@ -789,7 +868,7 @@ const Checkout: React.FC = () => {
                   </div>
                   <div className="flex justify-between items-center mt-4">
                     <span className="text-lg font-black">Total</span>
-                    <span className="text-3xl font-black text-primary">{total.toFixed(2)}€</span>
+                    <span className="text-3xl font-black text-primary">{finalTotal.toFixed(2)}€</span>
                   </div>
                 </div>
 
