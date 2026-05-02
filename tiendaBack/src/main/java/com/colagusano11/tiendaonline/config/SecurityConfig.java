@@ -52,9 +52,9 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/pedidos/pago/confirmar", "/api/pedidos/pago/confirmar").permitAll()
                 .requestMatchers(HttpMethod.POST, "/pedidos/rescatar/**", "/api/pedidos/rescatar/**").permitAll()
                 // El resto de pedidos (cambiar estados, borrar, etc) requiere ADMIN
-                .requestMatchers(HttpMethod.POST, "/pedidos/**", "/api/pedidos/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/pedidos/**", "/api/pedidos/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/pedidos/**", "/api/pedidos/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/pedidos/**", "/api/pedidos/**").hasAnyAuthority("ADMIN", "ROLE_ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/pedidos/**", "/api/pedidos/**").hasAnyAuthority("ADMIN", "ROLE_ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/pedidos/**", "/api/pedidos/**").hasAnyAuthority("ADMIN", "ROLE_ADMIN")
                 // Endpoints de Idealo (acceso autenticado o desde frontend)
                 .requestMatchers(HttpMethod.GET, "/idealo/**", "/api/idealo/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/idealo/**", "/api/idealo/**").permitAll()
@@ -65,7 +65,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/pagos/revolut/webhook", "/api/pagos/revolut/webhook").permitAll()
                 // Cupones: Permitir verlos a todos, pero solo ADMIN puede crear/borrar
                 .requestMatchers(HttpMethod.GET, "/api/cupones/**", "/cupones/**").permitAll()
-                .requestMatchers("/admin/**", "/api/admin/dashboard/**", "/api/cupones/**", "/cupones/**").hasRole("ADMIN")
+                .requestMatchers("/admin/**", "/api/admin/dashboard/**", "/api/cupones/**", "/cupones/**").hasAnyAuthority("ADMIN", "ROLE_ADMIN")
                 // Todo lo demás requiere autenticación JWT
                 .anyRequest().authenticated()
             )
