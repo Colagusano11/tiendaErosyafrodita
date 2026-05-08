@@ -24,11 +24,27 @@ const Checkout: React.FC = () => {
   const { showAlert } = useAlert();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{ codigo: string, porcentajeDescuento: number } | null>(null);
+  const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
+
+  const calculateDiscountedTotal = () => {
+    let currentTotal = total;
+    if (appliedCoupon) {
+      currentTotal = currentTotal * (1 - appliedCoupon.porcentajeDescuento / 100);
+    } else if (LAUNCH_PROMO_ACTIVE) {
+      currentTotal = currentTotal * (1 - LAUNCH_DISCOUNT);
+    }
+    return currentTotal;
+  };
+
+  const finalTotal = calculateDiscountedTotal();
+
   React.useEffect(() => {
     if (items.length > 0 && typeof window.gtag === 'function') {
       window.gtag('event', 'begin_checkout', {
         currency: 'EUR',
-        value: Number(total),
+        value: Number(calculateDiscountedTotal()),
         items: items.map(item => ({
           item_id: item.product.id.toString(),
           item_name: item.product.nombre,
@@ -336,9 +352,6 @@ const Checkout: React.FC = () => {
     };
   }, [showPayment, rcInstance, selectedMethod, userEmail, clearCart, navigate, showAlert, publicId]);
 
-  const [couponCode, setCouponCode] = useState("");
-  const [appliedCoupon, setAppliedCoupon] = useState<{ codigo: string, porcentajeDescuento: number } | null>(null);
-  const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
 
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) return;
@@ -356,17 +369,6 @@ const Checkout: React.FC = () => {
     }
   };
 
-  const calculateDiscountedTotal = () => {
-    let currentTotal = total;
-    if (appliedCoupon) {
-      currentTotal = currentTotal * (1 - appliedCoupon.porcentajeDescuento / 100);
-    } else if (LAUNCH_PROMO_ACTIVE) {
-      currentTotal = currentTotal * (1 - LAUNCH_DISCOUNT);
-    }
-    return currentTotal;
-  };
-
-  const finalTotal = calculateDiscountedTotal();
 
   // Efecto para verificar soporte de Apple/Google Pay e inicializar otros métodos
   React.useEffect(() => {

@@ -58,7 +58,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
         const price = item.product.precioUnitario || item.product.precioPVP || item.product.precio;
         return sum + (price * item.quantity);
     }, 0);
-    setTotal(LAUNCH_PROMO_ACTIVE ? Math.round(rawTotal * (1 - LAUNCH_DISCOUNT) * 100) / 100 : rawTotal);
+    setTotal(rawTotal);
   };
 
   // Cargar carrito inicial
@@ -104,7 +104,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
 
         setItems(mapped);
         const rawTotal = Number(data.total);
-        setTotal(LAUNCH_PROMO_ACTIVE ? Math.round(rawTotal * (1 - LAUNCH_DISCOUNT) * 100) / 100 : rawTotal);
+        setTotal(rawTotal);
       } catch (e) {
         setItems([]);
         setTotal(0);
@@ -177,7 +177,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
 
       setItems(mapped);
       const addRaw = Number(data.total);
-      setTotal(LAUNCH_PROMO_ACTIVE ? Math.round(addRaw * (1 - LAUNCH_DISCOUNT) * 100) / 100 : addRaw);
+      setTotal(addRaw);
 
       // GA4: Evento add_to_cart (Registrado)
       if (typeof window.gtag === 'function') {
@@ -258,7 +258,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
       const itemToRemove = items.find(i => i.product.id === productId);
       setItems(mapped);
       const removeRaw = Number(data.total);
-      setTotal(LAUNCH_PROMO_ACTIVE ? Math.round(removeRaw * (1 - LAUNCH_DISCOUNT) * 100) / 100 : removeRaw);
+      setTotal(removeRaw);
 
       // GA4: Evento remove_from_cart (Registrado)
       if (typeof window.gtag === 'function' && itemToRemove) {
@@ -322,7 +322,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
 
       setItems(mapped);
       const rawTotal = Number(data.total);
-      setTotal(LAUNCH_PROMO_ACTIVE ? Math.round(rawTotal * (1 - LAUNCH_DISCOUNT) * 100) / 100 : rawTotal);
+      setTotal(rawTotal);
     } catch (e) {
       console.error("Error al actualizar cantidad:", e);
     } finally {

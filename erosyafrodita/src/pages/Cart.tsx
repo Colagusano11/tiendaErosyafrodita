@@ -108,9 +108,9 @@ const Cart: React.FC = () => {
                 <div className="space-y-4 mb-6 text-sm text-gray-400">
                   {LAUNCH_PROMO_ACTIVE && (
                     <div className="flex justify-between">
-                      <span>Precio original</span>
-                      <span className="text-white/40 line-through">
-                        {(total / (1 - LAUNCH_DISCOUNT)).toFixed(2)} €
+                      <span>Subtotal</span>
+                      <span className="text-white">
+                        {total.toFixed(2)} €
                       </span>
                     </div>
                   )}
@@ -121,17 +121,12 @@ const Cart: React.FC = () => {
                         Descuento Lanzamiento -{Math.round(LAUNCH_DISCOUNT * 100)}%
                       </span>
                       <span className="text-primary font-bold">
-                        -{(total / (1 - LAUNCH_DISCOUNT) * LAUNCH_DISCOUNT).toFixed(2)} €
+                        -{(total * LAUNCH_DISCOUNT).toFixed(2)} €
                       </span>
                     </div>
                   )}
                   <div className="flex justify-between">
-                    <span>Subtotal</span>
-                    <span className="text-white">
-                      {total.toFixed(2)} €
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
+                    <span>Gastos de Envío</span>
                     <span>Gastos de Envío</span>
                     <span className="text-green-500 font-bold uppercase tracking-widest text-[10px]">
                       ¡Gratis!
@@ -142,7 +137,7 @@ const Cart: React.FC = () => {
                 <div className="flex justify-between items-end mb-4">
                   <span className="text-lg font-bold text-white">Total</span>
                   <span className="text-3xl font-extrabold text-primary">
-                    {total.toFixed(2)} €
+                    {(LAUNCH_PROMO_ACTIVE ? total * (1 - LAUNCH_DISCOUNT) : total).toFixed(2)} €
                   </span>
                 </div>
                 <button
