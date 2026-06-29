@@ -1,236 +1,225 @@
 package com.colagusano11.tiendaonline.controllers;
 
 import com.colagusano11.tiendaonline.models.Producto;
-import com.colagusano11.tiendaonline.services.ProductoService;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
+import com.colagusano11.tiendaonline.repositories.ProductoRepository;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
-import java.io.StringWriter;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.stream.Collectors;
 
+/**
+ * Feeds de productos para comparadores de precio.
+ *
+ * Endpoints:
+ *   GET /api/feed/google-shopping  → XML RSS 2.0 (Google Merchant Center)
+ *   GET /api/feed/idealo            → CSV UTF-8  (Idealo ES)
+ *   GET /api/feed/kelkoo            → XML        (Kelkoo ES)
+ *
+ * Solo se incluyen productos con activo=true y enShopping=true.
+ * El precio de venta es precioOferta si enOferta, sino precioPVP.
+ */
 @RestController
-@RequestMapping("/api/feeds")
+@RequestMapping("/api/feed")
 public class FeedController {
 
-    @Autowired
-    private ProductoService productoService;
+    private static final String TIENDA_URL  = "https://www.erosyafrodita.com";
+    private static final String TIENDA_NAME = "Eros y Afrodita";
 
-    @Value("${FRONTEND_URL:https://erosyafrodita.com}")
-    private String baseUrl;
+    private final ProductoRepository productoRepository;
 
-    // ─── Caché en memoria (5 min) para no machacar la BD en cada crawl ────────
-    private String cachedGoogleFeed;
-    private LocalDateTime feedCachedAt;
-    private static final int CACHE_MINUTES = 5;
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // FEED IDEALO — filtra por enShopping=true además de activo
-    // ─────────────────────────────────────────────────────────────────────────
-    @GetMapping(value = "/idealo.csv", produces = "text/csv")
-    public ResponseEntity<byte[]> getIdealoFeed() throws IOException {
-        List<Producto> productos = productoService.getAllProductos().stream()
-                .filter(p -> p.isActivo() && p.isEnShopping() && p.getPrecioPVP() != null)
-                .collect(Collectors.toList());
-
-        StringWriter sw = new StringWriter();
-        CSVFormat format = CSVFormat.DEFAULT.builder()
-                .setHeader("sku", "ean", "brand", "title", "description",
-                           "price", "url", "image_url", "category", "delivery_status")
-                .build();
-
-        try (CSVPrinter printer = new CSVPrinter(sw, format)) {
-            for (Producto p : productos) {
-                printer.printRecord(
-                        p.getSku() != null ? p.getSku() : p.getId(),
-                        p.getEan(),
-                        p.getManufacturer(),
-                        p.getNombre(),
-                        p.getDescripcion() != null
-                                ? p.getDescripcion().replace("\n", " ").replace("\r", "")
-                                : "",
-                        p.getPrecioPVP(),
-                        buildProductUrl(p),
-                        p.getImagen(),
-                        p.getCategoria(),
-                        p.getStock() > 0 ? "En stock" : "Sin stock"
-                );
-            }
-        }
-
-        byte[] csvData = sw.toString().getBytes("UTF-8");
-        HttpHeaders headers = new HttpHeaders();
-        headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=idealo_feed.csv");
-        headers.setContentType(MediaType.parseMediaType("text/csv"));
-        return new ResponseEntity<>(csvData, headers, HttpStatus.OK);
+    public FeedController(ProductoRepository productoRepository) {
+        this.productoRepository = productoRepository;
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // FEED GOOGLE SHOPPING — filtra por enShopping=true además de activo
-    // URL a registrar en GMC: https://erosyafrodita.com/api/feeds/google-shopping.xml
-    // ─────────────────────────────────────────────────────────────────────────
-    @GetMapping(value = "/google-shopping.xml", produces = MediaType.APPLICATION_XML_VALUE)
-    public ResponseEntity<String> getGoogleShoppingFeed() {
-        if (cachedGoogleFeed != null && feedCachedAt != null
-                && feedCachedAt.plusMinutes(CACHE_MINUTES).isAfter(LocalDateTime.now())) {
-            return ResponseEntity.ok().contentType(MediaType.APPLICATION_XML).body(cachedGoogleFeed);
-        }
+    // ─── Utilidades ──────────────────────────────────────────────────────────
 
-        List<Producto> productos = productoService.getAllProductos().stream()
-                .filter(p -> p.isActivo()
-                          && p.isEnShopping()
-                          && p.getPrecioPVP() != null
-                          && p.getPrecioPVP().compareTo(BigDecimal.ZERO) > 0)
-                .collect(Collectors.toList());
-
-        StringBuilder xml = new StringBuilder();
-        xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-        xml.append("<rss version=\"2.0\" xmlns:g=\"http://base.google.com/ns/1.0\">\n");
-        xml.append("<channel>\n");
-        xml.append("  <title>Eros &amp; Afrodita &#8212; Perfumes</title>\n");
-        xml.append("  <link>").append(baseUrl).append("</link>\n");
-        xml.append("  <description>Cat&#225;logo de perfumes y cosm&#233;tica de Eros &amp; Afrodita</description>\n");
-
-        for (Producto p : productos) {
-            String title       = escapeXml(p.getNombre());
-            String description = p.getDescripcion() != null
-                    ? escapeXml(p.getDescripcion().length() > 5000
-                            ? p.getDescripcion().substring(0, 5000)
-                            : p.getDescripcion())
-                    : title;
-
-            xml.append("  <item>\n");
-            xml.append("    <g:id>").append(p.getId()).append("</g:id>\n");
-            xml.append("    <g:title><![CDATA[").append(title).append("]]></g:title>\n");
-            xml.append("    <g:description><![CDATA[").append(description).append("]]></g:description>\n");
-            xml.append("    <g:link>").append(buildProductUrl(p)).append("</g:link>\n");
-            xml.append("    <g:condition>new</g:condition>\n");
-            xml.append("    <g:availability>").append(p.getStock() > 0 ? "in stock" : "out of stock").append("</g:availability>\n");
-            xml.append("    <g:price>").append(p.getPrecioPVP()).append(" EUR</g:price>\n");
-
-            if (p.isEnOferta() && p.getPrecioOferta() != null
-                    && p.getPrecioOferta().compareTo(BigDecimal.ZERO) > 0
-                    && p.getPrecioOferta().compareTo(p.getPrecioPVP()) < 0) {
-                xml.append("    <g:sale_price>").append(p.getPrecioOferta()).append(" EUR</g:sale_price>\n");
-            }
-
-            if (p.getImagen() != null && !p.getImagen().isBlank()) {
-                xml.append("    <g:image_link>").append(p.getImagen()).append("</g:image_link>\n");
-            }
-
-            String brand = p.getManufacturer() != null && !p.getManufacturer().isBlank()
-                    ? p.getManufacturer() : "Eros &amp; Afrodita";
-            xml.append("    <g:brand><![CDATA[").append(brand).append("]]></g:brand>\n");
-
-            boolean hasEan = p.getEan() != null && p.getEan().length() >= 8;
-            boolean hasSku = p.getSku() != null && !p.getSku().isBlank();
-            if (hasEan) xml.append("    <g:gtin>").append(p.getEan()).append("</g:gtin>\n");
-            if (hasSku) xml.append("    <g:mpn>").append(escapeXml(p.getSku())).append("</g:mpn>\n");
-            if (!hasEan && !hasSku) xml.append("    <g:identifier_exists>no</g:identifier_exists>\n");
-
-            // 2202 = Health & Beauty > Fragrances
-            xml.append("    <g:google_product_category>2202</g:google_product_category>\n");
-
-            if (p.getCategoria() != null && !p.getCategoria().isBlank()) {
-                xml.append("    <g:product_type><![CDATA[").append(escapeXml(p.getCategoria())).append("]]></g:product_type>\n");
-            }
-
-            xml.append("    <g:shipping>\n");
-            xml.append("      <g:country>ES</g:country>\n");
-            xml.append("      <g:service>Est\u00e1ndar</g:service>\n");
-            xml.append("      <g:price>0.00 EUR</g:price>\n");
-            xml.append("    </g:shipping>\n");
-            xml.append("  </item>\n");
-        }
-
-        xml.append("</channel>\n</rss>");
-        cachedGoogleFeed = xml.toString();
-        feedCachedAt    = LocalDateTime.now();
-
-        return ResponseEntity.ok().contentType(MediaType.APPLICATION_XML).body(cachedGoogleFeed);
+    private List<Producto> productosParaFeed() {
+        return productoRepository.findAll().stream()
+                .filter(p -> p.isActivo() && p.isEnShopping())
+                .toList();
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // FEED GOOGLE (legacy alias)
-    // ─────────────────────────────────────────────────────────────────────────
-    @GetMapping(value = "/google.xml", produces = MediaType.APPLICATION_XML_VALUE)
-    public ResponseEntity<String> getGoogleFeedLegacy() {
-        return getGoogleShoppingFeed();
+    private BigDecimal precioVenta(Producto p) {
+        if (p.isEnOferta() && p.getPrecioOferta() != null) return p.getPrecioOferta();
+        return p.getPrecioPVP() != null ? p.getPrecioPVP() : p.getPrecio();
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // SITEMAP — solo rutas reales del frontend (App.tsx) + productos
-    // ─────────────────────────────────────────────────────────────────────────
-    @GetMapping(value = "/sitemap.xml", produces = MediaType.APPLICATION_XML_VALUE)
-    public ResponseEntity<String> getSitemap() {
-        List<Producto> productos = productoService.getAllProductos().stream()
-                .filter(Producto::isActivo)
-                .collect(Collectors.toList());
-
-        String today = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
-        StringBuilder xml = new StringBuilder();
-        xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-        xml.append("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n");
-
-        appendSitemapUrl(xml, baseUrl + "/",        "daily",  "1.0", today);
-        appendSitemapUrl(xml, baseUrl + "/catalog", "weekly", "0.8", today);
-        appendSitemapUrl(xml, baseUrl + "/about",   "monthly","0.5", today);
-        appendSitemapUrl(xml, baseUrl + "/contact", "monthly","0.5", today);
-        appendSitemapUrl(xml, baseUrl + "/faq",     "monthly","0.5", today);
-
-        for (Producto p : productos) {
-            appendSitemapUrl(xml, buildProductUrl(p), "weekly", "0.7", today);
-        }
-
-        xml.append("</urlset>");
-        return ResponseEntity.ok().contentType(MediaType.APPLICATION_XML).body(xml.toString());
+    private String disponibilidad(Producto p) {
+        return (p.getStock() != null && p.getStock() > 0) ? "in stock" : "out of stock";
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // HELPERS
-    // ─────────────────────────────────────────────────────────────────────────
+    private String urlProducto(Producto p) {
+        String slug = p.getSlug() != null ? p.getSlug() : String.valueOf(p.getId());
+        return TIENDA_URL + "/perfumes/" + slug;
+    }
+
+    private String escaparXml(String s) {
+        if (s == null) return "";
+        return s.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;");
+    }
+
+    // ─── Google Shopping ─────────────────────────────────────────────────────
 
     /**
-     * URL canónica — igual que la ruta del frontend:
-     * App.tsx → <Route path="/product/:slug" element={<ProductDetail />} />
+     * Feed Google Merchant Center — RSS 2.0 con namespace g:
+     * Documentacion: https://support.google.com/merchants/answer/7052112
      */
-    private String buildProductUrl(Producto p) {
-        String identifier = (p.getSlug() != null && !p.getSlug().isBlank())
-                ? p.getSlug()
-                : String.valueOf(p.getId());
-        return baseUrl + "/product/" + identifier;
+    @GetMapping(value = "/google-shopping", produces = MediaType.APPLICATION_XML_VALUE)
+    public String googleShoppingFeed() {
+        List<Producto> productos = productosParaFeed();
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+        sb.append("<rss version=\"2.0\" xmlns:g=\"http://base.google.com/ns/1.0\">\n");
+        sb.append("  <channel>\n");
+        sb.append("    <title>").append(escaparXml(TIENDA_NAME)).append("</title>\n");
+        sb.append("    <link>").append(TIENDA_URL).append("</link>\n");
+        sb.append("    <description>Perfumes y fragancias originales</description>\n");
+
+        for (Producto p : productos) {
+            BigDecimal precio = precioVenta(p);
+            String id = p.getSku() != null ? p.getSku() : String.valueOf(p.getId());
+
+            sb.append("    <item>\n");
+            sb.append("      <g:id>").append(escaparXml(id)).append("</g:id>\n");
+            sb.append("      <g:title>").append(escaparXml(p.getNombre())).append("</g:title>\n");
+            sb.append("      <g:description>").append(escaparXml(p.getDescripcion())).append("</g:description>\n");
+            sb.append("      <g:link>").append(urlProducto(p)).append("</g:link>\n");
+            if (p.getImagen() != null) {
+                sb.append("      <g:image_link>").append(escaparXml(p.getImagen())).append("</g:image_link>\n");
+            }
+            if (p.getImagen2() != null) {
+                sb.append("      <g:additional_image_link>").append(escaparXml(p.getImagen2())).append("</g:additional_image_link>\n");
+            }
+            sb.append("      <g:availability>").append(disponibilidad(p)).append("</g:availability>\n");
+            sb.append("      <g:price>").append(precio.toPlainString()).append(" EUR</g:price>\n");
+            // Precio tachado (precio de oferta activo)
+            if (p.isEnOferta() && p.getPrecioPVP() != null) {
+                sb.append("      <g:sale_price>").append(p.getPrecioOferta().toPlainString()).append(" EUR</g:sale_price>\n");
+            }
+            if (p.getEan() != null && !p.getEan().isBlank()) {
+                sb.append("      <g:gtin>").append(escaparXml(p.getEan())).append("</g:gtin>\n");
+            }
+            if (p.getManufacturer() != null) {
+                sb.append("      <g:brand>").append(escaparXml(p.getManufacturer())).append("</g:brand>\n");
+            }
+            sb.append("      <g:condition>new</g:condition>\n");
+            sb.append("      <g:google_product_category>Health &amp; Beauty &gt; Fragrances</g:google_product_category>\n");
+            if (p.getGender() != null) {
+                String genero = p.getGender().equalsIgnoreCase("mujer") || p.getGender().equalsIgnoreCase("female") ? "female"
+                        : p.getGender().equalsIgnoreCase("hombre") || p.getGender().equalsIgnoreCase("male") ? "male"
+                        : "unisex";
+                sb.append("      <g:gender>").append(genero).append("</g:gender>\n");
+            }
+            sb.append("      <g:shipping>\n");
+            sb.append("        <g:country>ES</g:country>\n");
+            sb.append("        <g:service>Envio Estandar</g:service>\n");
+            sb.append("        <g:price>3.99 EUR</g:price>\n");
+            sb.append("      </g:shipping>\n");
+            sb.append("    </item>\n");
+        }
+
+        sb.append("  </channel>\n");
+        sb.append("</rss>");
+        return sb.toString();
     }
 
-    private void appendSitemapUrl(StringBuilder xml, String loc,
-                                   String changefreq, String priority, String lastmod) {
-        xml.append("  <url>\n")
-           .append("    <loc>").append(loc).append("</loc>\n")
-           .append("    <lastmod>").append(lastmod).append("</lastmod>\n")
-           .append("    <changefreq>").append(changefreq).append("</changefreq>\n")
-           .append("    <priority>").append(priority).append("</priority>\n")
-           .append("  </url>\n");
+    // ─── Idealo ──────────────────────────────────────────────────────────────
+
+    /**
+     * Feed Idealo ES — CSV separado por punto y coma, UTF-8 con BOM.
+     * Documentacion: https://www.idealo.es/ayuda/vendedores/feed
+     * Cabecera requerida: SKU | EAN | Nombre | Precio | URL | URL imagen | Stock | Marca | Descripcion
+     */
+    @GetMapping(value = "/idealo", produces = "text/csv;charset=UTF-8")
+    public String idealoFeed() {
+        List<Producto> productos = productosParaFeed();
+
+        StringBuilder sb = new StringBuilder();
+        // BOM UTF-8 para que Idealo reconozca la codificacion
+        sb.append("\uFEFF");
+        sb.append("sku;ean;name;price;url;image_url;delivery_cost;stock;brand;description\n");
+
+        for (Producto p : productos) {
+            BigDecimal precio = precioVenta(p);
+            String id = p.getSku() != null ? p.getSku() : String.valueOf(p.getId());
+
+            sb.append(csvField(id)).append(";");
+            sb.append(csvField(p.getEan())).append(";");
+            sb.append(csvField(p.getNombre())).append(";");
+            sb.append(precio.toPlainString()).append(";");
+            sb.append(urlProducto(p)).append(";");
+            sb.append(csvField(p.getImagen())).append(";");
+            sb.append("3.99;"); // coste de envio
+            sb.append(p.getStock() != null && p.getStock() > 0 ? p.getStock() : 0).append(";");
+            sb.append(csvField(p.getManufacturer())).append(";");
+            sb.append(csvField(p.getDescripcion())).append("\n");
+        }
+
+        return sb.toString();
     }
 
-    private String escapeXml(String input) {
-        if (input == null) return "";
-        return input
-                .replace("&",  "&amp;")
-                .replace("<",  "&lt;")
-                .replace(">",  "&gt;")
-                .replace("\"", "&quot;")
-                .replace("'",  "&apos;");
+    private String csvField(String value) {
+        if (value == null) return "";
+        // Encerrar en comillas si contiene punto y coma, comillas o saltos de linea
+        String escaped = value.replace("\"", "\"\"");
+        if (escaped.contains(";") || escaped.contains("\"") || escaped.contains("\n")) {
+            return "\"" + escaped + "\"";
+        }
+        return escaped;
+    }
+
+    // ─── Kelkoo ──────────────────────────────────────────────────────────────
+
+    /**
+     * Feed Kelkoo ES — XML.
+     * Documentacion: https://developers.kelkoo.com/feed-specification
+     */
+    @GetMapping(value = "/kelkoo", produces = MediaType.APPLICATION_XML_VALUE)
+    public String kelkooFeed() {
+        List<Producto> productos = productosParaFeed();
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+        sb.append("<catalog>\n");
+
+        for (Producto p : productos) {
+            BigDecimal precio = precioVenta(p);
+            String id = p.getSku() != null ? p.getSku() : String.valueOf(p.getId());
+            boolean inStock = p.getStock() != null && p.getStock() > 0;
+
+            sb.append("  <offer>\n");
+            sb.append("    <offerId>").append(escaparXml(id)).append("</offerId>\n");
+            sb.append("    <title>").append(escaparXml(p.getNombre())).append("</title>\n");
+            sb.append("    <productUrl>").append(urlProducto(p)).append("</productUrl>\n");
+            if (p.getImagen() != null) {
+                sb.append("    <imageUrl>").append(escaparXml(p.getImagen())).append("</imageUrl>\n");
+            }
+            sb.append("    <price>").append(precio.toPlainString()).append("</price>\n");
+            sb.append("    <shippingCost>3.99</shippingCost>\n");
+            sb.append("    <description>").append(escaparXml(p.getDescripcion())).append("</description>\n");
+            if (p.getEan() != null && !p.getEan().isBlank()) {
+                sb.append("    <ean>").append(escaparXml(p.getEan())).append("</ean>\n");
+            }
+            if (p.getManufacturer() != null) {
+                sb.append("    <brand>").append(escaparXml(p.getManufacturer())).append("</brand>\n");
+            }
+            sb.append("    <inStock>").append(inStock ? "true" : "false").append("</inStock>\n");
+            sb.append("    <condition>new</condition>\n");
+            sb.append("    <categoryName>Perfumes y Fragancias</categoryName>\n");
+            if (p.getSku() != null) {
+                sb.append("    <merchantProductId>").append(escaparXml(p.getSku())).append("</merchantProductId>\n");
+            }
+            sb.append("  </offer>\n");
+        }
+
+        sb.append("</catalog>");
+        return sb.toString();
     }
 }
