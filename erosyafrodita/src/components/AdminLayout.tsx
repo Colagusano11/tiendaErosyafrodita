@@ -19,6 +19,7 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         { path: "/admin/coupons", label: "Cupones & Ofertas", icon: "loyalty" },
         { path: "/admin/users", label: "Clientes", icon: "group" },
         { path: "/admin/idealo", label: "Idealo Sync", icon: "sync_alt" },
+        { path: "/admin/marketing", label: "Motor IA", icon: "auto_awesome" },
     ];
 
     return (
@@ -47,7 +48,9 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                                         : "text-slate-400 hover:text-white hover:bg-white/5"
                                 }`}
                             >
-                                <span className={`material-symbols-outlined ${isActive ? "font-bold" : "text-slate-500 group-hover:text-white"}`}>
+                                <span className={`material-symbols-outlined ${
+                                    isActive ? "font-bold" : "text-slate-500 group-hover:text-white"
+                                }`}>
                                     {item.icon}
                                 </span>
                                 <span className="text-xs font-black uppercase tracking-widest">{item.label}</span>
