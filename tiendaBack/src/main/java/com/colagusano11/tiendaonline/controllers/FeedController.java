@@ -151,13 +151,11 @@ public class FeedController {
             if (hasSku) {
                 xml.append("    <g:mpn>").append(escapeXml(p.getSku())).append("</g:mpn>\n");
             }
-            // Si no hay ni EAN ni SKU, informar a Google para evitar warnings
             if (!hasEan && !hasSku) {
                 xml.append("    <g:identifier_exists>no</g:identifier_exists>\n");
             }
 
-            // — Categoría Google (ID numérico oficial para perfumería) —
-            // 2202 = Health & Beauty > Fragrances
+            // — Categoría Google (ID numérico oficial: 2202 = Health & Beauty > Fragrances) —
             xml.append("    <g:google_product_category>2202</g:google_product_category>\n");
 
             // — Categoría propia —
@@ -166,7 +164,6 @@ public class FeedController {
             }
 
             // — Envío España (OBLIGATORIO para aprobación en GMC España) —
-            // Ajusta el precio si cobras gastos de envío
             xml.append("    <g:shipping>\n");
             xml.append("      <g:country>ES</g:country>\n");
             xml.append("      <g:service>Estándar</g:service>\n");
@@ -188,7 +185,7 @@ public class FeedController {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // FEED GOOGLE (legacy — redirige al nuevo para no romper integraciones)
+    // FEED GOOGLE (legacy — alias del nuevo para no romper integraciones)
     // ─────────────────────────────────────────────────────────────────────────
     @GetMapping(value = "/google.xml", produces = MediaType.APPLICATION_XML_VALUE)
     public ResponseEntity<String> getGoogleFeedLegacy() {
@@ -196,7 +193,7 @@ public class FeedController {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // SITEMAP.XML — mejorado: slug en URLs + lastmod
+    // SITEMAP.XML — solo rutas reales del frontend (App.tsx) + productos
     // ─────────────────────────────────────────────────────────────────────────
     @GetMapping(value = "/sitemap.xml", produces = MediaType.APPLICATION_XML_VALUE)
     public ResponseEntity<String> getSitemap() {
@@ -210,12 +207,14 @@ public class FeedController {
         xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         xml.append("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n");
 
-        appendSitemapUrl(xml, baseUrl + "/", "daily", "1.0", today);
-        appendSitemapUrl(xml, baseUrl + "/perfumes-hombre", "weekly", "0.8", today);
-        appendSitemapUrl(xml, baseUrl + "/perfumes-mujer", "weekly", "0.8", today);
-        appendSitemapUrl(xml, baseUrl + "/perfumes-unisex", "weekly", "0.7", today);
-        appendSitemapUrl(xml, baseUrl + "/ofertas", "daily", "0.9", today);
+        // Rutas estáticas — todas verificadas contra App.tsx
+        appendSitemapUrl(xml, baseUrl + "/",          "daily",  "1.0", today);
+        appendSitemapUrl(xml, baseUrl + "/catalog",   "weekly", "0.8", today);
+        appendSitemapUrl(xml, baseUrl + "/about",     "monthly","0.5", today);
+        appendSitemapUrl(xml, baseUrl + "/contact",   "monthly","0.5", today);
+        appendSitemapUrl(xml, baseUrl + "/faq",       "monthly","0.5", today);
 
+        // Páginas de producto (la más importante para SEO)
         for (Producto p : productos) {
             appendSitemapUrl(xml, buildProductUrl(p), "weekly", "0.7", today);
         }
@@ -229,15 +228,15 @@ public class FeedController {
     // ─────────────────────────────────────────────────────────────────────────
 
     /**
-     * Construye la URL canónica de un producto.
+     * URL canónica de producto — idéntica a la ruta del frontend:
+     *   App.tsx → <Route path="/product/:slug" element={<ProductDetail />} />
      * Usa slug si existe (SEO-friendly), fallback a ID numérico.
-     * IMPORTANTE: URL sin hash (#) para que Google pueda crawlear.
      */
     private String buildProductUrl(Producto p) {
         String identifier = (p.getSlug() != null && !p.getSlug().isBlank())
                 ? p.getSlug()
                 : String.valueOf(p.getId());
-        return baseUrl + "/perfume/" + identifier;
+        return baseUrl + "/product/" + identifier;
     }
 
     private void appendSitemapUrl(StringBuilder xml, String loc,
