@@ -88,7 +88,7 @@ const ProductDetail: React.FC = () => {
         setVariantes(v);
 
         // Cargar recomendados (Lógica NOVEDADES_BRANDS de la Home con pool ampliado)
-        const resNovedades = await getProductos(0, 300); // Ampliamos a 300 para asegurar variedad
+        const resNovedades = await getProductos(0, 300);
         const isNovedadBrand = (p: Producto) =>
             !!p.manufacturer &&
             NOVEDADES_BRANDS.some((b: string) =>
@@ -98,10 +98,9 @@ const ProductDetail: React.FC = () => {
         let branded = resNovedades.content.filter(p => isNovedadBrand(p) && p.id !== data.id && p.stock > 0);
         let nonBranded = resNovedades.content.filter(p => !isNovedadBrand(p) && p.id !== data.id && p.stock > 0);
         
-        // Mezclamos ambos pero priorizamos los de marca
         let finalPool = [...shuffleArray(branded), ...shuffleArray(nonBranded)];
         
-        setRecomendados(finalPool.slice(0, 12)); // Subimos a 12
+        setRecomendados(finalPool.slice(0, 12));
         
         // GA4: Evento view_item
         if (typeof window.gtag === 'function') {
@@ -217,7 +216,6 @@ const ProductDetail: React.FC = () => {
   const img = product.imagen;
   const name = product.nombre;
   const brand = product.manufacturer ?? "Eros & Afrodita";
-  // precioPVP es el precio web configurado; precio es el coste del proveedor
   const precioPVP = product.precioPVP ?? product.precio;
   const precioFinal = product.enOferta
     ? (product.precioOferta ?? applyPromo(precioPVP))
@@ -226,13 +224,27 @@ const ProductDetail: React.FC = () => {
   const rating = 4.8;
   const mainImg = selectedImg ?? img;
 
+  // ── SEO: usa copy generado por IA si existe, si no fallback manual ──
+  const seoTitle = product.tituloSeo
+    ?? `${name} | Eros y Afrodita`;
+
+  const seoDescription = product.descripcionSeo
+    ?? (product.descripcion
+        ? product.descripcion.replace(/<[^>]+>/g, "").slice(0, 155)
+        : `Descubre ${name} de ${brand}. Fragancia exclusiva con envío gratis en Eros y Afrodita.`);
+
   return (
     <div className="bg-background-dark text-text-main font-display flex flex-col min-h-screen">
       <SEO
-        title={name}
-        description={product.descripcion || `Descubre ${name} de ${brand}. Una fragancia exclusiva de la colección Eros & Afrodita.`}
+        title={seoTitle}
+        description={seoDescription}
         image={mainImg || undefined}
-        keywords={`${name}, ${brand}, perfumes de lujo, eros y afrodita`}
+        keywords={`${name}, ${brand}, perfumes de lujo, eros y afrodita, comprar perfume online`}
+        type="product"
+        price={precioFinal.toFixed(2)}
+        availability={product.stock > 0 ? 'in stock' : 'out of stock'}
+        brand={brand}
+        ean={product.ean || undefined}
       />
       {/* Schema.org JSON-LD */}
       <script type="application/ld+json">
@@ -242,7 +254,7 @@ const ProductDetail: React.FC = () => {
             "@type": "Product",
             "name": name,
             "image": mainImg,
-            "description": product.descripcion || `Descubre ${name} de ${brand}.`,
+            "description": seoDescription,
             "sku": product.sku || product.id.toString(),
             "gtin13": product.ean || undefined,
             "brand": {
@@ -414,18 +426,16 @@ const ProductDetail: React.FC = () => {
                 )}
               </div>
 
-              {/* Selector de Tamaños (Variantes) - AHORA ENCIMA DE LA DESCRIPCIÓN */}
+              {/* Selector de Tamaños (Variantes) */}
               {variantes.length > 0 && (
                 <div className="mb-6">
                   <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-white/30 mb-3 flex items-center gap-2">
                     <span className="material-symbols-outlined !text-[12px]">Straighten</span> Selección de Tamaño:
                   </h4>
                   <div className="flex flex-wrap gap-2">
-                    {/* El actual */}
                     <div className="px-4 py-2 rounded-xl bg-primary text-charcoal text-[9px] font-black border border-primary shadow-lg shadow-primary/10 cursor-default">
                       {product.nombre.match(/\d+\s*ml/i)?.[0] || "Actual"}
                     </div>
-                    {/* Los otros */}
                     {variantes.map(v => (
                       <Link 
                         key={v.id} 
@@ -480,7 +490,7 @@ const ProductDetail: React.FC = () => {
           </div>
         </div>
 
-        {/* --- SECCIÓN RECOMENDACIONES (Novedades) --- */}
+        {/* --- SECCIÓN RECOMENDACIONES --- */}
         {recomendados.length > 0 && (
           <section className="mb-24 py-16 px-4 md:px-10 bg-gradient-to-r from-primary/5 via-transparent to-transparent rounded-[3rem] border-l border-primary/20">
             <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-6">

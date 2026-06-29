@@ -27,6 +27,10 @@ export interface Producto {
   precioOriginal?: number;
   precioUnitario?: number;
   slug: string | null;
+  // ─ Copy IA (generado por GeminiCopyService) — null hasta que se ejecute el batch
+  tituloSeo: string | null;
+  descripcionSeo: string | null;
+  copyInstagram: string | null;
 }
 
 export interface PaginatedResponse<T> {
@@ -228,5 +232,32 @@ export async function getVariantes(producto: Producto): Promise<Producto[]> {
 export async function getNuevos(page = 0, size = 10): Promise<PaginatedResponse<Producto>> {
   const res = await api.get<PaginatedResponse<Producto>>(`/productos/nuevos?page=${page}&size=${size}`);
   res.data.content = res.data.content.map(transformProduct);
+  return res.data;
+}
+
+// === Motor de Copy IA ===
+
+export interface CopyStatus {
+  totalActivos: number;
+  conCopy: number;
+  sinCopy: number;
+  porcentaje: number;
+}
+
+/** Genera copy SEO + Instagram para un producto concreto */
+export async function generarCopyProducto(id: number): Promise<Record<string, string>> {
+  const res = await api.post<Record<string, string>>(`/admin/copy/generar/${id}`);
+  return res.data;
+}
+
+/** Lanza la generación de copy en batch para todos los productos sin copy */
+export async function generarCopyBatch(): Promise<{ total: number; ok: number; errores: number }> {
+  const res = await api.post<{ total: number; ok: number; errores: number }>('/admin/copy/generar-batch');
+  return res.data;
+}
+
+/** Estado del motor: cuántos productos tienen / no tienen copy */
+export async function getCopyStatus(): Promise<CopyStatus> {
+  const res = await api.get<CopyStatus>('/admin/copy/status');
   return res.data;
 }
