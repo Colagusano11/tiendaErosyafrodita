@@ -46,11 +46,14 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/productos/**", "/categorias/**", "/api/feeds/**", "/proxy-image/**", "/resenas/**", "/pedidos/rastrear", "/api/cupones/validar/**", "/cupones/validar/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/avisos-stock/suscribir", "/api/avisos-stock/suscribir").permitAll()
                 .requestMatchers(HttpMethod.GET, "/actuator/**").permitAll()
-                // Endpoints de Pedidos para Invitados (Permitir creación y confirmación sin JWT)
+                // Endpoints de Pedidos para Invitados (crear pedido y arrancar pago con Revolut)
                 .requestMatchers(HttpMethod.POST, "/pedidos", "/api/pedidos", "/pedidos/confirmar", "/api/pedidos/confirmar").permitAll()
                 .requestMatchers(HttpMethod.POST, "/pedidos/*/pago/revolut", "/api/pedidos/*/pago/revolut").permitAll()
-                .requestMatchers(HttpMethod.POST, "/pedidos/pago/confirmar", "/api/pedidos/pago/confirmar").permitAll()
-                .requestMatchers(HttpMethod.POST, "/pedidos/rescatar/**", "/api/pedidos/rescatar/**").permitAll()
+                // Webhook externo de Revolut (llamada server-to-server, sin JWT)
+                .requestMatchers(HttpMethod.POST, "/pagos/revolut/webhook", "/api/pagos/revolut/webhook").permitAll()
+                // SEGURIDAD: rescatar y confirmar-pago manual requieren ADMIN
+                .requestMatchers(HttpMethod.POST, "/pedidos/rescatar/**", "/api/pedidos/rescatar/**").hasAnyAuthority("ADMIN", "ROLE_ADMIN")
+                .requestMatchers(HttpMethod.POST, "/pedidos/pago/confirmar", "/api/pedidos/pago/confirmar").hasAnyAuthority("ADMIN", "ROLE_ADMIN")
                 // El resto de pedidos (cambiar estados, borrar, etc) requiere ADMIN
                 .requestMatchers(HttpMethod.POST, "/pedidos/**", "/api/pedidos/**").hasAnyAuthority("ADMIN", "ROLE_ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/pedidos/**", "/api/pedidos/**").hasAnyAuthority("ADMIN", "ROLE_ADMIN")
@@ -61,9 +64,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.PUT, "/idealo/**", "/api/idealo/**").permitAll()
                 .requestMatchers(HttpMethod.PATCH, "/idealo/**", "/api/idealo/**").permitAll()
                 .requestMatchers(HttpMethod.DELETE, "/idealo/**", "/api/idealo/**").permitAll()
-                // Webhook de pago (llamada externa de Revolut, sin JWT)
-                .requestMatchers(HttpMethod.POST, "/pagos/revolut/webhook", "/api/pagos/revolut/webhook").permitAll()
-                // Cupones: Permitir verlos a todos, pero solo ADMIN puede crear/borrar
+                // Cupónes: Permitir verlos a todos, pero solo ADMIN puede crear/borrar
                 .requestMatchers(HttpMethod.GET, "/api/cupones", "/api/cupones/**", "/cupones", "/cupones/**").permitAll()
                 .requestMatchers("/admin/**", "/api/admin/dashboard/**", "/api/cupones", "/api/cupones/**", "/cupones", "/cupones/**").hasAnyAuthority("ADMIN", "ROLE_ADMIN")
                 // Todo lo demás requiere autenticación JWT
@@ -79,13 +80,13 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(
-            "http://localhost:5173",  // Vite legacy port
-            "http://localhost:3000",  // Vite new port
-            "http://localhost:4001",  // Nuevo puerto Frontend
-            "http://localhost:81",    // Docker Frontend (puerto 81)
-            "http://localhost",       // Docker Frontend (puerto 80)
-            "http://127.0.0.1",       // Localhost IP
-            "https://erosyafrodita.com" // Producción
+            "http://localhost:5173",
+            "http://localhost:3000",
+            "http://localhost:4001",
+            "http://localhost:81",
+            "http://localhost",
+            "http://127.0.0.1",
+            "https://erosyafrodita.com"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("Content-Type", "Authorization"));
