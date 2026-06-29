@@ -21,6 +21,7 @@ export interface Producto {
   activo: boolean;
   enOferta: boolean;
   nuevo: boolean;
+  enShopping: boolean;
   descuentoOferta: number;
   precioOferta: number;
   precioOriginal?: number;
