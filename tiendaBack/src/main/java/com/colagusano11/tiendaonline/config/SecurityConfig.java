@@ -80,16 +80,12 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(
             "http://localhost:5173",  // Vite legacy port
-            "http://localhost:3000",  // Vite new port (configurado en vite.config.ts)
-            "http://localhost:8080",  // Backend local
-            "http://localhost:8081",  // Microservicio usuarios
-            "http://localhost:8082",  // Backend tienda
+            "http://localhost:3000",  // Vite new port
             "http://localhost:4001",  // Nuevo puerto Frontend
             "http://localhost:81",    // Docker Frontend (puerto 81)
             "http://localhost",       // Docker Frontend (puerto 80)
             "http://127.0.0.1",       // Localhost IP
-            "https://erosyafrodita.com", // Producción (Añadido)
-            "https://erosyafrodita.com:8082" // Producción API (Añadido)
+            "https://erosyafrodita.com" // Producción
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("Content-Type", "Authorization"));

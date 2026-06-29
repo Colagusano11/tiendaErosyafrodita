@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 @RequestMapping("/productos")
-@CrossOrigin(origins = "http://localhost:3000")
 public class ProductoController {
 
     @Autowired
