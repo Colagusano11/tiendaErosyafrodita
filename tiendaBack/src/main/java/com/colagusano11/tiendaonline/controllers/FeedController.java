@@ -32,18 +32,18 @@ public class FeedController {
     @Value("${FRONTEND_URL:https://erosyafrodita.com}")
     private String baseUrl;
 
-    // ─── Cache en memoria para no machacar la BD en cada crawl de Google ───
+    // ─── Caché en memoria (5 min) para no machacar la BD en cada crawl ────────
     private String cachedGoogleFeed;
     private LocalDateTime feedCachedAt;
     private static final int CACHE_MINUTES = 5;
 
     // ─────────────────────────────────────────────────────────────────────────
-    // FEED IDEALO (sin cambios, solo se conserva)
+    // FEED IDEALO — filtra por enShopping=true además de activo
     // ─────────────────────────────────────────────────────────────────────────
     @GetMapping(value = "/idealo.csv", produces = "text/csv")
     public ResponseEntity<byte[]> getIdealoFeed() throws IOException {
         List<Producto> productos = productoService.getAllProductos().stream()
-                .filter(p -> p.isActivo() && p.getPrecioPVP() != null)
+                .filter(p -> p.isActivo() && p.isEnShopping() && p.getPrecioPVP() != null)
                 .collect(Collectors.toList());
 
         StringWriter sw = new StringWriter();
@@ -79,21 +79,20 @@ public class FeedController {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // FEED GOOGLE SHOPPING — endpoint principal para Google Merchant Center
+    // FEED GOOGLE SHOPPING — filtra por enShopping=true además de activo
     // URL a registrar en GMC: https://erosyafrodita.com/api/feeds/google-shopping.xml
     // ─────────────────────────────────────────────────────────────────────────
     @GetMapping(value = "/google-shopping.xml", produces = MediaType.APPLICATION_XML_VALUE)
     public ResponseEntity<String> getGoogleShoppingFeed() {
-        // Servir desde caché si sigue fresca
         if (cachedGoogleFeed != null && feedCachedAt != null
                 && feedCachedAt.plusMinutes(CACHE_MINUTES).isAfter(LocalDateTime.now())) {
-            return ResponseEntity.ok()
-                    .contentType(MediaType.APPLICATION_XML)
-                    .body(cachedGoogleFeed);
+            return ResponseEntity.ok().contentType(MediaType.APPLICATION_XML).body(cachedGoogleFeed);
         }
 
         List<Producto> productos = productoService.getAllProductos().stream()
-                .filter(p -> p.isActivo() && p.getPrecioPVP() != null
+                .filter(p -> p.isActivo()
+                          && p.isEnShopping()
+                          && p.getPrecioPVP() != null
                           && p.getPrecioPVP().compareTo(BigDecimal.ZERO) > 0)
                 .collect(Collectors.toList());
 
@@ -106,7 +105,7 @@ public class FeedController {
         xml.append("  <description>Cat&#225;logo de perfumes y cosm&#233;tica de Eros &amp; Afrodita</description>\n");
 
         for (Producto p : productos) {
-            String title = escapeXml(p.getNombre());
+            String title       = escapeXml(p.getNombre());
             String description = p.getDescripcion() != null
                     ? escapeXml(p.getDescripcion().length() > 5000
                             ? p.getDescripcion().substring(0, 5000)
@@ -114,8 +113,6 @@ public class FeedController {
                     : title;
 
             xml.append("  <item>\n");
-
-            // — Campos obligatorios —
             xml.append("    <g:id>").append(p.getId()).append("</g:id>\n");
             xml.append("    <g:title><![CDATA[").append(title).append("]]></g:title>\n");
             xml.append("    <g:description><![CDATA[").append(description).append("]]></g:description>\n");
@@ -124,68 +121,50 @@ public class FeedController {
             xml.append("    <g:availability>").append(p.getStock() > 0 ? "in stock" : "out of stock").append("</g:availability>\n");
             xml.append("    <g:price>").append(p.getPrecioPVP()).append(" EUR</g:price>\n");
 
-            // — Precio de oferta (opcional, pero mejora el CTR significativamente) —
             if (p.isEnOferta() && p.getPrecioOferta() != null
                     && p.getPrecioOferta().compareTo(BigDecimal.ZERO) > 0
                     && p.getPrecioOferta().compareTo(p.getPrecioPVP()) < 0) {
                 xml.append("    <g:sale_price>").append(p.getPrecioOferta()).append(" EUR</g:sale_price>\n");
             }
 
-            // — Imagen —
             if (p.getImagen() != null && !p.getImagen().isBlank()) {
                 xml.append("    <g:image_link>").append(p.getImagen()).append("</g:image_link>\n");
             }
 
-            // — Marca —
             String brand = p.getManufacturer() != null && !p.getManufacturer().isBlank()
                     ? p.getManufacturer() : "Eros &amp; Afrodita";
             xml.append("    <g:brand><![CDATA[").append(brand).append("]]></g:brand>\n");
 
-            // — Identificadores de producto —
             boolean hasEan = p.getEan() != null && p.getEan().length() >= 8;
             boolean hasSku = p.getSku() != null && !p.getSku().isBlank();
+            if (hasEan) xml.append("    <g:gtin>").append(p.getEan()).append("</g:gtin>\n");
+            if (hasSku) xml.append("    <g:mpn>").append(escapeXml(p.getSku())).append("</g:mpn>\n");
+            if (!hasEan && !hasSku) xml.append("    <g:identifier_exists>no</g:identifier_exists>\n");
 
-            if (hasEan) {
-                xml.append("    <g:gtin>").append(p.getEan()).append("</g:gtin>\n");
-            }
-            if (hasSku) {
-                xml.append("    <g:mpn>").append(escapeXml(p.getSku())).append("</g:mpn>\n");
-            }
-            if (!hasEan && !hasSku) {
-                xml.append("    <g:identifier_exists>no</g:identifier_exists>\n");
-            }
-
-            // — Categoría Google (ID numérico oficial: 2202 = Health & Beauty > Fragrances) —
+            // 2202 = Health & Beauty > Fragrances
             xml.append("    <g:google_product_category>2202</g:google_product_category>\n");
 
-            // — Categoría propia —
             if (p.getCategoria() != null && !p.getCategoria().isBlank()) {
                 xml.append("    <g:product_type><![CDATA[").append(escapeXml(p.getCategoria())).append("]]></g:product_type>\n");
             }
 
-            // — Envío España (OBLIGATORIO para aprobación en GMC España) —
             xml.append("    <g:shipping>\n");
             xml.append("      <g:country>ES</g:country>\n");
-            xml.append("      <g:service>Estándar</g:service>\n");
+            xml.append("      <g:service>Est\u00e1ndar</g:service>\n");
             xml.append("      <g:price>0.00 EUR</g:price>\n");
             xml.append("    </g:shipping>\n");
-
             xml.append("  </item>\n");
         }
 
-        xml.append("</channel>\n");
-        xml.append("</rss>");
-
+        xml.append("</channel>\n</rss>");
         cachedGoogleFeed = xml.toString();
-        feedCachedAt = LocalDateTime.now();
+        feedCachedAt    = LocalDateTime.now();
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_XML)
-                .body(cachedGoogleFeed);
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_XML).body(cachedGoogleFeed);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // FEED GOOGLE (legacy — alias del nuevo para no romper integraciones)
+    // FEED GOOGLE (legacy alias)
     // ─────────────────────────────────────────────────────────────────────────
     @GetMapping(value = "/google.xml", produces = MediaType.APPLICATION_XML_VALUE)
     public ResponseEntity<String> getGoogleFeedLegacy() {
@@ -193,7 +172,7 @@ public class FeedController {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // SITEMAP.XML — solo rutas reales del frontend (App.tsx) + productos
+    // SITEMAP — solo rutas reales del frontend (App.tsx) + productos
     // ─────────────────────────────────────────────────────────────────────────
     @GetMapping(value = "/sitemap.xml", produces = MediaType.APPLICATION_XML_VALUE)
     public ResponseEntity<String> getSitemap() {
@@ -202,19 +181,16 @@ public class FeedController {
                 .collect(Collectors.toList());
 
         String today = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
-
         StringBuilder xml = new StringBuilder();
         xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         xml.append("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n");
 
-        // Rutas estáticas — todas verificadas contra App.tsx
-        appendSitemapUrl(xml, baseUrl + "/",          "daily",  "1.0", today);
-        appendSitemapUrl(xml, baseUrl + "/catalog",   "weekly", "0.8", today);
-        appendSitemapUrl(xml, baseUrl + "/about",     "monthly","0.5", today);
-        appendSitemapUrl(xml, baseUrl + "/contact",   "monthly","0.5", today);
-        appendSitemapUrl(xml, baseUrl + "/faq",       "monthly","0.5", today);
+        appendSitemapUrl(xml, baseUrl + "/",        "daily",  "1.0", today);
+        appendSitemapUrl(xml, baseUrl + "/catalog", "weekly", "0.8", today);
+        appendSitemapUrl(xml, baseUrl + "/about",   "monthly","0.5", today);
+        appendSitemapUrl(xml, baseUrl + "/contact", "monthly","0.5", today);
+        appendSitemapUrl(xml, baseUrl + "/faq",     "monthly","0.5", today);
 
-        // Páginas de producto (la más importante para SEO)
         for (Producto p : productos) {
             appendSitemapUrl(xml, buildProductUrl(p), "weekly", "0.7", today);
         }
@@ -228,9 +204,8 @@ public class FeedController {
     // ─────────────────────────────────────────────────────────────────────────
 
     /**
-     * URL canónica de producto — idéntica a la ruta del frontend:
-     *   App.tsx → <Route path="/product/:slug" element={<ProductDetail />} />
-     * Usa slug si existe (SEO-friendly), fallback a ID numérico.
+     * URL canónica — igual que la ruta del frontend:
+     * App.tsx → <Route path="/product/:slug" element={<ProductDetail />} />
      */
     private String buildProductUrl(Producto p) {
         String identifier = (p.getSlug() != null && !p.getSlug().isBlank())
@@ -241,21 +216,21 @@ public class FeedController {
 
     private void appendSitemapUrl(StringBuilder xml, String loc,
                                    String changefreq, String priority, String lastmod) {
-        xml.append("  <url>\n");
-        xml.append("    <loc>").append(loc).append("</loc>\n");
-        xml.append("    <lastmod>").append(lastmod).append("</lastmod>\n");
-        xml.append("    <changefreq>").append(changefreq).append("</changefreq>\n");
-        xml.append("    <priority>").append(priority).append("</priority>\n");
-        xml.append("  </url>\n");
+        xml.append("  <url>\n")
+           .append("    <loc>").append(loc).append("</loc>\n")
+           .append("    <lastmod>").append(lastmod).append("</lastmod>\n")
+           .append("    <changefreq>").append(changefreq).append("</changefreq>\n")
+           .append("    <priority>").append(priority).append("</priority>\n")
+           .append("  </url>\n");
     }
 
     private String escapeXml(String input) {
         if (input == null) return "";
         return input
-                .replace("&", "&amp;")
-                .replace("<", "&lt;")
-                .replace(">", "&gt;")
+                .replace("&",  "&amp;")
+                .replace("<",  "&lt;")
+                .replace(">",  "&gt;")
                 .replace("\"", "&quot;")
-                .replace("'", "&apos;");
+                .replace("'",  "&apos;");
     }
 }

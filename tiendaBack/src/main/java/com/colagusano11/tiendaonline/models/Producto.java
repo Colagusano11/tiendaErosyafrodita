@@ -6,25 +6,23 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
-
 import java.math.BigDecimal;
 
 @Entity
 @Table(name = "productos")
 public class Producto {
     @Id
-    @GeneratedValue (strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String ean;
-
     private String sku;
     private String skuProveedor;
 
     private String categoria;
     private String idCategoria;
 
-    @NotBlank(message = "El nombre del producto es obligaotio")
+    @NotBlank(message = "El nombre del producto es obligatorio")
     private String nombre;
 
     private String descripcion;
@@ -39,7 +37,6 @@ public class Producto {
 
     private String imagen;
     private String manufacturer;
-
     private String gender;
 
     private BigDecimal precioPVP;
@@ -47,263 +44,141 @@ public class Producto {
     private String imagen3;
     private String imagen4;
 
-
-   
     @Enumerated(EnumType.STRING)
-    private Distribuidor distribuidor ;
+    private Distribuidor distribuidor;
 
-    private boolean activo = true;
-    private boolean enOferta = false;
-    private boolean nuevo = false;
+    private boolean activo          = true;
+    private boolean enOferta        = false;
+    private boolean nuevo           = false;
     private BigDecimal descuentoOferta = BigDecimal.ZERO;
     private BigDecimal precioOferta;
+    private boolean alertaMargen    = false;
 
-    private boolean alertaMargen = false;
-    
     @Column(unique = true)
     private String slug;
 
+    /**
+     * Controla si el producto aparece en feeds externos
+     * (Google Shopping, Idealo, comparadores).
+     * Independiente de `activo`: un producto puede estar activo en la tienda
+     * pero excluido del feed (ej: margen demasiado bajo para competir).
+     */
+    @Column(name = "en_shopping", nullable = false)
+    private boolean enShopping = true;
+
+    // ─── Lifecycle ────────────────────────────────────────────────────────────
 
     @PrePersist
     @PreUpdate
     public void validarMargen() {
         if (precio != null) {
-            // Determinar el precio efectivo en la web
             BigDecimal precioWeb = (enOferta && precioOferta != null) ? precioOferta : precioPVP;
-
             if (precioWeb != null) {
-                // Formula: (base + 5) * 1.21
-                BigDecimal baseMasCinco = precio.add(new BigDecimal("5"));
-                BigDecimal precioMinimo = baseMasCinco.multiply(new BigDecimal("1.21"));
-                
-                // Si el precio de la web es menor al mínimo, alerta !
+                BigDecimal precioMinimo = precio.add(new BigDecimal("5"))
+                                                .multiply(new BigDecimal("1.21"));
                 if (precioWeb.compareTo(precioMinimo) < 0) {
                     this.alertaMargen = true;
-                    this.activo = false; // Ocultar de la web
+                    this.activo       = false;
+                    this.enShopping   = false; // margen insuficiente → fuera del feed
                 } else {
                     this.alertaMargen = false;
                 }
             }
         }
-        
+
         // Generar slug automático único (Nombre + EAN/SKU)
         if (this.nombre != null) {
             String baseSlug = this.nombre.toLowerCase()
                 .replaceAll("[^a-z0-9\\s]", "")
                 .replaceAll("\\s+", "-");
-            
-            // Añadimos EAN o SKU para garantizar unicidad
-            String suffix = (this.ean != null && !this.ean.isEmpty()) ? this.ean : (this.sku != null ? this.sku : "");
-            if (!suffix.isEmpty()) {
-                this.slug = baseSlug + "-" + suffix;
-            } else {
-                this.slug = baseSlug;
-            }
+            String suffix = (this.ean != null && !this.ean.isEmpty())
+                    ? this.ean
+                    : (this.sku != null ? this.sku : "");
+            this.slug = suffix.isEmpty() ? baseSlug : baseSlug + "-" + suffix;
         }
     }
 
+    // ─── Constructors ─────────────────────────────────────────────────────────
 
-    public Producto() {
+    public Producto() {}
 
-    }
+    // ─── Getters & Setters ────────────────────────────────────────────────────
 
-    public Long getId() {
-        return id;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public BigDecimal getPrecio() { return precio; }
+    public void setPrecio(BigDecimal precio) { this.precio = precio; }
 
-    public BigDecimal getPrecio() {
-        return precio;
-    }
+    public Integer getStock() { return stock; }
+    public void setStock(Integer stock) { this.stock = stock; }
 
-    public void setPrecio(BigDecimal precio) {
-        this.precio = precio;
-    }
+    public String getDescripcion() { return descripcion; }
+    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
 
-    public Integer getStock() {
-        return stock;
-    }
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
 
-    public void setStock(Integer stock) {
-        this.stock = stock;
-    }
+    public String getEan() { return ean; }
+    public void setEan(String ean) { this.ean = ean; }
 
-    public String getDescripcion() {
-        return descripcion;
-    }
+    public String getImagen() { return imagen; }
+    public void setImagen(String imagen) { this.imagen = imagen; }
 
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
-    }
+    public String getManufacturer() { return manufacturer; }
+    public void setManufacturer(String manufacturer) { this.manufacturer = manufacturer; }
 
-    public String getNombre() {
-        return nombre;
-    }
+    public String getGender() { return gender; }
+    public void setGender(String gender) { this.gender = gender; }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
+    public String getCategoria() { return categoria; }
+    public void setCategoria(String categoria) { this.categoria = categoria; }
 
-    public String getEan() {
-        return ean;
-    }
+    public String getIdCategoria() { return idCategoria; }
+    public void setIdCategoria(String idCategoria) { this.idCategoria = idCategoria; }
 
-    public void setEan(String ean) {
-        this.ean = ean;
-    }
+    public String getSku() { return sku; }
+    public void setSku(String sku) { this.sku = sku; }
 
-    public String getImagen() {
-        return imagen;
-    }
+    public String getSkuProveedor() { return skuProveedor; }
+    public void setSkuProveedor(String skuProveedor) { this.skuProveedor = skuProveedor; }
 
-    public void setImagen(String imagen) {
-        this.imagen = imagen;
-    }
+    public Distribuidor getDistribuidor() { return distribuidor; }
+    public void setDistribuidor(Distribuidor distribuidor) { this.distribuidor = distribuidor; }
 
-    public String getManufacturer() {
-        return manufacturer;
-    }
+    public BigDecimal getPrecioPVP() { return precioPVP; }
+    public void setPrecioPVP(BigDecimal precioPVP) { this.precioPVP = precioPVP; }
 
-    public void setManufacturer(String manufacturer) {
-        this.manufacturer = manufacturer;
-    }
+    public boolean isActivo() { return activo; }
+    public void setActivo(boolean activo) { this.activo = activo; }
 
-    public String getGender() {
-        return gender;
-    }
+    public String getImagen2() { return imagen2; }
+    public void setImagen2(String imagen2) { this.imagen2 = imagen2; }
 
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
+    public String getImagen3() { return imagen3; }
+    public void setImagen3(String imagen3) { this.imagen3 = imagen3; }
 
-    public String getCategoria() {
-        return categoria;
-    }
+    public String getImagen4() { return imagen4; }
+    public void setImagen4(String imagen4) { this.imagen4 = imagen4; }
 
-    public void setCategoria(String categoria) {
-        this.categoria = categoria;
-    }
+    public boolean isEnOferta() { return enOferta; }
+    public void setEnOferta(boolean enOferta) { this.enOferta = enOferta; }
 
-    public String getIdCategoria() {
-        return idCategoria;
-    }
+    public BigDecimal getDescuentoOferta() { return descuentoOferta; }
+    public void setDescuentoOferta(BigDecimal descuentoOferta) { this.descuentoOferta = descuentoOferta; }
 
-    public void setIdCategoria(String idCategoria) {
-        this.idCategoria = idCategoria;
-    }
+    public BigDecimal getPrecioOferta() { return precioOferta; }
+    public void setPrecioOferta(BigDecimal precioOferta) { this.precioOferta = precioOferta; }
 
-    public String getSku() {
-        return sku;
-    }
+    public boolean isNuevo() { return nuevo; }
+    public void setNuevo(boolean nuevo) { this.nuevo = nuevo; }
 
-    public void setSku(String sku) {
-        this.sku = sku;
-    }
+    public boolean isAlertaMargen() { return alertaMargen; }
+    public void setAlertaMargen(boolean alertaMargen) { this.alertaMargen = alertaMargen; }
 
-    public String getSkuProveedor() {
-        return skuProveedor;
-    }
+    public String getSlug() { return slug; }
+    public void setSlug(String slug) { this.slug = slug; }
 
-    public void setSkuProveedor(String skuProveedor) {
-        this.skuProveedor = skuProveedor;
-    }
-
-
-    public Distribuidor getDistribuidor() {
-        return distribuidor;
-    }
-
-    public void setDistribuidor(Distribuidor distribuidor) {
-        this.distribuidor = distribuidor;
-    }
-    public BigDecimal getPrecioPVP() {
-        return precioPVP;
-    }
-    //Este el precio que queremos en la tienda, con IVA + Gastos de envio.
-    public void setPrecioPVP(BigDecimal precioPVP) {
-        this.precioPVP = precioPVP;
-    }
-
-    public boolean isActivo() {
-        return activo;
-    }
-
-    public void setActivo(boolean activo) {
-        this.activo = activo;
-    }
-
-    public String getImagen2() {
-        return imagen2;
-    }
-
-    public void setImagen2(String imagen2) {
-        this.imagen2 = imagen2;
-    }
-
-    public String getImagen3() {
-        return imagen3;
-    }
-
-    public void setImagen3(String imagen3) {
-        this.imagen3 = imagen3;
-    }
-
-    public String getImagen4() {
-        return imagen4;
-    }
-
-    public void setImagen4(String imagen4) {
-        this.imagen4 = imagen4;
-    }
-
-    public boolean isEnOferta() {
-        return enOferta;
-    }
-
-    public void setEnOferta(boolean enOferta) {
-        this.enOferta = enOferta;
-    }
-
-    public BigDecimal getDescuentoOferta() {
-        return descuentoOferta;
-    }
-
-    public void setDescuentoOferta(BigDecimal descuentoOferta) {
-        this.descuentoOferta = descuentoOferta;
-    }
-
-    public BigDecimal getPrecioOferta() {
-        return precioOferta;
-    }
-
-    public void setPrecioOferta(BigDecimal precioOferta) {
-        this.precioOferta = precioOferta;
-    }
-
-    public boolean isNuevo() {
-        return nuevo;
-    }
-
-    public void setNuevo(boolean nuevo) {
-        this.nuevo = nuevo;
-    }
-
-    public boolean isAlertaMargen() {
-        return alertaMargen;
-    }
-
-    public void setAlertaMargen(boolean alertaMargen) {
-        this.alertaMargen = alertaMargen;
-    }
-
-    public String getSlug() {
-        return slug;
-    }
-
-    public void setSlug(String slug) {
-        this.slug = slug;
-    }
+    public boolean isEnShopping() { return enShopping; }
+    public void setEnShopping(boolean enShopping) { this.enShopping = enShopping; }
 }
