@@ -9,9 +9,11 @@ import com.colagusano11.tiendaonline.services.EmailService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Endpoints internos consumidos exclusivamente por SellerKing.
@@ -21,16 +23,21 @@ import java.util.Optional;
  *   GET    /api/internal/orders                        -> lista pedidos PAGADO/RECIBIDO
  *                                                         Devuelve erosOrderId (= id numerico del pedido)
  *   POST   /api/internal/orders/{id}/tracking          -> notificar tracking + marcar ENVIADO + email cliente
- *                                                         {id} es el Long id de la tabla pedidos
+ *   POST   /api/internal/orders/{id}/status            -> cambiar estado (solo RECIBIDO admitido por SellerKing)
  *   PATCH  /api/internal/products/{webProductId}/stock -> actualizar stock
  *
- * IMPORTANTE: SellerKing guarda el campo 'erosOrderId' del JSON como clave
- * para volver a llamar a este backend. Por eso PedidoSalidaInterna expone
- * el id numerico bajo el nombre 'erosOrderId' ademas de 'id'.
+ * CONTRATO erosOrderId:
+ *   PedidoSalidaInterna devuelve erosOrderId (Long) = id numerico del pedido.
+ *   SellerKing lo persiste como String ("42") y lo usa en las URLs de tracking.
+ *   Spring convierte "42" a Long en el PathVariable de tiendaback. Ciclo cerrado.
  */
 @RestController
 @RequestMapping("/api/internal")
 public class SellerKingInternalController {
+
+    /** Estados que SellerKing tiene permiso de escribir directamente. */
+    private static final Set<PedidoEstado> ESTADOS_PERMITIDOS_SELLERKING =
+            Set.of(PedidoEstado.RECIBIDO);
 
     private final PedidoRepository pedidoRepository;
     private final ProductoRepository productoRepository;
@@ -46,10 +53,9 @@ public class SellerKingInternalController {
 
     // -----------------------------------------------------------------
     // 1. SYNC DE PEDIDOS
-    //    SellerKing llama periodicamente para obtener pedidos nuevos.
-    //    Devuelve los pedidos en estado PAGADO o RECIBIDO:
-    //      - PAGADO   = pago confirmado, pendiente de comprar al proveedor
-    //      - RECIBIDO = ya comprado al proveedor, pendiente de envio
+    //    Devuelve los pedidos en estado PAGADO o RECIBIDO.
+    //    PAGADO   = pago confirmado, pendiente de comprar al proveedor
+    //    RECIBIDO = ya comprado al proveedor, pendiente de envio
     // -----------------------------------------------------------------
     @GetMapping("/orders")
     public ResponseEntity<List<PedidoSalidaInterna>> getPedidosPendientes() {
@@ -65,11 +71,10 @@ public class SellerKingInternalController {
 
     // -----------------------------------------------------------------
     // 2. NOTIFICAR TRACKING
-    //    SellerKing envia carrier + trackingNumber + trackingUrl.
-    //    {id} es el Long id de la tabla pedidos (= erosOrderId del JSON).
-    //    - Actualiza numSeguimiento y urlSeguimiento en el pedido
+    //    {id} = Long id de la tabla pedidos (= erosOrderId del JSON).
+    //    - Actualiza numSeguimiento, urlSeguimiento y estadoProveedor
     //    - Marca el pedido como ENVIADO
-    //    - Envia email al cliente (invitado o registrado) si tiene email
+    //    - Envia email al cliente si tiene email valido
     // -----------------------------------------------------------------
     @PostMapping("/orders/{id}/tracking")
     public ResponseEntity<?> notificarTracking(
@@ -88,7 +93,6 @@ public class SellerKingInternalController {
         pedido.setEstado(PedidoEstado.ENVIADO);
         pedidoRepository.save(pedido);
 
-        // Enviar email de envio al cliente (funciona para invitados y registrados)
         String emailDest = pedido.getEmail();
         if (emailDest != null && !emailDest.isBlank() && !emailDest.equals("info@erosyafrodita.com")) {
             try {
@@ -109,8 +113,57 @@ public class SellerKingInternalController {
     }
 
     // -----------------------------------------------------------------
-    // 3. SYNC DE STOCK
-    //    SellerKing envia el nuevo stock disponible de un producto.
+    // 3. ACTUALIZAR ESTADO (GAP 2)
+    //    Permite a SellerKing marcar un pedido como RECIBIDO (comprado
+    //    al proveedor pero aun no enviado al cliente).
+    //
+    //    Solo se admiten los estados de ESTADOS_PERMITIDOS_SELLERKING.
+    //    ENVIADO lo gestiona /tracking; CANCELADO/ENTREGADO los gestiona
+    //    el admin de tiendaback directamente.
+    //
+    //    Request body: { "estado": "RECIBIDO" }
+    //    Response 200: { ok, pedidoId, estado, numPedido }
+    //    Response 400: si el estado solicitado no esta permitido
+    //    Response 404: si el pedido no existe
+    // -----------------------------------------------------------------
+    @PostMapping("/orders/{id}/status")
+    public ResponseEntity<?> actualizarEstado(
+            @PathVariable Long id,
+            @RequestBody EstadoRequest body) {
+
+        PedidoEstado nuevoEstado;
+        try {
+            nuevoEstado = PedidoEstado.valueOf(body.estado().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Estado desconocido: " + body.estado()));
+        }
+
+        if (!ESTADOS_PERMITIDOS_SELLERKING.contains(nuevoEstado)) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of(
+                            "error", "Estado '" + nuevoEstado + "' no permitido via API interna.",
+                            "permitidos", ESTADOS_PERMITIDOS_SELLERKING.stream()
+                                    .map(Enum::name).toList()));
+        }
+
+        Optional<Pedido> opt = pedidoRepository.findById(id);
+        if (opt.isEmpty()) return ResponseEntity.notFound().build();
+
+        Pedido pedido = opt.get();
+        pedido.setEstado(nuevoEstado);
+        pedidoRepository.save(pedido);
+
+        return ResponseEntity.ok(Map.of(
+                "ok", true,
+                "pedidoId", id,
+                "estado", pedido.getEstado(),
+                "numPedido", PedidoSalidaInterna.formatNumPedido(pedido)
+        ));
+    }
+
+    // -----------------------------------------------------------------
+    // 4. SYNC DE STOCK
     //    Solo actualiza Producto.stock, sin tocar precio ni otros campos.
     // -----------------------------------------------------------------
     @PatchMapping("/products/{webProductId}/stock")
@@ -142,20 +195,22 @@ public class SellerKingInternalController {
 
     record StockRequest(Integer stock) {}
 
+    record EstadoRequest(String estado) {}
+
     /**
      * Proyeccion minima del pedido para SellerKing.
      * No expone paymentId, paymentGateway ni datos contables.
      *
      * CAMPO CLAVE: erosOrderId == id (Long).
-     * SellerKing usa el nombre 'erosOrderId' del JSON para indexar el pedido
-     * y construir la URL de notify-tracking. Exportamos ambos campos para
-     * que el mapeo en syncFromWeb() funcione correctamente.
+     * CAMPO LEGIBLE: numPedido == "ERO-{anio}-{id:05d}" (ej: ERO-2026-00042)
+     *   -> Coincide con el numero que el cliente recibe en su email de confirmacion.
      */
     record PedidoSalidaInterna(
             Long id,
             Long erosOrderId,          // alias de id — clave que usa SellerKing
+            String numPedido,          // numero legible para el operador (GAP 3)
             String estado,
-            String customerEmail,      // alias de email — nombre que espera SellerKing
+            String customerEmail,      // alias de email
             String email,
             String nombre,
             String apellidos,
@@ -166,10 +221,18 @@ public class SellerKingInternalController {
             String provincia,
             String pais,
             java.math.BigDecimal total,
-            java.math.BigDecimal orderTotal, // alias de total — nombre que espera SellerKing
+            java.math.BigDecimal orderTotal,
             java.time.LocalDateTime fecha,
             List<LineaInterna> lineas
     ) {
+        /** Genera el numero de pedido legible: ERO-2026-00042 */
+        static String formatNumPedido(Pedido p) {
+            String anio = (p.getFecha() != null)
+                    ? String.valueOf(p.getFecha().getYear())
+                    : String.valueOf(java.time.LocalDateTime.now().getYear());
+            return String.format("ERO-%s-%05d", anio, p.getId());
+        }
+
         static PedidoSalidaInterna from(Pedido p) {
             List<LineaInterna> lineas = p.getLineas() == null ? List.of() :
                     p.getLineas().stream().map(l -> new LineaInterna(
@@ -182,7 +245,8 @@ public class SellerKingInternalController {
 
             return new PedidoSalidaInterna(
                     p.getId(),
-                    p.getId(),             // erosOrderId = id numerico
+                    p.getId(),             // erosOrderId
+                    formatNumPedido(p),    // numPedido: ERO-2026-00042
                     p.getEstado() != null ? p.getEstado().name() : null,
                     p.getEmail(),          // customerEmail
                     p.getEmail(),
@@ -195,7 +259,7 @@ public class SellerKingInternalController {
                     p.getProvincia(),
                     p.getPais(),
                     p.getTotal(),
-                    p.getTotal(),          // orderTotal = total
+                    p.getTotal(),          // orderTotal
                     p.getFecha(),
                     lineas
             );
