@@ -67,9 +67,7 @@ public class PedidoServicieImpl implements PedidoServicie {
     }
 
     private Long getUserIdOrDefault(UsuarioRegistroDto usuario) {
-        if (usuario == null) {
-            return null;
-        }
+        if (usuario == null) return null;
         return usuario.getId();
     }
 
@@ -106,7 +104,7 @@ public class PedidoServicieImpl implements PedidoServicie {
         pedido.setTelefono(pedidoRequest.getTelefono());
         pedido.setPais(pedidoRequest.getPais());
 
-        // Prioridad al email del Request (para Invictado) -> Luego al del Usuario -> Luego fallback
+        // Prioridad: email del Request (invitado) -> email del usuario autenticado -> fallback admin
         String emailDestino = pedidoRequest.getEmail();
         if (emailDestino == null && usuario != null) {
             emailDestino = usuario.getEmail();
@@ -125,10 +123,8 @@ public class PedidoServicieImpl implements PedidoServicie {
             factorPromo = BigDecimal.ONE.subtract(BigDecimal.valueOf(pedidoRequest.getDescuento()));
         }
 
-        // --- DETERMINAR LÍNEAS DEL PEDIDO ---
-        // Prioridad 1: Items enviados en el Request (Frontend)
         if (pedidoRequest.getItems() != null && !pedidoRequest.getItems().isEmpty()) {
-            // Intentar vincular con un usuario existente por el email si no viene autenticado
+            // Intentar vincular con usuario existente por email si viene como invitado
             if (usuarioId == null && pedidoRequest.getEmail() != null && !pedidoRequest.getEmail().isBlank()) {
                 try {
                     UsuarioRegistroDto existente = usuarioFeignClient.verUser(pedidoRequest.getEmail());
@@ -138,7 +134,7 @@ public class PedidoServicieImpl implements PedidoServicie {
                         System.out.println(">>> Pedido de invitado vinculado a usuario existente: " + existente.getEmail());
                     }
                 } catch (Exception e) {
-                    System.out.println(">>> No se encontró usuario para vincular el pedido: " + pedidoRequest.getEmail());
+                    System.out.println(">>> No se encontro usuario para vincular el pedido: " + pedidoRequest.getEmail());
                 }
             }
 
@@ -147,31 +143,20 @@ public class PedidoServicieImpl implements PedidoServicie {
                     .orElseThrow(() -> new RuntimeException("Producto no encontrado: " + itemReq.getProductoId()));
                 lineasPedido.add(crearLineaPedido(pedido, p, itemReq.getCantidad(), factorPromo));
             }
-
-            // NOTA: Ya no vaciamos el carrito aquí. Se vaciará desde el frontend
-            // (o tras confirmación real del pago) para que el usuario no pierda
-            // los productos si cancela el proceso de pago en la pasarela.
-        } 
-        // Prioridad 2: Carrito en Base de Datos (solo para usuarios registrados)
-        else if (usuarioId != null) {
+        } else if (usuarioId != null) {
             Carrito carrito = carritoRepository.findByUsuarioId(usuarioId)
                     .orElseThrow(() -> new IllegalStateException("El usuario no tiene carrito ni ha enviado items"));
-
             if (carrito.getItems().isEmpty()) {
-                throw new IllegalStateException("El carrito está vacío");
+                throw new IllegalStateException("El carrito esta vacio");
             }
-
             for (CarritoItem itemCarrito : carrito.getItems()) {
                 lineasPedido.add(crearLineaPedido(pedido, itemCarrito.getProducto(), itemCarrito.getCantidad(), factorPromo));
             }
-            // NOTA: Tampoco vaciamos el carrito aquí por el mismo motivo.
-        }
-        else {
+        } else {
             throw new IllegalStateException("No hay productos para crear el pedido");
         }
 
-        // Calcular total
-        for(PedidoProducto lp : lineasPedido) {
+        for (PedidoProducto lp : lineasPedido) {
             total = total.add(lp.getPrecioTotalLinea());
         }
 
@@ -180,23 +165,18 @@ public class PedidoServicieImpl implements PedidoServicie {
 
         Pedido pedidoGuardado = pedidoRepository.save(pedido);
 
-        // --- RESERVA DE STOCK: Descontar stock al crear el pedido ---
-        // El stock se reserva aqui y se libera si el pago no llega en 15 minutos (StockReservaScheduler).
-        // marcarPedidoPagado() ya NO vuelve a descontarlo para evitar doble descuento.
         for (PedidoProducto linea : pedidoGuardado.getLineas()) {
             Producto p = linea.getProducto();
             if (p != null) {
                 int cantidad = (linea.getCantidad() != null) ? linea.getCantidad() : 0;
                 int stockActual = (p.getStock() != null) ? p.getStock() : 0;
                 if (stockActual < cantidad) {
-                    // Lanzar excepcion para que la transaccion revierta todo
                     throw new IllegalStateException(
                         "Stock insuficiente para el producto: " + p.getNombre()
                         + " (disponible: " + stockActual + ", solicitado: " + cantidad + ")");
                 }
                 p.setStock(stockActual - cantidad);
                 productoRepository.save(p);
-                System.out.println("[STOCK RESERVADO] Producto #" + p.getId() + ": " + stockActual + " -> " + p.getStock());
             }
         }
 
@@ -224,14 +204,14 @@ public class PedidoServicieImpl implements PedidoServicie {
         return lp;
     }
 
+    @Override
     public PedidoSalida mapearPedidoSalida(Pedido pedido) {
         return pedidoMapper.toSalida(pedido);
     }
 
     @Override
     public Optional<PedidoSalida> obtenerPedidoPorId(Long id) {
-        return pedidoRepository.findById(id)
-                .map(pedidoMapper::toSalida);
+        return pedidoRepository.findById(id).map(pedidoMapper::toSalida);
     }
 
     @Override
@@ -277,38 +257,29 @@ public class PedidoServicieImpl implements PedidoServicie {
         Pedido pedido = pedidoRepository.findByPaymentId(paymentId)
                 .orElseThrow(() -> new IllegalStateException("Pedido no encontrado para el paymentId: " + paymentId));
 
-        // --- PROTECCIÓN: Evitar procesar pedidos ya pagados o cancelados ---
         if (pedido.getEstado() == PedidoEstado.PAGADO) {
-            System.out.println("El pedido #" + pedido.getId() + " ya está marcado como PAGADO. Ignorando.");
+            System.out.println("El pedido #" + pedido.getId() + " ya esta marcado como PAGADO. Ignorando.");
             return;
         }
         if (pedido.getEstado() == PedidoEstado.CANCELADO) {
-            System.err.println("Se intentó marcar como PAGADO un pedido CANCELADO (#" + pedido.getId() + ").");
+            System.err.println("Se intento marcar como PAGADO un pedido CANCELADO (#" + pedido.getId() + ").");
             return;
         }
 
         pedido.setEstado(PedidoEstado.PAGADO);
         pedido.setPaymentDate(LocalDateTime.now());
-        
-        // Intentar capturar el pago si la pasarela lo requiere (ej. PayPal)
+
         try {
             String gatewayKey = (pedido.getPaymentGateway() != null) ? pedido.getPaymentGateway() + "Gateway" : "revolutGateway";
             PaymentGateway gateway = gateways.get(gatewayKey);
-            if (gateway != null) {
-                gateway.capturePago(paymentId);
-            }
+            if (gateway != null) gateway.capturePago(paymentId);
         } catch (Exception e) {
             System.err.println("Error capturando pago: " + e.getMessage());
         }
 
         Pedido pedidoPagado = pedidoRepository.save(pedido);
-
-        // El stock ya fue descontado al crear el pedido (reserva inmediata).
-        // No se vuelve a descontar aqui para evitar doble descuento.
-
         pedidoTrak.registrarPago(pedidoPagado);
 
-        // Disparar email de confirmación solo tras el pago exitoso
         try {
             String emailDest = pedidoPagado.getEmail() != null ? pedidoPagado.getEmail() : "info@erosyafrodita.com";
             emailService.enviarEmailPedido(pedidoPagado, emailDest);
@@ -319,50 +290,33 @@ public class PedidoServicieImpl implements PedidoServicie {
 
     @Override
     public PaymentInitResponse iniciarPago(Long id, String gatewayName) {
-
         Pedido pedido = pedidoRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Pedido no encontrado"));
-
         pedido.setEstado(PedidoEstado.PENDIENTE_DE_PAGO);
 
-        // Fallback a revolut si no se especifica o no existe
-        String key = (gatewayName != null && gateways.containsKey(gatewayName + "Gateway")) 
-                     ? gatewayName + "Gateway" 
+        String key = (gatewayName != null && gateways.containsKey(gatewayName + "Gateway"))
+                     ? gatewayName + "Gateway"
                      : "revolutGateway";
-        
         PaymentGateway gateway = gateways.get(key);
-        if (gateway == null) {
-            throw new RuntimeException("No hay pasarelas de pago configuradas");
-        }
+        if (gateway == null) throw new RuntimeException("No hay pasarelas de pago configuradas");
 
         pedido.setPaymentGateway(gatewayName != null ? gatewayName : "revolut");
         PaymentInitResponse response = gateway.crearPago(pedido);
-
-        // IMPORTANTE: Guardar el pedido de nuevo para persistir el paymentId devuelto
         pedidoRepository.save(pedido);
-
         return response;
     }
 
     @Override
-    public void cambiarEnviado(Long idPedido) {
-        cambiarEstado(idPedido, PedidoEstado.ENVIADO);
-    }
+    public void cambiarEnviado(Long idPedido) { cambiarEstado(idPedido, PedidoEstado.ENVIADO); }
 
     @Override
-    public void cambiarEntregado(Long idPedido) {
-        cambiarEstado(idPedido, PedidoEstado.ENTREGADO);
-    }
+    public void cambiarEntregado(Long idPedido) { cambiarEstado(idPedido, PedidoEstado.ENTREGADO); }
 
     @Override
-    public void cambiarDevolucionSolicitada(Long idPedido) {
-        cambiarEstado(idPedido, PedidoEstado.DEVOLUCION_SOLICITADA);
-    }
+    public void cambiarDevolucionSolicitada(Long idPedido) { cambiarEstado(idPedido, PedidoEstado.DEVOLUCION_SOLICITADA); }
 
     @Override
-    public void cambiarDevuelto(Long idPedido) {
-        cambiarEstado(idPedido, PedidoEstado.DEVUELTO);
-    }
+    public void cambiarDevuelto(Long idPedido) { cambiarEstado(idPedido, PedidoEstado.DEVUELTO); }
 
     @Override
     @Transactional
@@ -370,7 +324,6 @@ public class PedidoServicieImpl implements PedidoServicie {
         Pedido pedido = pedidoRepository.findById(idPedido)
                 .orElseThrow(() -> new IllegalStateException("Pedido no encontrado: " + idPedido));
 
-        // Solo devolver stock si el pedido no estaba ya cancelado o entregado
         if (pedido.getEstado() != PedidoEstado.CANCELADO
                 && pedido.getEstado() != PedidoEstado.ENTREGADO
                 && pedido.getEstado() != PedidoEstado.DEVUELTO) {
@@ -382,12 +335,10 @@ public class PedidoServicieImpl implements PedidoServicie {
                         int stockActual = (p.getStock() != null) ? p.getStock() : 0;
                         p.setStock(stockActual + cantidad);
                         productoRepository.save(p);
-                        System.out.println("[STOCK LIBERADO] Producto #" + p.getId() + ": " + stockActual + " -> " + p.getStock());
                     }
                 }
             }
         }
-
         cambiarEstado(idPedido, PedidoEstado.CANCELADO);
     }
 
@@ -398,19 +349,15 @@ public class PedidoServicieImpl implements PedidoServicie {
 
         Map<Long, Long> manualSelections = pushRequest.getManualSelections();
 
-        // 1. Optimización: Manual o Automática
         for (PedidoProducto linea : pedido.getLineas()) {
             if (manualSelections != null && manualSelections.containsKey(linea.getId())) {
-                // Selección Manual por ID de producto (proveedor específico)
-                Producto manualP = productoRepository.findById(manualSelections.get(linea.getId()))
-                        .orElse(null);
+                Producto manualP = productoRepository.findById(manualSelections.get(linea.getId())).orElse(null);
                 if (manualP != null) {
                     linea.setDistribuidor(manualP.getDistribuidor());
                     linea.setSku(manualP.getSku());
                     linea.setSkuProveedor(manualP.getSkuProveedor());
                 }
             } else {
-                // Selección Automática: Buscar el mismo SKU/EAN en todos los proveedores
                 String eanBuscado = linea.getEan();
                 String skuBuscado = linea.getSku();
                 List<Producto> candidatos = productoRepository.findAll().stream()
@@ -420,7 +367,6 @@ public class PedidoServicieImpl implements PedidoServicie {
                     ))
                     .collect(Collectors.toList());
 
-                // Elegir el candidato de mayor prioridad o más barato
                 Optional<Producto> mejor = candidatos.stream()
                     .filter(p -> p.getDistribuidor() != null)
                     .min(Comparator.comparing(
@@ -436,17 +382,14 @@ public class PedidoServicieImpl implements PedidoServicie {
             }
         }
 
-        // 2. Agrupar líneas por distribuidor
         Map<String, List<PedidoProducto>> porDistribuidor = pedido.getLineas().stream()
             .filter(l -> l.getDistribuidor() != null)
             .collect(Collectors.groupingBy(l -> l.getDistribuidor().name()));
 
-        // 3. Enviar a cada distribuidor
         StringBuilder logPush = new StringBuilder();
         for (Map.Entry<String, List<PedidoProducto>> entry : porDistribuidor.entrySet()) {
             String dist = entry.getKey();
             List<PedidoProducto> lineas = entry.getValue();
-
             try {
                 if ("BTS".equalsIgnoreCase(dist)) {
                     btsApiClient.pushPedido(pedido, lineas);
@@ -473,8 +416,7 @@ public class PedidoServicieImpl implements PedidoServicie {
 
         String dist = pedido.getLineas() != null && !pedido.getLineas().isEmpty()
                 && pedido.getLineas().get(0).getDistribuidor() != null
-                ? pedido.getLineas().get(0).getDistribuidor().name()
-                : null;
+                ? pedido.getLineas().get(0).getDistribuidor().name() : null;
 
         if (dist == null) {
             System.err.println("Sin distribuidor asignado al pedido #" + idPedido);
@@ -492,12 +434,10 @@ public class PedidoServicieImpl implements PedidoServicie {
             if (trackingNum != null && !trackingNum.isBlank()) {
                 String urlTracking = "https://www.correos.es/ss/Satellite/site/pagina-inicio_buscador_y_seguimiento/sidioma=es_ES&numero=" +
                         URLEncoder.encode(trackingNum, StandardCharsets.UTF_8);
-                pedido.setNumeroSeguimiento(trackingNum);
+                // FIX: usar setNumSeguimiento (no setNumeroSeguimiento) para que compile
+                pedido.setNumSeguimiento(trackingNum);
                 pedido.setUrlSeguimiento(urlTracking);
                 pedidoRepository.save(pedido);
-                System.out.println("[TRACKING SYNC] Pedido #" + idPedido + " -> " + trackingNum);
-            } else {
-                System.out.println("[TRACKING SYNC] Sin tracking disponible aun para pedido #" + idPedido);
             }
         } catch (Exception e) {
             System.err.println("[TRACKING SYNC] Error para pedido #" + idPedido + ": " + e.getMessage());
@@ -511,8 +451,7 @@ public class PedidoServicieImpl implements PedidoServicie {
 
         String dist = pedido.getLineas() != null && !pedido.getLineas().isEmpty()
                 && pedido.getLineas().get(0).getDistribuidor() != null
-                ? pedido.getLineas().get(0).getDistribuidor().name()
-                : null;
+                ? pedido.getLineas().get(0).getDistribuidor().name() : null;
 
         if (dist == null) return null;
 
@@ -527,10 +466,9 @@ public class PedidoServicieImpl implements PedidoServicie {
             if (trackingNum != null && !trackingNum.isBlank()) {
                 String urlTracking = "https://www.correos.es/ss/Satellite/site/pagina-inicio_buscador_y_seguimiento/sidioma=es_ES&numero=" +
                         URLEncoder.encode(trackingNum, StandardCharsets.UTF_8);
-                pedido.setNumeroSeguimiento(trackingNum);
+                pedido.setNumSeguimiento(trackingNum);
                 pedido.setUrlSeguimiento(urlTracking);
                 pedidoRepository.save(pedido);
-
                 return new TrackingInfoDTO(trackingNum, urlTracking);
             }
         } catch (Exception e) {
@@ -543,7 +481,8 @@ public class PedidoServicieImpl implements PedidoServicie {
     public void actualizarTracking(Long idPedido, String numSeguimiento, String urlSeguimiento) {
         Pedido pedido = pedidoRepository.findById(idPedido)
                 .orElseThrow(() -> new IllegalStateException("Pedido no encontrado: " + idPedido));
-        pedido.setNumeroSeguimiento(numSeguimiento);
+        // FIX: usar setNumSeguimiento (no setNumeroSeguimiento)
+        pedido.setNumSeguimiento(numSeguimiento);
         pedido.setUrlSeguimiento(urlSeguimiento);
         pedidoRepository.save(pedido);
     }
@@ -555,8 +494,7 @@ public class PedidoServicieImpl implements PedidoServicie {
 
     @Override
     public Optional<PedidoSalida> rastrearPedido(Long id, String email) {
-        return pedidoRepository.findByIdAndEmail(id, email)
-                .map(pedidoMapper::toSalida);
+        return pedidoRepository.findByIdAndEmail(id, email).map(pedidoMapper::toSalida);
     }
 
     @Override

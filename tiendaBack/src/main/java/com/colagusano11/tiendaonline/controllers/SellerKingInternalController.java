@@ -5,10 +5,10 @@ import com.colagusano11.tiendaonline.models.PedidoEstado;
 import com.colagusano11.tiendaonline.models.Producto;
 import com.colagusano11.tiendaonline.repositories.PedidoRepository;
 import com.colagusano11.tiendaonline.repositories.ProductoRepository;
+import com.colagusano11.tiendaonline.services.EmailService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -18,9 +18,9 @@ import java.util.Optional;
  * Protegidos por SellerKingApiKeyFilter (Bearer API key).
  *
  * Contratos:
- *   GET    /api/internal/orders                       → lista pedidos 'confirmed' (PENDIENTE/RECIBIDO)
- *   POST   /api/internal/orders/{id}/tracking         → notificar tracking + marcar ENVIADO
- *   PATCH  /api/internal/products/{webProductId}/stock → actualizar stock
+ *   GET    /api/internal/orders                        -> lista pedidos 'confirmed' (PAGADO/RECIBIDO)
+ *   POST   /api/internal/orders/{id}/tracking          -> notificar tracking + marcar ENVIADO + email cliente
+ *   PATCH  /api/internal/products/{webProductId}/stock -> actualizar stock
  */
 @RestController
 @RequestMapping("/api/internal")
@@ -28,22 +28,27 @@ public class SellerKingInternalController {
 
     private final PedidoRepository pedidoRepository;
     private final ProductoRepository productoRepository;
+    private final EmailService emailService;
 
     public SellerKingInternalController(PedidoRepository pedidoRepository,
-                                        ProductoRepository productoRepository) {
+                                        ProductoRepository productoRepository,
+                                        EmailService emailService) {
         this.pedidoRepository = pedidoRepository;
         this.productoRepository = productoRepository;
+        this.emailService = emailService;
     }
 
-    // ─────────────────────────────────────────────────────────────────
+    // -----------------------------------------------------------------
     // 1. SYNC DE PEDIDOS
-    //    SellerKing llama periódicamente para obtener pedidos nuevos
-    //    (estado PENDIENTE o RECIBIDO = equivalente a 'confirmed' en EA)
-    // ─────────────────────────────────────────────────────────────────
+    //    SellerKing llama periodicamente para obtener pedidos nuevos.
+    //    Devuelve los pedidos en estado PAGADO o RECIBIDO:
+    //      - PAGADO  = pago confirmado, pendiente de comprar al proveedor
+    //      - RECIBIDO = ya comprado al proveedor, pendiente de envio
+    // -----------------------------------------------------------------
     @GetMapping("/orders")
     public ResponseEntity<List<PedidoSalidaInterna>> getPedidosPendientes() {
         List<Pedido> pedidos = pedidoRepository
-                .findByEstadoIn(List.of(PedidoEstado.PENDIENTE, PedidoEstado.RECIBIDO));
+                .findByEstadoIn(List.of(PedidoEstado.PAGADO, PedidoEstado.RECIBIDO));
 
         List<PedidoSalidaInterna> result = pedidos.stream()
                 .map(PedidoSalidaInterna::from)
@@ -52,13 +57,13 @@ public class SellerKingInternalController {
         return ResponseEntity.ok(result);
     }
 
-    // ─────────────────────────────────────────────────────────────────
+    // -----------------------------------------------------------------
     // 2. NOTIFICAR TRACKING
-    //    SellerKing envía carrier + trackingNumber + trackingUrl.
-    //    Se actualiza el pedido y se marca como ENVIADO.
-    //    Si el pedido tiene email, el servicio de email existente
-    //    enviará la notificación al cliente (ver TODO abajo).
-    // ─────────────────────────────────────────────────────────────────
+    //    SellerKing envia carrier + trackingNumber + trackingUrl.
+    //    - Actualiza numSeguimiento y urlSeguimiento en el pedido
+    //    - Marca el pedido como ENVIADO
+    //    - Envia email al cliente (invitado o registrado) si tiene email
+    // -----------------------------------------------------------------
     @PostMapping("/orders/{id}/tracking")
     public ResponseEntity<?> notificarTracking(
             @PathVariable Long id,
@@ -76,23 +81,32 @@ public class SellerKingInternalController {
         pedido.setEstado(PedidoEstado.ENVIADO);
         pedidoRepository.save(pedido);
 
-        // TODO: si pedido.getEmail() != null → disparar email de envío al cliente
-        // (reutilizar el EmailService existente con template de tracking)
+        // Enviar email de envio al cliente (funciona para invitados y registrados)
+        String emailDest = pedido.getEmail();
+        if (emailDest != null && !emailDest.isBlank() && !emailDest.equals("info@erosyafrodita.com")) {
+            try {
+                emailService.enviarEmailEnvio(pedido, body.trackingNumber(), body.trackingUrl(), emailDest);
+            } catch (Exception e) {
+                // Log del error pero no bloqueamos la respuesta — el tracking ya esta guardado
+                System.err.println("[TRACKING EMAIL] Error enviando email a " + emailDest + ": " + e.getMessage());
+            }
+        }
 
         return ResponseEntity.ok(Map.of(
                 "ok", true,
                 "pedidoId", id,
                 "estado", pedido.getEstado(),
-                "numSeguimiento", pedido.getNumSeguimiento(),
-                "urlSeguimiento", pedido.getUrlSeguimiento() != null ? pedido.getUrlSeguimiento() : ""
+                "numSeguimiento", pedido.getNumSeguimiento() != null ? pedido.getNumSeguimiento() : "",
+                "urlSeguimiento", pedido.getUrlSeguimiento() != null ? pedido.getUrlSeguimiento() : "",
+                "emailEnviado", emailDest != null && !emailDest.isBlank() && !emailDest.equals("info@erosyafrodita.com")
         ));
     }
 
-    // ─────────────────────────────────────────────────────────────────
+    // -----------------------------------------------------------------
     // 3. SYNC DE STOCK
-    //    SellerKing envía el nuevo stock disponible de un producto.
-    //    Se actualiza Producto.stock sin tocar precio ni otros campos.
-    // ─────────────────────────────────────────────────────────────────
+    //    SellerKing envia el nuevo stock disponible de un producto.
+    //    Solo actualiza Producto.stock, sin tocar precio ni otros campos.
+    // -----------------------------------------------------------------
     @PatchMapping("/products/{webProductId}/stock")
     public ResponseEntity<?> actualizarStock(
             @PathVariable Long webProductId,
@@ -114,17 +128,17 @@ public class SellerKingInternalController {
         ));
     }
 
-    // ─────────────────────────────────────────────────────────────────
-    // DTOs internos (records — Java 16+, disponible en Java 17)
-    // ─────────────────────────────────────────────────────────────────
+    // -----------------------------------------------------------------
+    // DTOs internos (Java records — requiere Java 16+)
+    // -----------------------------------------------------------------
 
     record TrackingRequest(String carrier, String trackingNumber, String trackingUrl) {}
 
     record StockRequest(Integer stock) {}
 
     /**
-     * Proyección mínima del pedido para SellerKing.
-     * Solo expone lo necesario para el flujo operativo (no datos de pago).
+     * Proyeccion minima del pedido para SellerKing.
+     * No expone paymentId, paymentGateway ni datos contables.
      */
     record PedidoSalidaInterna(
             Long id,

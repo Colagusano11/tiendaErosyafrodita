@@ -11,11 +11,10 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
 
-    // Colores y Estilos Premium
     private static final String COLOR_GOLD = "#D4AF37";
     private static final String COLOR_BG = "#1A1A1A";
     private static final String COLOR_SURFACE = "#252525";
-    private static final String STYLISH_TEMPLATE = 
+    private static final String STYLISH_TEMPLATE =
         "<html><body style='margin:0;padding:0;background-color:" + COLOR_BG + ";font-family:\"Helvetica Neue\",Helvetica,Arial,sans-serif;color:#ffffff;'>" +
         "<table width='100%' border='0' cellspacing='0' cellpadding='0' style='background-color:" + COLOR_BG + ";padding:40px 20px;'>" +
         "<tr><td align='center'>" +
@@ -43,11 +42,9 @@ public class EmailService {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            
             helper.setTo(destino);
             helper.setSubject(asunto);
             helper.setText(htmlContent, true);
-            
             mailSender.send(message);
         } catch (MessagingException e) {
             throw new RuntimeException("Error al enviar email: " + e.getMessage());
@@ -57,11 +54,10 @@ public class EmailService {
     public void enviarEmailVerificacion(String destino, String token) {
         String subject = "Bienvenido a la Boutique de Eros & Afrodita";
         String urlVerificacion = "http://localhost:8080/auth/verify?token=" + token;
-        
-        String content = 
+        String content =
             "<h2 style='font-size:24px;margin-bottom:20px;color:#ffffff;'>Bienvenido al Olimpo de la Exclusividad</h2>" +
             "<p style='font-size:16px;line-height:1.6;color:rgba(255,255,255,0.7);margin-bottom:30px;'>" +
-            "Tu viaje comienza aquí. Por favor, confirma tu identidad para acceder a nuestra boutique y descubrir piezas seleccionadas para tu deleite." +
+            "Tu viaje comienza aqui. Por favor, confirma tu identidad para acceder a nuestra boutique y descubrir piezas seleccionadas para tu deleite." +
             "</p>" +
             "<div style='text-align:center;margin-bottom:30px;'>" +
             "  <a href='" + urlVerificacion + "' style='display:inline-block;padding:18px 40px;background-color:" + COLOR_GOLD + ";color:#1A1A1A;text-decoration:none;font-weight:900;border-radius:12px;text-transform:uppercase;letter-spacing:2px;font-size:12px;'>Activar mi Cuenta</a>" +
@@ -69,7 +65,6 @@ public class EmailService {
             "<p style='font-size:14px;color:rgba(255,255,255,0.4);border-top:1px solid rgba(255,255,255,0.05);padding-top:20px;'>" +
             "Si no has solicitado el registro en nuestra boutique, puedes ignorar este mensaje." +
             "</p>";
-
         String fullHtml = STYLISH_TEMPLATE.replace("{{CONTENT}}", content);
         enviarHtml(destino, subject, fullHtml);
     }
@@ -81,8 +76,8 @@ public class EmailService {
     }
 
     public void enviarEmailPedido(com.colagusano11.tiendaonline.models.Pedido pedido, String destino) {
-        String subject = "Confirmación de Pedido #" + pedido.getId() + " - Eros & Afrodita";
-        
+        String subject = "Confirmacion de Pedido #" + pedido.getId() + " - Eros & Afrodita";
+
         StringBuilder productosHtml = new StringBuilder();
         productosHtml.append("<table width='100%' cellspacing='0' cellpadding='10' style='color:#ffffff;border-collapse:collapse;margin-bottom:30px;'>");
         productosHtml.append("<tr style='border-bottom:1px solid rgba(255,255,255,0.1);text-align:left;font-size:12px;color:rgba(255,255,255,0.4);'>");
@@ -96,21 +91,21 @@ public class EmailService {
             productosHtml.append("<div><p style='margin:0;font-weight:bold;font-size:14px;'>").append(linea.getNombreProducto()).append("</p></div>");
             productosHtml.append("</div></td>");
             productosHtml.append("<td style='text-align:center;'>").append(linea.getCantidad()).append("</td>");
-            productosHtml.append("<td style='text-align:right;font-weight:bold;'>").append(linea.getPrecioUnitario()).append("€</td>");
+            productosHtml.append("<td style='text-align:right;font-weight:bold;'>").append(linea.getPrecioUnitario()).append("\u20ac</td>");
             productosHtml.append("</tr>");
         }
         productosHtml.append("</table>");
 
-        String content = 
-            "<h2 style='font-size:24px;margin-bottom:10px;color:" + COLOR_GOLD + ";'>¡Gracias por tu pedido!</h2>" +
-            "<p style='font-size:16px;color:rgba(255,255,255,0.7);margin-bottom:30px;'>Hemos recibido tu solicitud. Tu selección está siendo preparada con el máximo cuidado en nuestra boutique.</p>" +
+        String content =
+            "<h2 style='font-size:24px;margin-bottom:10px;color:" + COLOR_GOLD + ";'>\u00a1Gracias por tu pedido!</h2>" +
+            "<p style='font-size:16px;color:rgba(255,255,255,0.7);margin-bottom:30px;'>Hemos recibido tu solicitud. Tu seleccion esta siendo preparada con el maximo cuidado en nuestra boutique.</p>" +
             "<div style='background-color:rgba(0,0,0,0.2);padding:25px;border-radius:16px;margin-bottom:30px;'>" +
             "  <p style='margin:0 0 10px;font-size:12px;color:rgba(255,255,255,0.4);text-transform:uppercase;'>Resumen del Pedido #" + pedido.getId() + "</p>" +
                productosHtml.toString() +
             "  <div style='border-top:1px solid rgba(255,255,255,0.1);padding-top:20px;'>" +
-            "    <div style='display:flex;justify-content:space-between;margin-bottom:10px;'><span style='color:rgba(255,255,255,0.4);'>Subtotal:</span><span style='color:#fff;font-weight:bold;margin-left:auto;'> " + pedido.getTotal() + "€</span></div>" +
-            "    <div style='display:flex;justify-content:space-between;margin-bottom:10px;'><span style='color:rgba(255,255,255,0.4);'>Envío:</span><span style='color:#2ecc71;font-weight:bold;margin-left:auto;'> GRATIS</span></div>" +
-            "    <div style='display:flex;justify-content:space-between;font-size:20px;margin-top:10px;color:" + COLOR_GOLD + ";'><span style='font-weight:900;'>TOTAL:</span><span style='font-weight:900;margin-left:auto;'> " + pedido.getTotal() + "€</span></div>" +
+            "    <div style='display:flex;justify-content:space-between;margin-bottom:10px;'><span style='color:rgba(255,255,255,0.4);'>Subtotal:</span><span style='color:#fff;font-weight:bold;margin-left:auto;'> " + pedido.getTotal() + "\u20ac</span></div>" +
+            "    <div style='display:flex;justify-content:space-between;margin-bottom:10px;'><span style='color:rgba(255,255,255,0.4);'>Envio:</span><span style='color:#2ecc71;font-weight:bold;margin-left:auto;'> GRATIS</span></div>" +
+            "    <div style='display:flex;justify-content:space-between;font-size:20px;margin-top:10px;color:" + COLOR_GOLD + ";'><span style='font-weight:900;'>TOTAL:</span><span style='font-weight:900;margin-left:auto;'> " + pedido.getTotal() + "\u20ac</span></div>" +
             "  </div>" +
             "</div>" +
             "<div style='border-left:4px solid " + COLOR_GOLD + ";padding-left:20px;margin-bottom:30px;'>" +
@@ -119,14 +114,53 @@ public class EmailService {
             "  <p style='margin:5px 0 0;font-size:14px;color:rgba(255,255,255,0.7);line-height:1.6;'>" +
                pedido.getCalle() + "<br/>" + pedido.getCodigoPostal() + " " + pedido.getCiudad() + " (" + pedido.getProvincia() + ")</p>" +
             "</div>" +
-            "<p style='font-size:14px;color:rgba(255,255,255,0.4);text-align:center;'>Recibirás un nuevo correo cuando tu pedido sea enviado con los detalles del seguimiento.</p>";
+            "<p style='font-size:14px;color:rgba(255,255,255,0.4);text-align:center;'>Recibiras un nuevo correo cuando tu pedido sea enviado con los detalles del seguimiento.</p>";
 
         String fullHtml = STYLISH_TEMPLATE.replace("{{CONTENT}}", content);
-        
-        // Enviamos al cliente
         enviarHtml(destino, subject, fullHtml);
-        
-        // Enviamos copia al Admin (Tú)
         enviarHtml("Erosyafrodita.com@gmail.com", "[ADMIN] Nuevo Pedido Recibido #" + pedido.getId(), fullHtml);
+    }
+
+    /**
+     * Email de envio con tracking — se llama desde SellerKingInternalController
+     * cuando SellerKing notifica el numero de seguimiento.
+     * Funciona tanto para clientes registrados como para invitados
+     * (el email esta siempre guardado en Pedido.email).
+     */
+    public void enviarEmailEnvio(com.colagusano11.tiendaonline.models.Pedido pedido,
+                                  String numSeguimiento,
+                                  String urlSeguimiento,
+                                  String destino) {
+        String subject = "Tu pedido #" + pedido.getId() + " ha sido enviado \u2014 Eros & Afrodita";
+
+        String botonTracking = (urlSeguimiento != null && !urlSeguimiento.isBlank())
+            ? "<div style='text-align:center;margin:30px 0;'>" +
+              "  <a href='" + urlSeguimiento + "' style='display:inline-block;padding:18px 40px;background-color:" + COLOR_GOLD + ";color:#1A1A1A;text-decoration:none;font-weight:900;border-radius:12px;text-transform:uppercase;letter-spacing:2px;font-size:12px;'>Rastrear mi Pedido</a>" +
+              "</div>"
+            : "";
+
+        String numHtml = (numSeguimiento != null && !numSeguimiento.isBlank())
+            ? "<p style='font-size:14px;color:rgba(255,255,255,0.5);text-align:center;margin-top:10px;'>N\u00famero de seguimiento: <strong style='color:#fff;'>" + numSeguimiento + "</strong></p>"
+            : "";
+
+        String content =
+            "<h2 style='font-size:24px;margin-bottom:10px;color:" + COLOR_GOLD + ";'>\u00a1Tu pedido est\u00e1 en camino!</h2>" +
+            "<p style='font-size:16px;color:rgba(255,255,255,0.7);margin-bottom:20px;'>" +
+            "Hola <strong>" + pedido.getNombre() + "</strong>, tu pedido <strong>#" + pedido.getId() + "</strong> ha salido de nuestro almac\u00e9n y est\u00e1 en manos del transportista." +
+            "</p>" +
+            botonTracking +
+            numHtml +
+            "<div style='border-left:4px solid " + COLOR_GOLD + ";padding-left:20px;margin:30px 0;'>" +
+            "  <h3 style='font-size:14px;margin:0 0 10px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.4);'>Direcci\u00f3n de entrega</h3>" +
+            "  <p style='margin:0;font-size:16px;font-weight:bold;color:#fff;'>" + pedido.getNombre() + " " + pedido.getApellidos() + "</p>" +
+            "  <p style='margin:5px 0 0;font-size:14px;color:rgba(255,255,255,0.7);line-height:1.6;'>" +
+               pedido.getCalle() + "<br/>" + pedido.getCodigoPostal() + " " + pedido.getCiudad() + " (" + pedido.getProvincia() + ")</p>" +
+            "</div>" +
+            "<p style='font-size:13px;color:rgba(255,255,255,0.3);text-align:center;'>" +
+            "Si tienes cualquier duda puedes rastrear tu pedido en cualquier momento desde <a href='https://erosyafrodita.com/rastrear' style='color:" + COLOR_GOLD + ";'>erosyafrodita.com</a>." +
+            "</p>";
+
+        String fullHtml = STYLISH_TEMPLATE.replace("{{CONTENT}}", content);
+        enviarHtml(destino, subject, fullHtml);
     }
 }
