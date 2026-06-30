@@ -18,9 +18,15 @@ import java.util.Optional;
  * Protegidos por SellerKingApiKeyFilter (Bearer API key).
  *
  * Contratos:
- *   GET    /api/internal/orders                        -> lista pedidos 'confirmed' (PAGADO/RECIBIDO)
+ *   GET    /api/internal/orders                        -> lista pedidos PAGADO/RECIBIDO
+ *                                                         Devuelve erosOrderId (= id numerico del pedido)
  *   POST   /api/internal/orders/{id}/tracking          -> notificar tracking + marcar ENVIADO + email cliente
+ *                                                         {id} es el Long id de la tabla pedidos
  *   PATCH  /api/internal/products/{webProductId}/stock -> actualizar stock
+ *
+ * IMPORTANTE: SellerKing guarda el campo 'erosOrderId' del JSON como clave
+ * para volver a llamar a este backend. Por eso PedidoSalidaInterna expone
+ * el id numerico bajo el nombre 'erosOrderId' ademas de 'id'.
  */
 @RestController
 @RequestMapping("/api/internal")
@@ -42,7 +48,7 @@ public class SellerKingInternalController {
     // 1. SYNC DE PEDIDOS
     //    SellerKing llama periodicamente para obtener pedidos nuevos.
     //    Devuelve los pedidos en estado PAGADO o RECIBIDO:
-    //      - PAGADO  = pago confirmado, pendiente de comprar al proveedor
+    //      - PAGADO   = pago confirmado, pendiente de comprar al proveedor
     //      - RECIBIDO = ya comprado al proveedor, pendiente de envio
     // -----------------------------------------------------------------
     @GetMapping("/orders")
@@ -60,6 +66,7 @@ public class SellerKingInternalController {
     // -----------------------------------------------------------------
     // 2. NOTIFICAR TRACKING
     //    SellerKing envia carrier + trackingNumber + trackingUrl.
+    //    {id} es el Long id de la tabla pedidos (= erosOrderId del JSON).
     //    - Actualiza numSeguimiento y urlSeguimiento en el pedido
     //    - Marca el pedido como ENVIADO
     //    - Envia email al cliente (invitado o registrado) si tiene email
@@ -87,7 +94,6 @@ public class SellerKingInternalController {
             try {
                 emailService.enviarEmailEnvio(pedido, body.trackingNumber(), body.trackingUrl(), emailDest);
             } catch (Exception e) {
-                // Log del error pero no bloqueamos la respuesta — el tracking ya esta guardado
                 System.err.println("[TRACKING EMAIL] Error enviando email a " + emailDest + ": " + e.getMessage());
             }
         }
@@ -139,10 +145,17 @@ public class SellerKingInternalController {
     /**
      * Proyeccion minima del pedido para SellerKing.
      * No expone paymentId, paymentGateway ni datos contables.
+     *
+     * CAMPO CLAVE: erosOrderId == id (Long).
+     * SellerKing usa el nombre 'erosOrderId' del JSON para indexar el pedido
+     * y construir la URL de notify-tracking. Exportamos ambos campos para
+     * que el mapeo en syncFromWeb() funcione correctamente.
      */
     record PedidoSalidaInterna(
             Long id,
+            Long erosOrderId,          // alias de id — clave que usa SellerKing
             String estado,
+            String customerEmail,      // alias de email — nombre que espera SellerKing
             String email,
             String nombre,
             String apellidos,
@@ -153,6 +166,7 @@ public class SellerKingInternalController {
             String provincia,
             String pais,
             java.math.BigDecimal total,
+            java.math.BigDecimal orderTotal, // alias de total — nombre que espera SellerKing
             java.time.LocalDateTime fecha,
             List<LineaInterna> lineas
     ) {
@@ -168,7 +182,9 @@ public class SellerKingInternalController {
 
             return new PedidoSalidaInterna(
                     p.getId(),
+                    p.getId(),             // erosOrderId = id numerico
                     p.getEstado() != null ? p.getEstado().name() : null,
+                    p.getEmail(),          // customerEmail
                     p.getEmail(),
                     p.getNombre(),
                     p.getApellidos(),
@@ -179,6 +195,7 @@ public class SellerKingInternalController {
                     p.getProvincia(),
                     p.getPais(),
                     p.getTotal(),
+                    p.getTotal(),          // orderTotal = total
                     p.getFecha(),
                     lineas
             );
