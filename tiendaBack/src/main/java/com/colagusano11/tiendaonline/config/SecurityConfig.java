@@ -21,9 +21,12 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
+    private final SellerKingApiKeyFilter sellerKingApiKeyFilter;
 
-    public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
+    public SecurityConfig(JwtAuthFilter jwtAuthFilter,
+                          SellerKingApiKeyFilter sellerKingApiKeyFilter) {
         this.jwtAuthFilter = jwtAuthFilter;
+        this.sellerKingApiKeyFilter = sellerKingApiKeyFilter;
     }
 
     @Bean
@@ -41,6 +44,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // Permitir preflight OPTIONS para todo
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                // Endpoints internos de SellerKing: protegidos por SellerKingApiKeyFilter (no JWT)
+                .requestMatchers("/api/internal/**").permitAll()
                 // Endpoints públicos: auth, registro, productos, categorías
                 .requestMatchers(HttpMethod.POST, "/auth/**", "/usuarios/registro").permitAll()
                 .requestMatchers(HttpMethod.GET, "/productos/**", "/categorias/**", "/api/feeds/**", "/proxy-image/**", "/resenas/**", "/pedidos/rastrear", "/api/cupones/validar/**", "/cupones/validar/**").permitAll()
@@ -70,6 +75,9 @@ public class SecurityConfig {
                 // Todo lo demás requiere autenticación JWT
                 .anyRequest().authenticated()
             )
+            // SellerKingApiKeyFilter se ejecuta ANTES que JwtAuthFilter
+            // para interceptar /api/internal/** sin tocar las rutas JWT
+            .addFilterBefore(sellerKingApiKeyFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
             .httpBasic(httpBasic -> httpBasic.disable());
 
