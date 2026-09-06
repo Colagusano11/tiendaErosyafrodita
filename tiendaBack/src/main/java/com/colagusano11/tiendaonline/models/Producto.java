@@ -114,7 +114,8 @@ public class Producto {
     }
 
     private void generarSlug() {
-        if (this.nombre != null) {
+        // Solo auto-genera si no se ha asignado ya un slug explícito (ej: desde SellerKing)
+        if (this.nombre != null && (this.slug == null || this.slug.isBlank())) {
             String baseSlug = this.nombre.toLowerCase()
                 .replaceAll("[^a-z0-9\\s]", "")
                 .replaceAll("\\s+", "-");
@@ -192,4 +193,12 @@ public class Producto {
     public void setCopyInstagram(String copyInstagram)    { this.copyInstagram = copyInstagram; }
     public LocalDateTime getCopyGeneradoEn()              { return copyGeneradoEn; }
     public void setCopyGeneradoEn(LocalDateTime t)        { this.copyGeneradoEn = t; }
+
+    // ─── Alias para compatibilidad con servicios de feed ─────────────────────
+    /** Alias de {@link #getManufacturer()} usado en feeds externos. */
+    public String getMarca()      { return manufacturer; }
+    /** Alias de {@link #getImagen()} usado en feeds externos. */
+    public String getImagenUrl()  { return imagen; }
+    /** Alias de {@link #getSku()} usado como MPN en feeds externos. */
+    public String getReferencia() { return sku; }
 }

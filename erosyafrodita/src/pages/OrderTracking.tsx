@@ -35,7 +35,7 @@ const TrackOrder: React.FC = () => {
     };
 
     return (
-        <div className="bg-background-dark font-display min-h-screen flex flex-col text-white">
+        <div className="bg-background-dark font-display min-h-screen flex flex-col text-charcoal">
             <Header />
 
             <main className="flex-1 flex flex-col items-center py-12 px-4">
@@ -51,7 +51,7 @@ const TrackOrder: React.FC = () => {
                             <div className="text-center mb-10">
                                 <span className="text-primary text-[10px] font-black uppercase tracking-[0.5em] mb-4 block">Seguimiento de Pedido</span>
                                 <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-4">Rastrea tu Tesoro</h1>
-                                <p className="text-yellow-300/60 text-sm font-light leading-relaxed">
+                                <p className="text-charcoal/50 text-sm font-light leading-relaxed">
                                     Introduce los detalles que recibiste en tu correo de confirmación para ver el estado de tu ritual de belleza en tiempo real.
                                 </p>
                             </div>
@@ -76,7 +76,7 @@ const TrackOrder: React.FC = () => {
                                                 value={orderId}
                                                 onChange={(e) => setOrderId(e.target.value)}
                                                 placeholder="Ej: 1024"
-                                                className="w-full h-14 bg-background-dark border border-white/5 rounded-2xl pl-14 pr-6 text-white placeholder:text-white/10 focus:border-primary/50 outline-none transition-all group-hover:border-white/10"
+                                                className="w-full h-14 bg-background-dark border border-charcoal/10 rounded-2xl pl-14 pr-6 text-charcoal placeholder:text-charcoal/30 focus:border-primary/50 outline-none transition-all group-hover:border-charcoal/20"
                                                 required
                                             />
                                         </div>
@@ -91,7 +91,7 @@ const TrackOrder: React.FC = () => {
                                                 value={email}
                                                 onChange={(e) => setEmail(e.target.value)}
                                                 placeholder="tu@email.com"
-                                                className="w-full h-14 bg-background-dark border border-white/5 rounded-2xl pl-14 pr-6 text-white placeholder:text-white/10 focus:border-primary/50 outline-none transition-all group-hover:border-white/10"
+                                                className="w-full h-14 bg-background-dark border border-charcoal/10 rounded-2xl pl-14 pr-6 text-charcoal placeholder:text-charcoal/30 focus:border-primary/50 outline-none transition-all group-hover:border-charcoal/20"
                                                 required
                                             />
                                         </div>
@@ -100,11 +100,11 @@ const TrackOrder: React.FC = () => {
                                     <button 
                                         disabled={loading}
                                         type="submit"
-                                        className="w-full h-14 bg-primary hover:bg-white text-background-dark font-black text-xs uppercase tracking-[0.2em] rounded-2xl mt-4 transition-all shadow-xl shadow-primary/20 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3"
+                                        className="w-full h-14 bg-primary hover:bg-white text-charcoal font-black text-xs uppercase tracking-[0.2em] rounded-2xl mt-4 transition-all shadow-xl shadow-primary/20 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3"
                                     >
                                         {loading ? (
                                             <>
-                                                <span className="size-4 border-2 border-background-dark/30 border-t-background-dark rounded-full animate-spin" />
+                                                <span className="size-4 border-2 border-charcoal/30 border-t-charcoal rounded-full animate-spin" />
                                                 Buscando...
                                             </>
                                         ) : (
@@ -128,7 +128,7 @@ const TrackOrder: React.FC = () => {
                                 <div className="flex items-center gap-4">
                                     <button 
                                         onClick={() => setPedido(null)}
-                                        className="size-12 rounded-full border border-white/5 flex items-center justify-center hover:bg-white/5 transition-all text-white/50 hover:text-white"
+                                        className="size-12 rounded-full border border-charcoal/10 flex items-center justify-center hover:bg-charcoal/5 transition-all text-charcoal/50 hover:text-charcoal"
                                     >
                                         <span className="material-symbols-outlined">arrow_back</span>
                                     </button>
@@ -139,48 +139,63 @@ const TrackOrder: React.FC = () => {
                                         </p>
                                     </div>
                                 </div>
-                                <div className="flex bg-[#1a170d] px-6 py-3 rounded-2xl border border-primary/20 items-center gap-3">
+                                <div className="flex bg-charcoal-surface px-6 py-3 rounded-2xl border border-primary/20 items-center gap-3">
                                     <span className="material-symbols-outlined text-primary">calendar_month</span>
-                                    <span className="text-sm font-bold text-yellow-300/80">
+                                    <span className="text-sm font-bold text-charcoal/70">
                                         {new Date(pedido.fechaCreacion).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}
                                     </span>
                                 </div>
                             </div>
 
-                            {/* Tracking visual simplified from OrderDetailPage */}
-                            <div className="w-full bg-[#1a170d] rounded-[2.5rem] p-8 md:p-12 border border-[#493f22]/30 shadow-2xl mb-8">
-                                <div className="flex flex-col md:flex-row justify-between w-full relative">
-                                    <div className="hidden md:block absolute top-[16px] left-[40px] right-[40px] h-[3px] bg-white/5 z-0 rounded-full">
-                                        <div
-                                            className="h-full bg-primary shadow-[0_0_15px_rgba(242,185,13,0.3)] transition-all duration-1000 ease-out"
-                                            style={{
-                                                width: `${pedido.estado === 'ENTREGADO' || pedido.estado === 'ENVIADO' ? '100%' :
-                                                    pedido.estado === 'RECIBIDO' ? '66%' :
-                                                        pedido.estado === 'PAGADO' ? '33%' : '0%'
-                                                }`
-                                            }}
-                                        />
-                                    </div>
-
-                                    {/* Steps */}
-                                    {[
-                                        { label: 'Confirmado', icon: 'check', active: ['PAGADO', 'RECIBIDO', 'ENVIADO', 'ENTREGADO'].includes(pedido.estado) },
-                                        { label: 'Preparando', icon: 'inventory_2', active: ['RECIBIDO', 'ENVIADO', 'ENTREGADO'].includes(pedido.estado) },
-                                        { label: 'En Camino', icon: 'local_shipping', active: ['ENVIADO', 'ENTREGADO'].includes(pedido.estado) },
-                                        { label: 'Entregado', icon: 'done_all', active: pedido.estado === 'ENTREGADO' }
-                                    ].map((step, idx) => (
-                                        <div key={idx} className="relative z-10 flex flex-row md:flex-col items-center gap-4 md:gap-3 mb-6 md:mb-0">
-                                            <div className={`size-8 rounded-full flex items-center justify-center transition-all duration-500 ${step.active 
-                                                ? 'bg-primary text-background-dark shadow-[0_0_20px_rgba(242,185,13,0.4)] scale-110' 
-                                                : 'bg-white/5 text-white/20 border border-white/5'
-                                            }`}>
-                                                <span className="material-symbols-outlined text-sm font-black">{step.icon}</span>
-                                            </div>
-                                            <p className={`text-[10px] font-black uppercase tracking-widest ${step.active ? 'text-primary' : 'text-white/20'}`}>{step.label}</p>
-                                        </div>
-                                    ))}
-                                </div>
+                            {/* Estado del pedido — badges */}
+                            <div className="flex flex-wrap items-center gap-3 mb-8">
+                                <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/15 border border-primary/30 text-primary text-[10px] font-black uppercase tracking-widest">
+                                    <span className="material-symbols-outlined text-sm">check_circle</span>
+                                    Confirmado
+                                </span>
+                                {['ENVIADO', 'ENTREGADO'].includes(pedido.estado) ? (
+                                    <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[10px] font-black uppercase tracking-widest">
+                                        <span className="material-symbols-outlined text-sm">local_shipping</span>
+                                        {pedido.estado === 'ENTREGADO' ? 'Entregado' : 'En camino'}
+                                    </span>
+                                ) : (
+                                    <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-black uppercase tracking-widest">
+                                        <span className="material-symbols-outlined text-sm">info</span>
+                                        Esperando tracking
+                                    </span>
+                                )}
                             </div>
+
+                            {/* Tracking Link — visible cuando el pedido está enviado */}
+                            {['ENVIADO', 'ENTREGADO'].includes(pedido.estado) && pedido.urlSeguimiento && (
+                                <div className="w-full bg-emerald-500/10 border border-emerald-500/20 rounded-[2rem] p-8 mb-8 flex flex-col md:flex-row items-center gap-6">
+                                    <div className="flex items-center gap-4 flex-1">
+                                        <div className="size-14 rounded-2xl bg-emerald-500/20 flex items-center justify-center shrink-0">
+                                            <span className="material-symbols-outlined text-2xl text-emerald-400">local_shipping</span>
+                                        </div>
+                                        <div>
+                                            <p className="text-[9px] font-black uppercase tracking-widest text-emerald-400 mb-1">Tu pedido está en camino</p>
+                                            <p className="text-charcoal font-bold text-sm">
+                                                {pedido.estadoProveedor ? `Transportista: ${pedido.estadoProveedor}` : "Pedido enviado"}
+                                            </p>
+                                            {pedido.numSeguimiento && (
+                                                <p className="text-charcoal/50 text-xs mt-0.5">
+                                                    Nº seguimiento: <span className="text-charcoal font-bold">{pedido.numSeguimiento}</span>
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <a
+                                        href={pedido.urlSeguimiento}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="shrink-0 h-14 px-8 bg-emerald-500 hover:bg-emerald-400 text-white font-black text-[11px] uppercase tracking-[0.2em] rounded-2xl transition-all shadow-xl shadow-emerald-500/20 flex items-center gap-3 active:scale-[0.98]"
+                                    >
+                                        <span className="material-symbols-outlined text-base">open_in_new</span>
+                                        Rastrear mi envío
+                                    </a>
+                                </div>
+                            )}
 
                             {/* Product Details Section */}
                             <div className="bg-surface-dark rounded-[2.5rem] border border-white/5 overflow-hidden shadow-2xl mb-8">
@@ -193,11 +208,11 @@ const TrackOrder: React.FC = () => {
                                 <div className="p-8 md:p-10 space-y-8">
                                     {pedido.productos.map((prod, idx) => (
                                         <div key={idx} className="flex flex-col sm:flex-row items-center gap-6 group/item">
-                                            <div className="size-24 shrink-0 rounded-2xl overflow-hidden bg-background-dark border border-white/5 p-2 transition-all group-hover/item:border-primary/30 flex items-center justify-center">
+                                            <div className="size-24 shrink-0 rounded-2xl overflow-hidden bg-background-dark border border-charcoal/10 p-2 transition-all group-hover/item:border-primary/30 flex items-center justify-center">
                                                 {prod.imagen ? (
                                                     <img src={prod.imagen} alt={prod.nombreProducto} className="max-w-full max-h-full object-contain" />
                                                 ) : (
-                                                    <div className="w-full h-full flex items-center justify-center bg-white/5 uppercase text-[10px] font-bold text-gray-600">No Img</div>
+                                                    <div className="w-full h-full flex items-center justify-center bg-charcoal/5 uppercase text-[10px] font-bold text-gray-600">No Img</div>
                                                 )}
                                             </div>
                                             <div className="flex-grow text-center sm:text-left">
@@ -254,8 +269,8 @@ const TrackOrder: React.FC = () => {
                                 <div className="bg-primary/5 p-8 rounded-[2rem] border border-primary/20 flex flex-col justify-center">
                                     <h3 className="text-primary/60 text-[10px] font-black uppercase tracking-widest mb-4">¿Necesitas ayuda?</h3>
                                     <div className="flex gap-4">
-                                        <Link to="/contact" className="flex-1 h-12 bg-white/5 hover:bg-white/10 rounded-xl flex items-center justify-center text-xs font-bold transition-all">Soporte</Link>
-                                        <a href={`https://wa.me/34600000000?text=Hola, tengo una duda sobre mi pedido #${pedido.idPedido}`} className="flex-1 h-12 bg-primary text-background-dark rounded-xl flex items-center justify-center text-xs font-black uppercase tracking-tighter transition-all">WhatsApp</a>
+                                        <Link to="/contact" className="flex-1 h-12 bg-charcoal/5 hover:bg-charcoal/10 rounded-xl flex items-center justify-center text-xs font-bold transition-all">Soporte</Link>
+                                        <a href={`https://wa.me/34600000000?text=Hola, tengo una duda sobre mi pedido #${pedido.idPedido}`} className="flex-1 h-12 bg-primary text-charcoal rounded-xl flex items-center justify-center text-xs font-black uppercase tracking-tighter transition-all">WhatsApp</a>
                                     </div>
                                 </div>
                             </div>

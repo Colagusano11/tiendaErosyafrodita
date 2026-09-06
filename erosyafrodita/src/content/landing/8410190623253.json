@@ -1,0 +1,46 @@
+{
+  "brand": "Adolfo Dominguez",
+  "claim": "La fuerza de la naturaleza en tu piel.",
+  "shortDescription": "Bambú de Adolfo Domínguez es una fragancia enérgica y fresca, inspirada en la flexibilidad y resistencia del bambú oriental. Combina toques cítricos, herbales y amaderados.",
+  "benefits": [
+    "Estela fresca y enérgica de larga duración.",
+    "Ideal para usar tras la ducha matutina.",
+    "Aroma verde sumamente refrescante."
+  ],
+  "fragranceFamily": "Amaderada Verde",
+  "topNotes": [
+    "Bambú",
+    "Limon",
+    "Nota Marina"
+  ],
+  "heartNotes": [
+    "Cardamomo",
+    "Nuez Moscada"
+  ],
+  "baseNotes": [
+    "Cedro",
+    "Almizcle",
+    "Cuero"
+  ],
+  "recommendedFor": [
+    "Hombres vitales",
+    "Amantes de las fragancias frescas y verdes"
+  ],
+  "recommendedOccasions": [
+    "Uso diario",
+    "Mañanas de primavera",
+    "Después del gimnasio"
+  ],
+  "season": [
+    "Primavera",
+    "Verano"
+  ],
+  "faqs": [
+    {
+      "question": "¿Es adecuada para uso diario?",
+      "answer": "Sí, es una fragancia con un nivel de proyección idóneo para usar en el día a día sin abrumar."
+    }
+  ],
+  "seoTitle": "",
+  "seoDescription": "Fragancia fresca y natural inspirada en la vitalidad de los bosques de bambú."
+}

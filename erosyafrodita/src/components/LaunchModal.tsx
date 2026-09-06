@@ -33,7 +33,7 @@ const LaunchModal: React.FC = () => {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.35 }}
-          className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md"
+          className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-charcoal/70 backdrop-blur-md"
           onClick={(e) => { if (e.target === e.currentTarget) dismiss(); }}
         >          <motion.div
             key="launch-modal"
@@ -41,7 +41,7 @@ const LaunchModal: React.FC = () => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.94, y: 16 }}
             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="relative w-full max-w-[95%] sm:max-w-lg bg-black border border-white/10 rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-2xl shadow-black"
+            className="relative w-full max-w-[95%] sm:max-w-lg bg-charcoal border border-white/10 rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-2xl shadow-black"
           >
             {/* Botón cerrar */}
             <button
@@ -58,7 +58,7 @@ const LaunchModal: React.FC = () => {
             <div className="flex flex-col items-center text-center px-5 sm:px-10 pt-7 sm:pt-10 pb-7 sm:pb-10 gap-4 sm:gap-5">
 
               {/* Logo */}
-              <img src={logo} alt="Eros & Afrodita" className="h-9 sm:h-14 object-contain" />
+              <img src={logo} alt="AGE Parfums" className="h-9 sm:h-14 object-contain" />
 
               {/* Badge lanzamiento */}
               <div className="flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-full px-3 sm:px-4 py-1.5">
@@ -72,7 +72,7 @@ const LaunchModal: React.FC = () => {
               <div className="flex flex-col gap-1">
                 <h2 className="text-xl sm:text-4xl font-black italic uppercase tracking-tighter text-white leading-tight sm:leading-none">
                   Bienvenido/a a<br />
-                  <span className="text-primary">Eros & Afrodita</span>
+                  <span className="text-primary">AGE Parfums</span>
                 </h2>
                 <p className="text-slate-400 text-[11px] sm:text-sm font-medium mt-1 sm:mt-2 leading-relaxed max-w-[280px] sm:max-w-none">
                   Tu destino de perfumería y cosmética premium. Celebra nuestro lanzamiento con una oferta exclusiva.

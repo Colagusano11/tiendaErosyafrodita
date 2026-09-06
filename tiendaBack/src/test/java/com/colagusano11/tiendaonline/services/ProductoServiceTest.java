@@ -49,20 +49,6 @@ void creacionCodigoSku(){
 
   }
 
-  @Test
-  void crecionSku2(){
-    String manufacturer = "Lorenzo villesi";
-    String ean = "314543";
-
-    Producto p = new Producto();
-    p.setManufacturer(manufacturer.toUpperCase());
-    p.setEan(ean);
-
-    String sku2String = productoServiceImpl.createSku2(p);
-
-    assertEquals("NAY-LOR-314",sku2String); 
-
-  }
 
   @Test
   void mostrarTodos(){

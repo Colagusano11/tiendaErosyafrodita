@@ -41,7 +41,7 @@ const AlertModal: React.FC = () => {
                         initial={{ scale: 0.9, opacity: 0, y: 20 }}
                         animate={{ scale: 1, opacity: 1, y: 0 }}
                         exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                        className="relative bg-charcoal-surface w-full max-w-[90%] sm:max-w-sm rounded-[2rem] sm:rounded-[2.5rem] border border-white/10 p-6 sm:p-8 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.8)] overflow-hidden"
+                        className="relative bg-charcoal-surface w-full max-w-[90%] sm:max-w-sm rounded-[2rem] sm:rounded-[2.5rem] border border-charcoal/10 p-6 sm:p-8 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.2)] overflow-hidden"
                     >
                         {/* Glow effect */}
                         <div className={`absolute -top-24 left-1/2 -translate-x-1/2 size-40 sm:size-48 rounded-full blur-[60px] sm:blur-[80px] opacity-30 bg-gradient-to-b ${getColorClass().split(' ').slice(0,1)}`} />
@@ -51,19 +51,19 @@ const AlertModal: React.FC = () => {
                                 <span className="material-symbols-outlined text-[30px] sm:text-[40px] font-light">{getIcon()}</span>
                             </div>
                             
-                            <h2 className="text-xl sm:text-2xl font-black text-white mb-2 tracking-tighter uppercase px-2">
+                            <h2 className="text-xl sm:text-2xl font-black text-charcoal mb-2 tracking-tighter uppercase px-2">
                                 {alertState.title}
                             </h2>
-                            <p className="text-white/50 text-[11px] sm:text-[13px] mb-6 sm:mb-8 leading-relaxed font-light px-2">
+                            <p className="text-charcoal/50 text-[11px] sm:text-[13px] mb-6 sm:mb-8 leading-relaxed font-light px-2">
                                 {alertState.message}
                             </p>
-                            
+
                             {alertState.onConfirm ? (
                                 <div className="flex flex-col gap-3 w-full">
                                     <div className="flex gap-3 w-full">
-                                        <button 
+                                        <button
                                             onClick={hideAlert}
-                                            className="flex-1 h-12 sm:h-14 bg-white/5 hover:bg-white/10 text-white/40 hover:text-white font-black text-[9px] sm:text-[10px] uppercase tracking-widest rounded-xl sm:rounded-2xl border border-white/5 transition-all active:scale-95"
+                                            className="flex-1 h-12 sm:h-14 bg-charcoal/5 hover:bg-charcoal/10 text-charcoal/40 hover:text-charcoal font-black text-[9px] sm:text-[10px] uppercase tracking-widest rounded-xl sm:rounded-2xl border border-charcoal/5 transition-all active:scale-95"
                                         >
                                             Cancelar
                                         </button>

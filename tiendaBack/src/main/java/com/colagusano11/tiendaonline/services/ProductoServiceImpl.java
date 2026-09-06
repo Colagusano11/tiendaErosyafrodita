@@ -74,30 +74,7 @@ public class ProductoServiceImpl implements ProductoService {
 
     @Override
     public String createSku(Producto p) {
-        if (p.getDistribuidor() == Distribuidor.BTS) {
-            return "B" + p.getSkuProveedor();
-        } else if (p.getDistribuidor() == Distribuidor.NOVAENGEL) {
-            return "N" + p.getSkuProveedor();
-        }
-        
-        // Fallback para otros distribuidores o creación manual
         String prov = p.getDistribuidor() != null ? p.getDistribuidor().name().substring(0, 3) : "GEN";
-        String marca = p.getManufacturer() != null ? p.getManufacturer().toUpperCase() : "GEN";
-        marca = marca.replaceAll("[^A-Z0-9]", "");
-        if (marca.length() > 3) {
-            marca = marca.substring(0, 3);
-        } else if (marca.length() < 3) {
-            marca = String.format("%-3s", marca).replace(' ', 'X');
-        }
-        String idEan = p.getEan() != null ? p.getEan() : "0";
-        if (idEan.length() > 3) idEan = idEan.substring(0, 3);
-
-        return prov + "-" + marca + "-" + idEan;
-    }
-
-    @Override
-    public String createSku2(Producto p) {
-        String prov = "NAY";
         String marca = p.getManufacturer() != null ? p.getManufacturer().toUpperCase() : "GEN";
         marca = marca.replaceAll("[^A-Z0-9]", "");
         if (marca.length() > 3) {

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useCallback, useContext, useState } from "react";
 
 type AlertType = "info" | "success" | "error" | "warning";
 
@@ -38,7 +38,7 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         type: "info",
     });
 
-    const showAlert = (title: string, message: string, type: AlertType = "info") => {
+    const showAlert = useCallback((title: string, message: string, type: AlertType = "info") => {
         setAlertState({
             isOpen: true,
             title,
@@ -46,13 +46,13 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             type,
             onConfirm: undefined,
         });
-    };
+    }, []);
 
-    const showConfirm = (
-        title: string, 
-        message: string, 
-        onConfirm: () => void, 
-        type: AlertType = "warning", 
+    const showConfirm = useCallback((
+        title: string,
+        message: string,
+        onConfirm: () => void,
+        type: AlertType = "warning",
         confirmText: string = "Confirmar",
         onSecondary?: () => void,
         secondaryText?: string
@@ -67,11 +67,11 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             onSecondary,
             secondaryText
         });
-    };
+    }, []);
 
-    const hideAlert = () => {
+    const hideAlert = useCallback(() => {
         setAlertState((prev) => ({ ...prev, isOpen: false }));
-    };
+    }, []);
 
     return (
         <AlertContext.Provider value={{ showAlert, showConfirm, hideAlert, alertState }}>

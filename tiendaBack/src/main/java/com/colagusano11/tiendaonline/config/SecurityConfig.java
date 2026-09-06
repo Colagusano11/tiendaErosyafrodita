@@ -48,17 +48,23 @@ public class SecurityConfig {
                 .requestMatchers("/api/internal/**").permitAll()
                 // Endpoints públicos: auth, registro, productos, categorías
                 .requestMatchers(HttpMethod.POST, "/auth/**", "/usuarios/registro").permitAll()
-                .requestMatchers(HttpMethod.GET, "/productos/**", "/categorias/**", "/api/feeds/**", "/proxy-image/**", "/resenas/**", "/pedidos/rastrear", "/api/cupones/validar/**", "/cupones/validar/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/productos/**", "/categorias/**", "/api/feeds/**", "/feeds/**", "/api/feed/**", "/feed/**", "/proxy-image/**", "/resenas/**", "/pedidos/rastrear", "/api/cupones/validar/**", "/cupones/validar/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/avisos-stock/suscribir", "/api/avisos-stock/suscribir").permitAll()
                 .requestMatchers(HttpMethod.GET, "/actuator/**").permitAll()
                 // Endpoints de Pedidos para Invitados (crear pedido y arrancar pago con Revolut)
                 .requestMatchers(HttpMethod.POST, "/pedidos", "/api/pedidos", "/pedidos/confirmar", "/api/pedidos/confirmar").permitAll()
                 .requestMatchers(HttpMethod.POST, "/pedidos/*/pago/revolut", "/api/pedidos/*/pago/revolut").permitAll()
+                // Confirmación de pago (invitado, tras aprobar en PayPal/Revolut): el checkout de
+                // invitado la llama sin sesión, así que NO puede exigir ADMIN (antes lo exigía y
+                // dejaba todos los pedidos pagados con PayPal atascados en PENDIENTE_DE_PAGO). La
+                // verificación real de que el pago existe de verdad ahora la hace
+                // PedidoServicieImpl.marcarPedidoPagado() llamando a la pasarela correspondiente
+                // ANTES de marcar PAGADO, no confiando en el payload del cliente.
+                .requestMatchers(HttpMethod.POST, "/pedidos/pago/confirmar", "/api/pedidos/pago/confirmar").permitAll()
                 // Webhook externo de Revolut (llamada server-to-server, sin JWT)
                 .requestMatchers(HttpMethod.POST, "/pagos/revolut/webhook", "/api/pagos/revolut/webhook").permitAll()
-                // SEGURIDAD: rescatar y confirmar-pago manual requieren ADMIN
+                // SEGURIDAD: rescatar pedidos atascados requiere ADMIN (acción manual de emergencia)
                 .requestMatchers(HttpMethod.POST, "/pedidos/rescatar/**", "/api/pedidos/rescatar/**").hasAnyAuthority("ADMIN", "ROLE_ADMIN")
-                .requestMatchers(HttpMethod.POST, "/pedidos/pago/confirmar", "/api/pedidos/pago/confirmar").hasAnyAuthority("ADMIN", "ROLE_ADMIN")
                 // El resto de pedidos (cambiar estados, borrar, etc) requiere ADMIN
                 .requestMatchers(HttpMethod.POST, "/pedidos/**", "/api/pedidos/**").hasAnyAuthority("ADMIN", "ROLE_ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/pedidos/**", "/api/pedidos/**").hasAnyAuthority("ADMIN", "ROLE_ADMIN")
@@ -72,6 +78,8 @@ public class SecurityConfig {
                 // Cupónes: Permitir verlos a todos, pero solo ADMIN puede crear/borrar
                 .requestMatchers(HttpMethod.GET, "/api/cupones", "/api/cupones/**", "/cupones", "/cupones/**").permitAll()
                 .requestMatchers("/admin/**", "/api/admin/dashboard/**", "/api/cupones", "/api/cupones/**", "/cupones", "/cupones/**").hasAnyAuthority("ADMIN", "ROLE_ADMIN")
+                // API interna de proveedores — autenticación por API key (ver InternalApiKeyFilter)
+                .requestMatchers("/internal/**").permitAll()
                 // Todo lo demás requiere autenticación JWT
                 .anyRequest().authenticated()
             )

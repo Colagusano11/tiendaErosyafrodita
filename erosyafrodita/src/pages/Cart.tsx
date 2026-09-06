@@ -13,7 +13,7 @@ const Cart: React.FC = () => {
   const itemCount: number = items.reduce((sum, i) => sum + i.quantity, 0);
 
   return (
-    <div className="bg-background-dark font-display text-white min-h-screen flex flex-col">
+    <div className="bg-background-dark font-display text-charcoal min-h-screen flex flex-col">
       <Header />
       <main className="flex-grow w-full max-w-[1440px] mx-auto px-4 md:px-10 py-10">
         <h1 className="text-2xl sm:text-4xl font-extrabold mb-6 sm:mb-8">
@@ -24,7 +24,7 @@ const Cart: React.FC = () => {
         </h1>
 
         {items.length === 0 ? (
-          <div className="text-gray-400">
+          <div className="text-charcoal/60">
             <p className="mb-4">Tu carrito está vacío.</p>
             <Link
               to="/"
@@ -68,7 +68,7 @@ const Cart: React.FC = () => {
                     <div className="flex items-center justify-between mt-4">
                       <div className="flex items-center bg-background-dark rounded-full p-1 border border-border-dark">
                         <button
-                          className="size-8 flex items-center justify-center rounded-full hover:bg-surface-dark text-gray-400"
+                          className="size-8 flex items-center justify-center rounded-full hover:bg-surface-dark hover:text-white text-charcoal/50"
                           onClick={() => updateQuantity(product.id, quantity - 1)}
                         >
                           <span className="material-symbols-outlined !text-[18px]">
@@ -79,7 +79,7 @@ const Cart: React.FC = () => {
                           {quantity}
                         </span>
                         <button
-                          className="size-8 flex items-center justify-center rounded-full hover:bg-surface-dark text-gray-400"
+                          className="size-8 flex items-center justify-center rounded-full hover:bg-surface-dark hover:text-white text-charcoal/50"
                           onClick={() => updateQuantity(product.id, quantity + 1)}
                         >
                           <span className="material-symbols-outlined !text-[18px]">
@@ -148,7 +148,7 @@ const Cart: React.FC = () => {
                 </button>
                 <Link
                   to="/checkout"
-                  className="w-full bg-primary hover:bg-white text-background-dark h-14 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-2 shadow-lg"
+                  className="w-full bg-primary hover:bg-white text-charcoal h-14 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-2 shadow-lg"
                 >
                   Finalizar Compra{" "}
                   <span className="material-symbols-outlined">

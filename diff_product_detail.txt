@@ -1,0 +1,270 @@
+diff --git a/erosyafrodita/src/pages/ProductDetail.tsx b/erosyafrodita/src/pages/ProductDetail.tsx
+index e22d30f..dd15847 100644
+--- a/erosyafrodita/src/pages/ProductDetail.tsx
++++ b/erosyafrodita/src/pages/ProductDetail.tsx
+@@ -16,6 +16,15 @@ import { useAlert } from "../context/AlertContext";
+ import { suscribirAvisoStock } from "../api/stock";
+ import StockAlertModal from "../components/StockAlertModal";
+ 
++// Nuevos componentes de la landing premium adaptada del HTML
++import { getMarketingContent } from "../config/marketingDemo";
++import { ProductHeroVideo } from "../components/product-landing/ProductHeroVideo";
++import { FragranceProfileGrid } from "../components/product-landing/FragranceProfileGrid";
++import { ProductGalleryGrid } from "../components/product-landing/ProductGalleryGrid";
++import { ProductPurchaseCard } from "../components/product-landing/ProductPurchaseCard";
++import { ProductFAQAccordion } from "../components/product-landing/ProductFAQAccordion";
++import { RelatedProducts } from "../components/product-landing/RelatedProducts";
++
+ 
+ // Marcas curadas de Novedades (Sincronizado con Home)
+ const NOVEDADES_BRANDS = [
+@@ -233,6 +242,249 @@ const ProductDetail: React.FC = () => {
+         ? product.descripcion.replace(/<[^>]+>/g, "").slice(0, 155)
+         : `Descubre ${name} de ${brand}. Fragancia exclusiva con envío gratis en Eros y Afrodita.`);
+ 
++  const marketingContent = product ? getMarketingContent(product.id, product.manufacturer, product.nombre) : null;
++
++  if (marketingContent) {
++    return (
++      <div className="bg-perfume-sand text-perfume-green font-display flex flex-col min-h-screen">
++        <SEO
++          title={marketingContent.seoTitle || seoTitle}
++          description={marketingContent.seoDescription || seoDescription}
++          image={mainImg || undefined}
++          keywords={`${name}, ${brand}, perfumes de lujo, comprar perfume online, ${brand} L.12.12 Blanc`}
++          type="product"
++          price={precioFinal.toFixed(2)}
++          availability={product.stock > 0 ? 'in stock' : 'out of stock'}
++          brand={brand}
++          ean={product.ean || undefined}
++        />
++        {/* Schema.org JSON-LD */}
++        <script type="application/ld+json">
++          {JSON.stringify([
++            {
++              "@context": "https://schema.org/",
++              "@type": "Product",
++              "name": name,
++              "image": mainImg,
++              "description": marketingContent.seoDescription || seoDescription,
++              "sku": product.sku || product.id.toString(),
++              "gtin13": product.ean || undefined,
++              "brand": {
++                "@type": "Brand",
++                "name": brand
++              },
++              "offers": {
++                "@type": "Offer",
++                "url": window.location.href,
++                "priceCurrency": "EUR",
++                "price": precioFinal.toFixed(2),
++                "availability": product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
++                "itemCondition": "https://schema.org/NewCondition",
++                "priceValidUntil": new Date(new Date().getFullYear(), 11, 31).toISOString().split('T')[0]
++              },
++              ...(reviewsTotal > 0 ? {
++                "aggregateRating": {
++                  "@type": "AggregateRating",
++                  "ratingValue": reviewsMedia,
++                  "reviewCount": reviewsTotal,
++                  "bestRating": "5",
++                  "worstRating": "1"
++                },
++                "review": reviews.slice(0, 5).map(r => ({
++                  "@type": "Review",
++                  "reviewRating": {
++                    "@type": "Rating",
++                    "ratingValue": r.rating
++                  },
++                  "author": {
++                    "@type": "Person",
++                    "name": r.nombreUsuario
++                  },
++                  "reviewBody": r.comentario,
++                  "datePublished": new Date(r.fecha).toISOString().split('T')[0]
++                }))
++              } : {})
++            },
++            {
++              "@context": "https://schema.org",
++              "@type": "BreadcrumbList",
++              "itemListElement": [
++                {
++                  "@type": "ListItem",
++                  "position": 1,
++                  "name": "Inicio",
++                  "item": window.location.origin + "/#/"
++                },
++                {
++                  "@type": "ListItem",
++                  "position": 2,
++                  "name": "Catálogo",
++                  "item": window.location.origin + "/#/catalog"
++                },
++                {
++                  "@type": "ListItem",
++                  "position": 3,
++                  "name": name,
++                  "item": window.location.href
++                }
++              ]
++            }
++          ])}
++        </script>
++        <Header />
++        
++        <main className="flex-grow">
++          <ProductHeroVideo
++            product={product}
++            marketing={marketingContent}
++          />
++          <FragranceProfileGrid marketing={marketingContent} />
++          <ProductGalleryGrid />
++          <ProductPurchaseCard
++            product={product}
++            marketing={marketingContent}
++            onNotifyStock={handleNotify}
++          />
++          <ProductFAQAccordion marketing={marketingContent} />
++          <RelatedProducts recomendados={recomendados} />
++
++          {/* Sección de reseñas adaptada estilísticamente */}
++          <section className="bg-perfume-sand-dark text-perfume-green font-display py-16 md:py-24 border-b border-perfume-sand-dark/60">
++            <div className="w-full max-w-[1100px] mx-auto px-4 md:px-10">
++              <div className="flex flex-col lg:flex-row gap-20">
++                {/* Resumen de Ratings */}
++                <div className="w-full lg:w-1/3">
++                  <h3 className="text-2xl font-black mb-8 tracking-tighter uppercase">Opiniones de Clientes</h3>
++                  <div className="flex items-center gap-6 mb-10">
++                    <span className="text-7xl font-black text-perfume-green">{reviewsTotal > 0 ? reviewsMedia.toFixed(1) : "—"}</span>
++                    <div>
++                      <div className="flex mb-1">
++                        {[1, 2, 3, 4, 5].map(s => (
++                          <span key={s} className={`material-symbols-outlined !text-[18px] ${s <= Math.round(reviewsMedia) ? "text-perfume-green" : "text-perfume-green/20"}`}>star</span>
++                        ))}
++                      </div>
++                      <p className="text-[9px] font-black uppercase tracking-widest text-perfume-green/50">
++                        {reviewsTotal > 0 ? `Basado en ${reviewsTotal} valoraciones` : "Sin opiniones aún"}
++                      </p>
++                    </div>
++                  </div>
++
++                  <div className="space-y-3">
++                    {[5, 4, 3, 2, 1].map(num => {
++                      const count = reviews.filter(r => r.rating === num).length;
++                      const pct = reviewsTotal > 0 ? Math.round((count / reviewsTotal) * 100) : 0;
++                      return (
++                        <div key={num} className="flex items-center gap-4">
++                          <span className="text-[9px] font-bold text-perfume-green/40 w-2">{num}</span>
++                          <div className="flex-1 h-1.5 bg-white rounded-full overflow-hidden border border-perfume-sand-dark">
++                            <div className="h-full bg-perfume-green transition-all duration-500" style={{ width: `${pct}%` }}></div>
++                          </div>
++                          <span className="text-[9px] text-perfume-green/30 w-6 text-right">{pct}%</span>
++                        </div>
++                      );
++                    })}
++                  </div>
++                </div>
++
++                {/* Lista y Formulario */}
++                <div className="flex-1">
++                  {/* Formulario */}
++                  <div className="bg-white p-8 lg:p-12 rounded-[2rem] border border-perfume-sand-dark mb-16 relative overflow-hidden group shadow-sm">
++                    <h4 className="text-sm font-black mb-6 uppercase tracking-widest">Comparte tu Experiencia</h4>
++
++                    {!isAuthenticated ? (
++                      <p className="text-perfume-green/60 text-xs font-light">
++                        <Link to="/login" className="text-perfume-green hover:underline font-black">Inicia sesión</Link> para dejar una reseña.
++                      </p>
++                    ) : !hasPurchased ? (
++                      <div className="flex flex-col gap-4">
++                        <p className="text-perfume-green/60 text-xs font-light">
++                          Solo los usuarios que han adquirido esta fragancia pueden compartir su experiencia.
++                        </p>
++                        <div className="p-3.5 rounded-2xl bg-perfume-green/5 border border-perfume-green/10 inline-block w-fit">
++                          <span className="text-[9px] font-black uppercase tracking-widest text-perfume-green flex items-center gap-2">
++                            <span className="material-symbols-outlined !text-[14px]">receipt_long</span> Compra verificada requerida
++                          </span>
++                        </div>
++                      </div>
++                    ) : (
++                      <>
++                        <div className="flex gap-1 mb-6 items-center">
++                          <span className="text-[10px] text-perfume-green/50 mr-4 font-black uppercase">Calificación:</span>
++                          {[1, 2, 3, 4, 5].map(s => (
++                            <button
++                              key={s}
++                              onClick={() => setNewRating(s)}
++                              onMouseEnter={() => setNewRating(s)}
++                              onMouseLeave={() => setNewRating(0)}
++                              className="transition-colors"
++                            >
++                              <span className={`material-symbols-outlined text-[24px] ${s <= (hoverRating || newRating) ? "text-perfume-green" : "text-perfume-green/20"}`}>star</span>
++                            </button>
++                          ))}
++                        </div>
++                        <textarea
++                          className="w-full bg-white border border-perfume-sand-dark rounded-3xl p-5 text-xs focus:border-perfume-green/40 outline-none h-28 mb-4 font-light text-perfume-green placeholder:text-perfume-green/20 transition-all"
++                          placeholder="Describe cómo te hizo sentir esta fragancia..."
++                          value={newComment}
++                          onChange={e => setNewComment(e.target.value)}
++                        />
++                        {submitError && <p className="text-rose-600 text-[10px] mb-4 font-bold">{submitError}</p>}
++                        <button
++                          onClick={handleSubmitReview}
++                          disabled={submitting}
++                          className="px-8 h-12 bg-perfume-green text-perfume-sand rounded-full text-[9px] font-black uppercase tracking-[0.2em] hover:bg-perfume-lime hover:text-perfume-green transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
++                        >
++                          {submitting ? "Publicando..." : "Publicar Reseña"}
++                        </button>
++                      </>
++                    )}
++                  </div>
++
++                  {/* Comentarios */}
++                  <div className="space-y-8">
++                    {reviews.length === 0 && (
++                      <p className="text-perfume-green/40 text-xs font-light italic">Aún no hay reseñas. ¡Sé el primero!</p>
++                    )}
++                    {reviews.map(r => (
++                      <div
++                        key={r.id}
++                        className="border-b border-perfume-sand-dark/60 pb-8 last:border-0"
++                      >
++                        <div className="flex justify-between items-start mb-4">
++                          <div>
++                            <p className="font-black text-xs uppercase tracking-widest text-perfume-green">{r.nombreUsuario}</p>
++                            <div className="flex mt-1">
++                              {[1, 2, 3, 4, 5].map(s => (
++                                <span key={s} className={`material-symbols-outlined !text-[12px] ${s <= r.rating ? "text-perfume-green" : "text-perfume-green/20"}`}>star</span>
++                              ))}
++                            </div>
++                          </div>
++                          <span className="text-[8px] font-bold text-perfume-green/30 uppercase tracking-widest">
++                            {new Date(r.fecha).toLocaleDateString("es-ES", { day: "2-digit", month: "short", year: "numeric" })}
++                          </span>
++                        </div>
++                        {r.comentario && <p className="text-perfume-green/70 text-xs leading-relaxed italic font-light">"{r.comentario}"</p>}
++                      </div>
++                    ))}
++                  </div>
++                </div>
++              </div>
++            </div>
++          </section>
++        </main>
++        
++        <Footer />
++        <StockAlertModal 
++          isOpen={isStockModalOpen}
++          onClose={() => setIsStockModalOpen(false)}
++          onSubmit={onStockAlertSubmit}
++          productName={product.nombre}
++        />
++      </div>
++    );
++  }
++
+   return (
+     <div className="bg-background-dark text-text-main font-display flex flex-col min-h-screen">
+       <SEO

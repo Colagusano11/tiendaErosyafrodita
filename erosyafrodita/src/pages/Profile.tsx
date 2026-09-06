@@ -218,12 +218,12 @@ const Profile: React.FC = () => {
 
 
   return (
-    <div className="bg-background-dark font-display text-white min-h-screen flex flex-col">
+    <div className="bg-background-dark font-display text-charcoal min-h-screen flex flex-col">
       <Header />
 
       <main className="flex-grow w-full max-w-7xl mx-auto px-4 md:px-10 py-8">
         {/* Migas de pan */}
-        <nav className="mb-8 flex items-center text-sm font-medium text-yellow-300/70">
+        <nav className="mb-8 flex items-center text-sm font-medium text-charcoal/50">
           <Link to="/" className="hover:text-primary transition-colors">
             Inicio
           </Link>
@@ -244,9 +244,9 @@ const Profile: React.FC = () => {
         <div className="flex flex-col lg:flex-row gap-6 sm:gap-8">
           {/* Sidebar / Navigation Tabs */}
           <aside className="w-full lg:w-64 shrink-0 overflow-x-auto no-scrollbar lg:overflow-visible">
-            <div className="flex lg:flex-col gap-2 min-w-max lg:min-w-0 lg:sticky lg:top-24 rounded-xl bg-surface-dark p-2 sm:p-4 lg:p-6 border border-[#493f22]">
+            <div className="flex lg:flex-col gap-2 min-w-max lg:min-w-0 lg:sticky lg:top-24 rounded-xl bg-surface-dark p-2 sm:p-4 lg:p-6 border border-dark">
               {/* User - Hidden on mobile nav to save space */}
-              <div className="hidden lg:flex mb-8 items-center gap-4 border-b border-[#493f22] pb-6">
+              <div className="hidden lg:flex mb-8 items-center gap-4 border-b border-dark pb-6">
                 <div
                   className="h-12 w-12 shrink-0 overflow-hidden rounded-full bg-primary/20"
                   style={{
@@ -272,8 +272,8 @@ const Profile: React.FC = () => {
                 <button
                   onClick={() => setActiveTab("datos")}
                   className={`flex items-center gap-2 sm:gap-3 rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-[10px] sm:text-sm text-left transition-all whitespace-nowrap ${activeTab === "datos"
-                      ? "bg-primary text-background-dark font-black"
-                      : "font-medium text-white/80 hover:bg-[#493f22] hover:text-white"
+                      ? "bg-primary text-charcoal font-black"
+                      : "font-medium text-white/80 hover:bg-charcoal-lighter hover:text-white"
                     }`}
                 >
                   <span className="material-symbols-outlined text-[20px]">
@@ -285,8 +285,8 @@ const Profile: React.FC = () => {
                 <button
                   onClick={() => setActiveTab("direcciones")}
                   className={`flex items-center gap-2 sm:gap-3 rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-[10px] sm:text-sm text-left transition-all whitespace-nowrap ${activeTab === "direcciones"
-                      ? "bg-primary text-background-dark font-black"
-                      : "font-medium text-white/80 hover:bg-[#493f22] hover:text-white"
+                      ? "bg-primary text-charcoal font-black"
+                      : "font-medium text-white/80 hover:bg-charcoal-lighter hover:text-white"
                     }`}
                 >
                   <span className="material-symbols-outlined text-[20px]">
@@ -298,8 +298,8 @@ const Profile: React.FC = () => {
                 <button
                   onClick={() => setActiveTab("pedidos")}
                   className={`flex items-center gap-2 sm:gap-3 rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-[10px] sm:text-sm text-left transition-all whitespace-nowrap ${activeTab === "pedidos"
-                      ? "bg-primary text-background-dark font-black"
-                      : "font-medium text-white/80 hover:bg-[#493f22] hover:text-white"
+                      ? "bg-primary text-charcoal font-black"
+                      : "font-medium text-white/80 hover:bg-charcoal-lighter hover:text-white"
                     }`}
                 >
                   <span className="material-symbols-outlined text-[20px]">
@@ -312,8 +312,8 @@ const Profile: React.FC = () => {
                 <button
                   onClick={() => setActiveTab("wishlist")}
                   className={`flex items-center gap-2 sm:gap-3 rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-[10px] sm:text-sm text-left transition-all whitespace-nowrap ${activeTab === "wishlist"
-                      ? "bg-primary text-background-dark font-black"
-                      : "font-medium text-white/80 hover:bg-[#493f22] hover:text-white"
+                      ? "bg-primary text-charcoal font-black"
+                      : "font-medium text-white/80 hover:bg-charcoal-lighter hover:text-white"
                     }`}
                 >
                   <span className="material-symbols-outlined text-[18px] sm:text-[20px]">
@@ -324,7 +324,7 @@ const Profile: React.FC = () => {
 
                 <button
                   onClick={logoutAuth}
-                  className="flex items-center gap-2 sm:gap-3 rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-[10px] sm:text-sm font-medium text-red-400 hover:bg-red-500/20 transition-all text-left whitespace-nowrap lg:mt-4 lg:border-t lg:border-[#493f22] lg:pt-4"
+                  className="flex items-center gap-2 sm:gap-3 rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-[10px] sm:text-sm font-medium text-red-400 hover:bg-red-500/20 transition-all text-left whitespace-nowrap lg:mt-4 lg:border-t lg:border-dark lg:pt-4"
                 >
                   <span className="material-symbols-outlined text-[18px] sm:text-[20px]">
                     logout
@@ -343,17 +343,17 @@ const Profile: React.FC = () => {
                 {/* Cabecera */}
                 <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
-                    <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-charcoal tracking-tight">
                       Direcciones de Envío
                     </h1>
-                    <p className="mt-1 text-xs sm:text-sm text-yellow-300/80">
+                    <p className="mt-1 text-xs sm:text-sm text-charcoal/50">
                       {isEditingAddress ? (editingAddressType === "primaria" ? "Edita los detalles de tu dirección principal." : "Edita tu dirección secundaria.") : "Gestiona dónde recibirás tus tesoros."}
                     </p>
                   </div>
                 </div>
 
                 {isEditingAddress ? (
-                  <div className="bg-surface-dark border border-[#493f22] rounded-2xl p-8 animate-fadeIn">
+                  <div className="bg-surface-dark border border-dark rounded-2xl p-8 animate-fadeIn">
                     <form onSubmit={async (e) => {
                       e.preventDefault();
                       if (!userEmail || !profile) return;
@@ -392,7 +392,7 @@ const Profile: React.FC = () => {
                         <label className="flex flex-col gap-2 md:col-span-2">
                           <span className="text-white text-sm font-medium">Calle / Avenida</span>
                           <input
-                            className="form-input flex w-full rounded-lg text-white border border-border-gold bg-background-dark h-12 md:h-14 px-4 text-base focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-text-gold/50"
+                            className="form-input flex w-full rounded-lg text-charcoal border border-border-gold bg-background-dark h-12 md:h-14 px-4 text-base focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-text-gold/50"
                             type="text"
                             value={editingAddressType === "primaria" ? formData.direccionPrimaria : formData.direccionSecundaria}
                             onChange={(e) => setFormData({
@@ -407,7 +407,7 @@ const Profile: React.FC = () => {
                           <label className="flex flex-col gap-2">
                             <span className="text-white text-sm font-medium">Nº</span>
                             <input
-                              className="form-input flex w-full rounded-lg text-white border border-border-gold bg-background-dark h-12 md:h-14 px-4 text-base focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                              className="form-input flex w-full rounded-lg text-charcoal border border-border-gold bg-background-dark h-12 md:h-14 px-4 text-base focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                               type="text"
                               value={editingAddressType === "primaria" ? formData.numero : formData.numeroSecundario}
                               onChange={(e) => setFormData({ ...formData, [editingAddressType === "primaria" ? "numero" : "numeroSecundario"]: e.target.value })}
@@ -417,7 +417,7 @@ const Profile: React.FC = () => {
                           <label className="flex flex-col gap-2">
                             <span className="text-white text-sm font-medium">Escalera</span>
                             <input
-                              className="form-input flex w-full rounded-lg text-white border border-border-gold bg-background-dark h-12 md:h-14 px-4 text-base focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                              className="form-input flex w-full rounded-lg text-charcoal border border-border-gold bg-background-dark h-12 md:h-14 px-4 text-base focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                               type="text"
                               value={editingAddressType === "primaria" ? formData.escalera : formData.escaleraSecundaria}
                               onChange={(e) => setFormData({ ...formData, [editingAddressType === "primaria" ? "escalera" : "escaleraSecundaria"]: e.target.value })}
@@ -427,7 +427,7 @@ const Profile: React.FC = () => {
                           <label className="flex flex-col gap-2">
                             <span className="text-white text-sm font-medium">Piso</span>
                             <input
-                              className="form-input flex w-full rounded-lg text-white border border-border-gold bg-background-dark h-12 md:h-14 px-4 text-base focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                              className="form-input flex w-full rounded-lg text-charcoal border border-border-gold bg-background-dark h-12 md:h-14 px-4 text-base focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                               type="text"
                               value={editingAddressType === "primaria" ? formData.piso : formData.pisoSecundario}
                               onChange={(e) => setFormData({ ...formData, [editingAddressType === "primaria" ? "piso" : "pisoSecundario"]: e.target.value })}
@@ -437,7 +437,7 @@ const Profile: React.FC = () => {
                           <label className="flex flex-col gap-2">
                             <span className="text-white text-sm font-medium">Puerta</span>
                             <input
-                              className="form-input flex w-full rounded-lg text-white border border-border-gold bg-background-dark h-12 md:h-14 px-4 text-base focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                              className="form-input flex w-full rounded-lg text-charcoal border border-border-gold bg-background-dark h-12 md:h-14 px-4 text-base focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                               type="text"
                               value={editingAddressType === "primaria" ? formData.puerta : formData.puertaSecundaria}
                               onChange={(e) => setFormData({ ...formData, [editingAddressType === "primaria" ? "puerta" : "puertaSecundaria"]: e.target.value })}
@@ -449,7 +449,7 @@ const Profile: React.FC = () => {
                         <label className="flex flex-col gap-2">
                           <span className="text-white text-sm font-medium">Población</span>
                           <input
-                            className="form-input flex w-full rounded-lg text-white border border-border-gold bg-background-dark h-12 md:h-14 px-4 text-base focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                            className="form-input flex w-full rounded-lg text-charcoal border border-border-gold bg-background-dark h-12 md:h-14 px-4 text-base focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                             type="text"
                             value={editingAddressType === "primaria" ? formData.poblacion : formData.poblacionSecundaria}
                             onChange={(e) => setFormData({ ...formData, [editingAddressType === "primaria" ? "poblacion" : "poblacionSecundaria"]: e.target.value })}
@@ -460,7 +460,7 @@ const Profile: React.FC = () => {
                         <label className="flex flex-col gap-2">
                           <span className="text-white text-sm font-medium">Provincia</span>
                           <input
-                            className="form-input flex w-full rounded-lg text-white border border-border-gold bg-background-dark h-12 md:h-14 px-4 text-base focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                            className="form-input flex w-full rounded-lg text-charcoal border border-border-gold bg-background-dark h-12 md:h-14 px-4 text-base focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                             type="text"
                             value={editingAddressType === "primaria" ? formData.provincia : formData.provinciaSecundaria}
                             onChange={(e) => setFormData({ ...formData, [editingAddressType === "primaria" ? "provincia" : "provinciaSecundaria"]: e.target.value })}
@@ -471,7 +471,7 @@ const Profile: React.FC = () => {
                         <label className="flex flex-col gap-2">
                           <span className="text-white text-sm font-medium">Código Postal</span>
                           <input
-                            className="form-input flex w-full rounded-lg text-white border border-border-gold bg-background-dark h-12 md:h-14 px-4 text-base focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                            className="form-input flex w-full rounded-lg text-charcoal border border-border-gold bg-background-dark h-12 md:h-14 px-4 text-base focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                             type="text"
                             value={editingAddressType === "primaria" ? formData.codigoPostal : formData.codigoPostalSecundario}
                             onChange={(e) => setFormData({ ...formData, [editingAddressType === "primaria" ? "codigoPostal" : "codigoPostalSecundario"]: e.target.value })}
@@ -482,7 +482,7 @@ const Profile: React.FC = () => {
                         <label className="flex flex-col gap-2">
                           <span className="text-white text-sm font-medium">País</span>
                           <input
-                            className="form-input flex w-full rounded-lg text-white border border-border-gold bg-background-dark h-12 md:h-14 px-4 text-base focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                            className="form-input flex w-full rounded-lg text-charcoal border border-border-gold bg-background-dark h-12 md:h-14 px-4 text-base focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                             type="text"
                             value={editingAddressType === "primaria" ? formData.pais : formData.paisSecundario}
                             onChange={(e) => setFormData({ ...formData, [editingAddressType === "primaria" ? "pais" : "paisSecundario"]: e.target.value })}
@@ -491,7 +491,7 @@ const Profile: React.FC = () => {
                         </label>
                       </div>
 
-                      <div className="flex gap-4 pt-4 mt-4 border-t border-[#493f22]">
+                      <div className="flex gap-4 pt-4 mt-4 border-t border-dark">
                         <button
                           type="button"
                           onClick={() => setIsEditingAddress(false)}
@@ -501,7 +501,7 @@ const Profile: React.FC = () => {
                         </button>
                         <button
                           type="submit"
-                          className="flex-1 px-8 py-3 rounded-xl bg-primary text-background-dark font-black uppercase text-xs tracking-widest hover:bg-yellow-400 transition-all shadow-xl shadow-primary/20"
+                          className="flex-1 px-8 py-3 rounded-xl bg-primary text-charcoal font-black uppercase text-xs tracking-widest hover:bg-yellow-400 transition-all shadow-xl shadow-primary/20"
                         >
                           Guardar Dirección
                         </button>
@@ -522,7 +522,7 @@ const Profile: React.FC = () => {
                           </div>
 
                           <div className="flex items-start gap-4 mb-4">
-                            <div className="rounded-full bg-[#493f22] p-2 text-white group-hover:bg-primary group-hover:text-black transition-colors">
+                            <div className="rounded-full bg-charcoal-lighter p-2 text-white group-hover:bg-primary group-hover:text-black transition-colors">
                               <span className="material-symbols-outlined text-[24px]">
                                 home
                               </span>
@@ -545,14 +545,14 @@ const Profile: React.FC = () => {
                             <p>{profile.pais}</p>
                           </div>
 
-                          <div className="flex items-center gap-3 border-t border-[#493f22] pt-4">
+                          <div className="flex items-center gap-3 border-t border-dark pt-4">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setEditingAddressType("primaria");
                                 setIsEditingAddress(true);
                               }}
-                              className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-[#493f22] px-3 py-2 text-sm font-medium text-white hover:bg-[#5a4d2b] transition-colors"
+                              className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-charcoal-lighter px-3 py-2 text-sm font-medium text-white hover:bg-charcoal-lighter/80 transition-colors"
                             >
                               <span className="material-symbols-outlined text-[18px]">edit</span>
                               Modificar
@@ -581,7 +581,7 @@ const Profile: React.FC = () => {
                           className="group relative flex flex-col justify-between rounded-xl border border-white/10 bg-surface-dark p-6 shadow-lg transition-all hover:border-primary/50 hover:shadow-primary/5 hover:scale-[1.02]"
                         >
                           <div className="flex items-start gap-4 mb-4">
-                            <div className="rounded-full bg-[#493f22] p-2 text-white group-hover:bg-primary group-hover:text-black transition-colors">
+                            <div className="rounded-full bg-charcoal-lighter p-2 text-white group-hover:bg-primary group-hover:text-black transition-colors">
                               <span className="material-symbols-outlined text-[24px]">
                                 apartment
                               </span>
@@ -613,14 +613,14 @@ const Profile: React.FC = () => {
                             })()}
                           </div>
 
-                          <div className="flex items-center gap-3 border-t border-[#493f22] pt-4">
+                          <div className="flex items-center gap-3 border-t border-dark pt-4">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setEditingAddressType("secundaria");
                                 setIsEditingAddress(true);
                               }}
-                              className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-[#493f22] px-3 py-2 text-sm font-medium text-white hover:bg-[#5a4d2b] transition-colors"
+                              className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-charcoal-lighter px-3 py-2 text-sm font-medium text-white hover:bg-charcoal-lighter/80 transition-colors"
                             >
                               <span className="material-symbols-outlined text-[18px]">edit</span>
                               Modificar
@@ -633,14 +633,14 @@ const Profile: React.FC = () => {
                             setEditingAddressType("secundaria");
                             setIsEditingAddress(true);
                           }}
-                          className="group flex min-h-[240px] flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-[#493f22] bg-transparent p-6 transition-all hover:border-primary hover:bg-[#493f22]/30"
+                          className="group flex min-h-[240px] flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-dark bg-transparent p-6 transition-all hover:border-primary hover:bg-charcoal-lighter/30"
                         >
-                          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#493f22] text-yellow-300 transition-colors group-hover:bg-primary group-hover:text-black">
+                          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-charcoal-lighter text-yellow-300 transition-colors group-hover:bg-primary group-hover:text-black">
                             <span className="material-symbols-outlined text-[24px]">
                               add_location_alt
                             </span>
                           </div>
-                          <span className="font-bold text-white group-hover:text-primary">
+                          <span className="font-bold text-charcoal group-hover:text-primary">
                             Añadir dirección secundaria
                           </span>
                         </button>
@@ -672,7 +672,7 @@ const Profile: React.FC = () => {
                 <div className="max-w-4xl">
                   {/* Cabecera */}
                   <div className="flex flex-col gap-2 sm:gap-3 mb-6 sm:mb-10">
-                    <h1 className="text-white tracking-tight text-2xl sm:text-3xl md:text-4xl font-bold">
+                    <h1 className="text-charcoal tracking-tight text-2xl sm:text-3xl md:text-4xl font-bold">
                       Mis Datos Personales
                     </h1>
                     <p className="text-text-gold text-sm sm:text-base font-normal max-w-2xl">
@@ -685,7 +685,7 @@ const Profile: React.FC = () => {
                     {/* Información personal */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <label className="flex flex-col gap-2">
-                        <span className="text-white text-sm font-medium">Nombre</span>
+                        <span className="text-charcoal text-sm font-medium">Nombre</span>
                         <div className="relative group">
                           <input
                             className="form-input flex w-full rounded-lg text-white border border-border-gold bg-surface-dark h-12 md:h-14 px-4 text-base focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-text-gold/50"
@@ -697,7 +697,7 @@ const Profile: React.FC = () => {
                       </label>
 
                       <label className="flex flex-col gap-2">
-                        <span className="text-white text-sm font-medium">Apellidos</span>
+                        <span className="text-charcoal text-sm font-medium">Apellidos</span>
                         <div className="relative group">
                           <input
                             className="form-input flex w-full rounded-lg text-white border border-border-gold bg-surface-dark h-12 md:h-14 px-4 text-base focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-text-gold/50"
@@ -709,7 +709,7 @@ const Profile: React.FC = () => {
                       </label>
 
                       <label className="flex flex-col gap-2 md:col-span-2">
-                        <span className="text-white text-sm font-medium">
+                        <span className="text-charcoal text-sm font-medium">
                           Correo Electrónico
                         </span>
                         <div className="relative flex items-center">
@@ -732,7 +732,7 @@ const Profile: React.FC = () => {
                       </label>
 
                       <label className="flex flex-col gap-2">
-                        <span className="text-white text-sm font-medium">
+                        <span className="text-charcoal text-sm font-medium">
                           Fecha de Nacimiento{" "}
                           <span className="text-text-gold/60 font-normal">
                             (Opcional)
@@ -749,7 +749,7 @@ const Profile: React.FC = () => {
                       </label>
 
                       <label className="flex flex-col gap-2">
-                        <span className="text-white text-sm font-medium">
+                        <span className="text-charcoal text-sm font-medium">
                           Teléfono Móvil
                         </span>
                         <div className="relative flex items-center">
@@ -768,12 +768,12 @@ const Profile: React.FC = () => {
 
                     </div>
 
-                    <div className="border-t border-[#493f22] pt-8 mt-2">
-                      <h3 className="text-white text-lg font-bold mb-4">Seguridad</h3>
-                      <div className="bg-[#493f22]/30 rounded-xl p-6 border border-border-gold/30 flex flex-col md:flex-row justify-between items-end gap-6">
+                    <div className="border-t border-dark pt-8 mt-2">
+                      <h3 className="text-charcoal text-lg font-bold mb-4">Seguridad</h3>
+                      <div className="bg-charcoal-lighter/30 rounded-xl p-6 border border-border-gold/30 flex flex-col md:flex-row justify-between items-end gap-6">
                         <div className="flex flex-col gap-4 w-full">
                           <div className="flex flex-col gap-1">
-                            <span className="text-white font-medium">Cambiar Contraseña</span>
+                            <span className="text-charcoal font-medium">Cambiar Contraseña</span>
                             <span className="text-text-gold text-xs leading-relaxed">
                               Por tu seguridad, introduce tu contraseña actual antes de establecer una nueva.
                             </span>
@@ -781,7 +781,7 @@ const Profile: React.FC = () => {
                           <div className="relative group max-w-md">
                             <input
                               type="password"
-                              className="w-full h-12 bg-background-dark border border-border-gold/30 rounded-lg px-4 text-white placeholder:text-white/20 focus:border-primary outline-none transition-all"
+                              className="w-full h-12 bg-background-dark border border-border-gold/30 rounded-lg px-4 text-charcoal placeholder:text-charcoal/30 focus:border-primary outline-none transition-all"
                               placeholder="Introduce tu contraseña actual"
                               value={currentPassword}
                               onChange={(e) => setCurrentPassword(e.target.value)}
@@ -803,7 +803,7 @@ const Profile: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => setActiveTab("direcciones")}
-                        className="px-8 py-3 rounded-lg border border-transparent text-text-gold text-sm font-bold hover:text-white transition-colors"
+                        className="px-8 py-3 rounded-lg border border-transparent text-text-gold text-sm font-bold hover:text-charcoal transition-colors"
                       >
                         Cancelar
                       </button>
@@ -839,7 +839,7 @@ const Profile: React.FC = () => {
                   )}
 
                   {!loading && !error && pedidos.length === 0 && (
-                    <div className="bg-surface-dark border border-[#493f22] rounded-xl p-10 text-center flex flex-col items-center gap-4">
+                    <div className="bg-surface-dark border border-dark rounded-xl p-10 text-center flex flex-col items-center gap-4">
                       <span className="material-symbols-outlined text-5xl text-white/10">shopping_cart_off</span>
                       <p className="text-gray-400">Aún no tienes pedidos realizados.</p>
                       <Link to="/" className="text-primary font-bold hover:underline">Ir a la tienda</Link>
@@ -880,7 +880,7 @@ const Profile: React.FC = () => {
                                 {pedido.total.toFixed(2)}<span className="text-primary text-sm ml-1">€</span>
                               </p>
                             </div>
-                            <div className="size-12 rounded-full border border-white/10 flex items-center justify-center text-white/40 group-hover:bg-primary group-hover:text-background-dark group-hover:border-primary transition-all shadow-xl">
+                            <div className="size-12 rounded-full border border-white/10 flex items-center justify-center text-white/40 group-hover:bg-primary group-hover:text-charcoal group-hover:border-primary transition-all shadow-xl">
                               <span className="material-symbols-outlined text-[20px]">arrow_forward_ios</span>
                             </div>
                           </div>
@@ -890,7 +890,7 @@ const Profile: React.FC = () => {
                           <div className="relative z-10 mt-6 pt-6 border-t border-white/5">
                             <div className="flex items-center gap-4 overflow-x-auto no-scrollbar py-2">
                               {pedido.productos.map((prod, idx) => (
-                                <div key={idx} className="flex items-center gap-3 bg-background-dark/50 rounded-xl p-2 pr-4 border border-white/5 shrink-0">
+                                <div key={idx} className="flex items-center gap-3 bg-background-dark/50 rounded-xl p-2 pr-4 border border-charcoal/10 shrink-0">
                                   {prod.imagen && (
                                     <div className="size-10 rounded-lg overflow-hidden bg-white/5 p-1">
                                       <img
@@ -901,7 +901,7 @@ const Profile: React.FC = () => {
                                     </div>
                                   )}
                                   <div>
-                                    <p className="text-[10px] font-bold text-white truncate max-w-[120px]">{prod.nombreProducto}</p>
+                                    <p className="text-[10px] font-bold text-charcoal truncate max-w-[120px]">{prod.nombreProducto}</p>
                                     <p className="text-[9px] text-gray-500 uppercase tracking-widest">Cant: {prod.cantidad}</p>
                                   </div>
                                 </div>
@@ -919,7 +919,7 @@ const Profile: React.FC = () => {
 
 
             {activeTab === "wishlist" && (
-              <div className="animate-fadeIn p-10 bg-surface-dark rounded-xl border border-[#493f22] text-center">
+              <div className="animate-fadeIn p-10 bg-surface-dark rounded-xl border border-dark text-center">
                 <span className="material-symbols-outlined text-5xl text-primary/20 mb-4">favorite</span>
                 <p className="text-gray-400">
                   Tu lista de deseos está vacía. Guarda tus tesoros favoritos para verlos aquí más tarde.
@@ -961,7 +961,7 @@ const Profile: React.FC = () => {
                   <input
                     type="password"
                     required
-                    className="w-full h-14 bg-background-dark border border-white/10 rounded-2xl px-6 text-white text-sm focus:border-primary outline-none transition-all placeholder:text-white/10"
+                    className="w-full h-14 bg-background-dark border border-charcoal/10 rounded-2xl px-6 text-charcoal text-sm focus:border-primary outline-none transition-all placeholder:text-charcoal/30"
                     placeholder="••••••••"
                     value={passData.newPass}
                     onChange={(e) => setPassData({ ...passData, newPass: e.target.value })}
@@ -972,7 +972,7 @@ const Profile: React.FC = () => {
                   <input
                     type="password"
                     required
-                    className={`w-full h-14 bg-background-dark border ${passData.confirmPass && passData.newPass !== passData.confirmPass ? 'border-red-500/50' : 'border-white/10'} rounded-2xl px-6 text-white text-sm focus:border-primary outline-none transition-all placeholder:text-white/10`}
+                    className={`w-full h-14 bg-background-dark border ${passData.confirmPass && passData.newPass !== passData.confirmPass ? 'border-red-500/50' : 'border-charcoal/10'} rounded-2xl px-6 text-charcoal text-sm focus:border-primary outline-none transition-all placeholder:text-charcoal/30`}
                     placeholder="••••••••"
                     value={passData.confirmPass}
                     onChange={(e) => setPassData({ ...passData, confirmPass: e.target.value })}
@@ -1004,7 +1004,7 @@ const Profile: React.FC = () => {
 
       {/* Modal Detalle de Dirección */}
       {showAddressModal && selectedAddress && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-charcoal/70 backdrop-blur-sm animate-fadeIn">
           <div className="bg-surface-dark border border-primary/30 w-full max-w-md rounded-2xl overflow-hidden shadow-2xl animate-scaleUp">
             <div className="relative p-8">
               <button
@@ -1079,7 +1079,7 @@ const Profile: React.FC = () => {
               <div className="mt-10 flex gap-4">
                 <button
                   onClick={() => setShowAddressModal(false)}
-                  className="flex-1 py-3 bg-primary text-background-dark font-black uppercase text-xs tracking-widest hover:bg-yellow-400 transition-all rounded-xl"
+                  className="flex-1 py-3 bg-primary text-charcoal font-black uppercase text-xs tracking-widest hover:bg-yellow-400 transition-all rounded-xl"
                 >
                   Cerrar
                 </button>

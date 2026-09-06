@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 const WhatsAppButton: React.FC = () => {
     // Reemplaza con el número real de la empresa
     const phoneNumber = "34685611801"; 
-    const message = encodeURIComponent("Hola Eros & Afrodita, tengo una consulta sobre un producto...");
+    const message = encodeURIComponent("Hola AGE Parfums, tengo una consulta sobre un producto...");
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
 
     return (

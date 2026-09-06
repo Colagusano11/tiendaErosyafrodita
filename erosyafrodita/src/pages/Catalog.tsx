@@ -165,23 +165,23 @@ const Catalog: React.FC = () => {
 
   // Lógica de SEO dinámico para mejorar el posicionamiento en Google
   const getDynamicSEO = () => {
-    let title = "Catálogo Exclusivo | Eros & Afrodita";
+    let title = "Catálogo Exclusivo | AGE Parfums";
     let description = "Explora nuestra colección curada de perfumes de lujo y cosmética premium. Encuentra tu esencia divina entre las mejores marcas del mundo.";
 
     if (filtros.gender === "HOMBRE") {
-      title = "Perfumes Originales para Hombre | Eros & Afrodita";
+      title = "Perfumes Originales para Hombre | AGE Parfums";
       description = "Descubre nuestra selección divina de fragancias masculinas. Perfumes originales de lujo para el hombre que busca distinción.";
     } else if (filtros.gender === "MUJER") {
-      title = "Fragancias y Perfumes para Mujer | Eros & Afrodita";
+      title = "Fragancias y Perfumes para Mujer | AGE Parfums";
       description = "Sumérgete en la esencia de la feminidad con nuestros perfumes exclusivos para mujer. Lujo y elegancia en cada gota.";
     } else if (filtros.categoria === "Cosmética") {
-      title = "Cosmética Premium y Cuidado de la Piel | Eros & Afrodita";
+      title = "Cosmética Premium y Cuidado de la Piel | AGE Parfums";
       description = "Rituales de belleza para una piel radiante. Selección exclusiva de cosmética de alta gama inspirada en los dioses.";
     } else if (filtros.manufacturer) {
-      title = `Perfumes de ${filtros.manufacturer} | Eros & Afrodita`;
+      title = `Perfumes de ${filtros.manufacturer} | AGE Parfums`;
       description = `Explora toda la colección de ${filtros.manufacturer}. Fragancias originales y exclusivas de una de las marcas más prestigiosas del Olimpo.`;
     } else if (filtros.nombre) {
-      title = `Resultados para "${filtros.nombre}" | Eros & Afrodita`;
+      title = `Resultados para "${filtros.nombre}" | AGE Parfums`;
     }
 
     return { title, description };
@@ -190,11 +190,11 @@ const Catalog: React.FC = () => {
   const { title: seoTitle, description: seoDescription } = getDynamicSEO();
 
   return (
-    <div className="bg-background-dark text-white font-display min-h-screen flex flex-col selection:bg-primary/30">
+    <div className="bg-background-dark text-charcoal font-display min-h-screen flex flex-col selection:bg-primary/30">
       <SEO 
         title={seoTitle}
         description={seoDescription}
-        keywords="catálogo perfumes, fragancias exclusivas, marcas de lujo, cosmética premium, eros y afrodita"
+        keywords="catálogo perfumes, fragancias exclusivas, marcas de lujo, cosmética premium, AGE Parfums"
       />
       <Header />
       
@@ -207,7 +207,7 @@ const Catalog: React.FC = () => {
            </div>
            <button 
              onClick={() => setShowMobileFilters(!showMobileFilters)}
-             className="flex items-center gap-2 bg-primary text-background-dark px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20"
+             className="flex items-center gap-2 bg-primary text-charcoal px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20"
            >
              {showMobileFilters ? 'Ocultar' : 'Filtrar'}
              <span className="material-symbols-outlined text-sm">{showMobileFilters ? 'expand_less' : 'tune'}</span>
@@ -240,7 +240,7 @@ const Catalog: React.FC = () => {
                     placeholder="¿Qué buscas?..."
                     value={filtros.nombre || ""}
                     onChange={(e) => handleFilterChange("nombre", e.target.value)}
-                    className="w-full bg-background-dark border border-white/10 rounded-xl py-2.5 pl-9 pr-4 text-xs font-bold text-white placeholder:text-gray-600 focus:border-primary/50 focus:ring-0 transition-all outline-none"
+                    className="w-full bg-background-dark border border-charcoal/10 rounded-xl py-2.5 pl-9 pr-4 text-xs font-bold text-charcoal placeholder:text-charcoal/40 focus:border-primary/50 focus:ring-0 transition-all outline-none"
                   />
                 </div>
               </div>
@@ -253,7 +253,7 @@ const Catalog: React.FC = () => {
                   <select
                     value={filtros.manufacturer || ""}
                     onChange={(e) => handleFilterChange("manufacturer", e.target.value || undefined)}
-                    className="w-full bg-background-dark border border-white/10 rounded-xl py-2.5 pl-9 pr-4 text-xs font-bold text-white appearance-none focus:border-primary/50 focus:ring-0 transition-all outline-none cursor-pointer"
+                    className="w-full bg-background-dark border border-charcoal/10 rounded-xl py-2.5 pl-9 pr-4 text-xs font-bold text-charcoal appearance-none focus:border-primary/50 focus:ring-0 transition-all outline-none cursor-pointer"
                   >
                     <option value="" className="bg-surface-dark text-gray-500 italic">Cualquier marca...</option>
                     {marcas.map((m) => (
@@ -272,7 +272,7 @@ const Catalog: React.FC = () => {
                   <select
                     value={filtros.categoria || ""}
                     onChange={(e) => handleFilterChange("categoria", e.target.value || undefined)}
-                    className="w-full bg-background-dark border border-white/10 rounded-xl py-2.5 pl-9 pr-4 text-xs font-bold text-white appearance-none focus:border-primary/50 focus:ring-0 transition-all outline-none cursor-pointer"
+                    className="w-full bg-background-dark border border-charcoal/10 rounded-xl py-2.5 pl-9 pr-4 text-xs font-bold text-charcoal appearance-none focus:border-primary/50 focus:ring-0 transition-all outline-none cursor-pointer"
                   >
                     <option value="" className="bg-surface-dark text-gray-500 italic">Cualquier categoría...</option>
                     {categorias.map((cat) => (
@@ -338,7 +338,7 @@ const Catalog: React.FC = () => {
                 <span className="material-symbols-outlined !text-[12px]">chevron_right</span>
                 <span>Catálogo</span>
               </nav>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tighter">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-charcoal tracking-tighter">
                 {filtros.status === "NOVEDADES" ? (
                   <>Nuestras <span className="text-primary italic font-serif">Novedades</span></>
                 ) : (
@@ -399,7 +399,7 @@ const Catalog: React.FC = () => {
                       <button
                         onClick={() => handlePageChange(paginacion.page - 1)}
                         disabled={paginacion.page === 0}
-                        className="size-10 sm:size-12 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-background-dark disabled:opacity-20 disabled:hover:bg-transparent disabled:hover:text-white transition-all group shrink-0"
+                        className="size-10 sm:size-12 rounded-full border border-charcoal/10 flex items-center justify-center hover:bg-charcoal hover:text-white disabled:opacity-20 disabled:hover:bg-transparent disabled:hover:text-charcoal transition-all group shrink-0"
                       >
                         <span className="material-symbols-outlined group-active:-translate-x-1 transition-transform">chevron_left</span>
                       </button>
@@ -433,7 +433,7 @@ const Catalog: React.FC = () => {
                           
                           return items.map((item, idx) => {
                             if (item === "...") {
-                              return <span key={`dots-${idx}`} className="size-8 flex items-center justify-center text-white/20 font-black">...</span>;
+                              return <span key={`dots-${idx}`} className="size-8 flex items-center justify-center text-charcoal/20 font-black">...</span>;
                             }
                             const val = item as number;
                             return (
@@ -441,9 +441,9 @@ const Catalog: React.FC = () => {
                                 key={val}
                                 onClick={() => handlePageChange(val)}
                                 className={`size-9 sm:size-11 rounded-full text-[10px] sm:text-xs font-black transition-all ${
-                                  current === val 
-                                    ? "bg-primary text-background-dark shadow-[0_0_15px_rgba(242,185,13,0.4)]" 
-                                    : "text-white/40 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10"
+                                  current === val
+                                    ? "bg-primary text-charcoal shadow-[0_0_15px_rgba(242,185,13,0.4)]"
+                                    : "text-charcoal/40 hover:text-charcoal hover:bg-charcoal/5 border border-transparent hover:border-charcoal/10"
                                 }`}
                               >
                                 {val + 1}
@@ -456,7 +456,7 @@ const Catalog: React.FC = () => {
                       <button
                         onClick={() => handlePageChange(paginacion.page + 1)}
                         disabled={paginacion.page === paginacion.totalPages - 1}
-                        className="size-10 sm:size-12 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-background-dark disabled:opacity-20 disabled:hover:bg-transparent disabled:hover:text-white transition-all group shrink-0"
+                        className="size-10 sm:size-12 rounded-full border border-charcoal/10 flex items-center justify-center hover:bg-charcoal hover:text-white disabled:opacity-20 disabled:hover:bg-transparent disabled:hover:text-charcoal transition-all group shrink-0"
                       >
                         <span className="material-symbols-outlined group-active:translate-x-1 transition-transform">chevron_right</span>
                       </button>
@@ -467,10 +467,10 @@ const Catalog: React.FC = () => {
                 <div className="flex-1 flex flex-col items-center justify-center py-20 text-center">
                   <span className="material-symbols-outlined text-gray-600 text-[64px] mb-4">search_off</span>
                   <h3 className="text-2xl font-bold mb-2">No hay resultados</h3>
-                  <p className="text-gray-400 max-w-xs font-light">Intenta ajustando los filtros para encontrar lo que buscas.</p>
-                  <button 
+                  <p className="text-charcoal/50 max-w-xs font-light">Intenta ajustando los filtros para encontrar lo que buscas.</p>
+                  <button
                     onClick={clearFilters}
-                    className="mt-6 px-10 py-3 bg-white text-background-dark rounded-full font-black text-xs tracking-widest uppercase hover:bg-primary transition-all"
+                    className="mt-6 px-10 py-3 bg-charcoal text-white rounded-full font-black text-xs tracking-widest uppercase hover:bg-primary hover:text-charcoal transition-all"
                   >
                     Restablecer
                   </button>

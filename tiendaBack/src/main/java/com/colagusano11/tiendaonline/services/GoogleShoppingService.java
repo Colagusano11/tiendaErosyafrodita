@@ -5,6 +5,7 @@ import com.colagusano11.tiendaonline.repositories.ProductoRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -59,7 +60,7 @@ public class GoogleShoppingService {
         xml.append("    <pubDate>").append(DateTimeFormatter.RFC_1123_DATE_TIME.format(ZonedDateTime.now())).append("</pubDate>\n");
 
         for (Producto p : productos) {
-            if (p.getPrecio() == null || p.getPrecio() <= 0) continue;
+            if (p.getPrecio() == null || p.getPrecio().compareTo(BigDecimal.ZERO) <= 0) continue;
             if (p.getStock() != null && p.getStock() <= 0) continue;
 
             xml.append("    <item>\n");
@@ -96,7 +97,9 @@ public class GoogleShoppingService {
             xml.append("      <g:price>").append(String.format("%.2f", p.getPrecio())).append(" EUR</g:price>\n");
 
             // Precio de oferta si existe
-            if (p.getPrecioOferta() != null && p.getPrecioOferta() > 0 && p.getPrecioOferta() < p.getPrecio()) {
+            if (p.getPrecioOferta() != null
+                    && p.getPrecioOferta().compareTo(BigDecimal.ZERO) > 0
+                    && p.getPrecioOferta().compareTo(p.getPrecio()) < 0) {
                 xml.append("      <g:sale_price>").append(String.format("%.2f", p.getPrecioOferta())).append(" EUR</g:sale_price>\n");
             }
 
@@ -141,7 +144,10 @@ public class GoogleShoppingService {
             xml.append("        <g:country>ES</g:country>\n");
             xml.append("        <g:service>Envío estándar</g:service>\n");
             // Envío gratis si el pedido supera X€ (ajustar según tu política)
-            double precioFinal = (p.getPrecioOferta() != null && p.getPrecioOferta() > 0) ? p.getPrecioOferta() : p.getPrecio();
+            double precioFinal = (p.getPrecioOferta() != null
+                    && p.getPrecioOferta().compareTo(BigDecimal.ZERO) > 0)
+                    ? p.getPrecioOferta().doubleValue()
+                    : p.getPrecio().doubleValue();
             String costeEnvio = precioFinal >= 30.0 ? "0.00 EUR" : "3.99 EUR";
             xml.append("        <g:price>").append(costeEnvio).append("</g:price>\n");
             xml.append("        <g:min_handling_time>0</g:min_handling_time>\n");

@@ -1,0 +1,90 @@
+[
+  {
+    "ean": "3616302931750",
+    "sku": "LAC-L1212B-100",
+    "sku_proveedor": "LAC-L1212B-100-PROV",
+    "nombre": "Lacoste L.12.12 Blanc Eau de Toilette 100ml",
+    "categoria": "Perfumes",
+    "id_categoria": "1",
+    "descripcion_basica": "Fragancia clásica, limpia y deportiva para el hombre moderno.",
+    "precio_coste": 28.50,
+    "precio_pvp": 59.90,
+    "stock": 15,
+    "imagen": "/uploads/lacoste.jpg",
+    "imagen2": "/uploads/lacoste4.png",
+    "imagen3": "/uploads/lacoste1.jpg",
+    "imagen4": "/uploads/lacoste2.jpg",
+    "marca": "Lacoste",
+    "genero": "Hombre",
+    "en_oferta": false,
+    "nuevo": true,
+    "marketing": {
+      "claim": "Frescura limpia y elegancia relajada para el día a día.",
+      "shortDescription": "Inspirada en el icónico polo blanco de la marca, L.12.12 Blanc captura la esencia de la simplicidad refinada. Una fragancia limpia, pura y refrescante que combina notas cítricas, florales y amaderadas con un toque sofisticado de gamuza.",
+      "benefits": [
+        "Fragancia sumamente limpia, fresca y reconfortante.",
+        "Excelente versatilidad, ideal para el uso diario y la oficina.",
+        "Aroma minimalista y atemporal que transmite pulcritud."
+      ],
+      "fragranceFamily": "Amaderada Aromática",
+      "topNotes": ["Pomelo", "Romero", "Cardamomo"],
+      "heartNotes": ["Ylang-ylang", "Nardos"],
+      "baseNotes": ["Gamuza", "Cedro de Virginia", "Cuero", "Vetiver"],
+      "recommendedFor": ["Hombres activos", "Amantes del estilo casual y deportivo", "Quienes buscan un aroma pulcro y diario"],
+      "recommendedOccasions": ["Uso diario", "Trabajo y oficina", "Actividades deportivas", "Eventos de día informal"],
+      "season": ["Primavera", "Verano"],
+      "faqs": [
+        {
+          "question": "¿Qué tipo de fragancia es Lacoste L.12.12 Blanc?",
+          "answer": "Es un Eau de Toilette (EDT) fresco, caracterizado por una salida cítrica y aromática que evoluciona hacia notas florales limpias, asentadas sobre una base masculina y amaderada."
+        },
+        {
+          "question": "¿A qué huele esta fragancia?",
+          "answer": "Su apertura es vibrante y herbal gracias al pomelo y al romero. En el corazón se suaviza con el dulzor floral del nardo y el ylang-ylang, terminando en un fondo masculino y aterciopelado de cuero y cedro."
+        }
+      ]
+    }
+  },
+  {
+    "ean": "8410190623253",
+    "sku": "AD-BAMBU-120",
+    "sku_proveedor": "AD-BAMBU-120-PROV",
+    "nombre": "Adolfo Dominguez Bambu Eau de Toilette 120ml",
+    "categoria": "Perfumes",
+    "id_categoria": "1",
+    "descripcion_basica": "Fragancia fresca y natural inspirada en la vitalidad de los bosques de bambú.",
+    "precio_coste": 22.00,
+    "precio_pvp": 44.90,
+    "stock": 20,
+    "imagen": "https://erosyafrodita.com/images/adolfo-dominguez-bambu.jpg",
+    "imagen2": "",
+    "imagen3": "",
+    "imagen4": "",
+    "marca": "Adolfo Dominguez",
+    "genero": "Hombre",
+    "en_oferta": true,
+    "nuevo": true,
+    "marketing": {
+      "claim": "La fuerza de la naturaleza en tu piel.",
+      "shortDescription": "Bambú de Adolfo Domínguez es una fragancia enérgica y fresca, inspirada en la flexibilidad y resistencia del bambú oriental. Combina toques cítricos, herbales y amaderados.",
+      "benefits": [
+        "Estela fresca y enérgica de larga duración.",
+        "Ideal para usar tras la ducha matutina.",
+        "Aroma verde sumamente refrescante."
+      ],
+      "fragranceFamily": "Amaderada Verde",
+      "topNotes": ["Bambú", "Limon", "Nota Marina"],
+      "heartNotes": ["Cardamomo", "Nuez Moscada"],
+      "baseNotes": ["Cedro", "Almizcle", "Cuero"],
+      "recommendedFor": ["Hombres vitales", "Amantes de las fragancias frescas y verdes"],
+      "recommendedOccasions": ["Uso diario", "Mañanas de primavera", "Después del gimnasio"],
+      "season": ["Primavera", "Verano"],
+      "faqs": [
+        {
+          "question": "¿Es adecuada para uso diario?",
+          "answer": "Sí, es una fragancia con un nivel de proyección idóneo para usar en el día a día sin abrumar."
+        }
+      ]
+    }
+  }
+]

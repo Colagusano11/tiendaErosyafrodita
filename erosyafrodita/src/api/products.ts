@@ -45,13 +45,7 @@ export interface PaginatedResponse<T> {
 }
 
 // Helpers
-const transformProduct = (p: Producto): Producto => {
-  if (p.imagen && p.imagen.includes("drop.novaengel.com")) {
-    const baseUrl = import.meta.env.VITE_API_URL || "/api";
-    p.imagen = `${baseUrl}/proxy-image?url=${encodeURIComponent(p.imagen)}`;
-  }
-  return p;
-};
+const transformProduct = (p: Producto): Producto => p;
 
 // Lista de productos
 export async function getProductos(page = 0, size = 20, status?: string): Promise<PaginatedResponse<Producto>> {
@@ -167,10 +161,6 @@ export async function deleteProducto(id: number): Promise<void> {
   await api.delete(`/productos/${id}`);
 }
 
-export async function syncWebImages(): Promise<void> {
-  await api.post('/admin/import/web/images');
-}
-
 export async function syncAmazonImages(forceOverwrite = false): Promise<{ updated: number }> {
   const res = await api.post<{ updated: number }>(`/productos/admin/sync-images-amazon?forceOverwrite=${forceOverwrite}`);
   return res.data;
@@ -183,10 +173,6 @@ export async function syncAmazonDescriptions(): Promise<{ message: string }> {
 
 export async function updateBulkOffer(ids: number[] | null, enOferta: boolean, descuento: number, filters?: FiltroProductos): Promise<void> {
   await api.put("/productos/bulk-offer", { ids, enOferta, descuento, filters });
-}
-
-export async function syncCategories(): Promise<void> {
-  await api.post('/admin/import/categories');
 }
 
 export async function getCategorias(): Promise<string[]> {

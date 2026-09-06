@@ -170,14 +170,13 @@ public class InstagramTokenScheduler {
         if (fallos >= MAX_FALLOS) {
             log.error("[InstagramToken] ⚠️ {} fallos consecutivos. Enviando alerta a {}", fallos, adminEmail);
             try {
-                emailService.enviarEmailSimple(
+                emailService.enviarEmailGenerico(
                     adminEmail,
-                    "⚠️ [Eros y Afrodita] Token Instagram a punto de caducar",
-                    "El cron de renovación del token de Instagram ha fallado " + fallos + " veces seguidas.\n" +
-                    "El token caducará el: " + registro.getExpiresAt() + "\n\n" +
+                    "[Eros y Afrodita] Token Instagram a punto de caducar",
+                    "El cron de renovación del token de Instagram ha fallado " + fallos + " veces seguidas. " +
+                    "El token caducará el: " + registro.getExpiresAt() + ". " +
                     "Accede a Facebook for Developers y genera un nuevo token manualmente, " +
-                    "luego actualiza la BD:\n" +
-                    "  POST /api/admin/instagram/token/seed  { \"token\": \"nuevo_token\" }\n\n" +
+                    "luego actualiza la BD: POST /api/admin/instagram/token/seed { token: nuevo_token }. " +
                     "Motivo último fallo: " + motivo
                 );
             } catch (Exception emailEx) {

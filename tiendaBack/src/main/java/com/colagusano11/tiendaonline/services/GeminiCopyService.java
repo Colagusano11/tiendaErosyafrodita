@@ -2,6 +2,7 @@ package com.colagusano11.tiendaonline.services;
 
 import com.colagusano11.tiendaonline.models.Producto;
 import com.colagusano11.tiendaonline.repositories.ProductoRepository;
+import java.math.BigDecimal;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;

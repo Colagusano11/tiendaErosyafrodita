@@ -12,19 +12,14 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
-import com.colagusano11.tiendaonline.config.BtsApiClient;
-import com.colagusano11.tiendaonline.config.NovaApiClient;
 import com.colagusano11.tiendaonline.client.UsuarioFeignClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class PedidoServicieImpl implements PedidoServicie {
@@ -35,8 +30,6 @@ public class PedidoServicieImpl implements PedidoServicie {
     private final Map<String, PaymentGateway> gateways;
     private final PedidoTrakingService pedidoTrak;
     private final PedidoMapper pedidoMapper;
-    private final BtsApiClient btsApiClient;
-    private final NovaApiClient novaApiClient;
     private final ObjectMapper objectMapper;
     private final EmailService emailService;
     private final UsuarioFeignClient usuarioFeignClient;
@@ -48,8 +41,6 @@ public class PedidoServicieImpl implements PedidoServicie {
             Map<String, PaymentGateway> gateways,
             PedidoTrakingService pedidoTrak,
             PedidoMapper pedidoMapper,
-            BtsApiClient btsApiClient,
-            NovaApiClient novaApiClient,
             ObjectMapper objectMapper,
             EmailService emailService,
             UsuarioFeignClient usuarioFeignClient) {
@@ -59,8 +50,6 @@ public class PedidoServicieImpl implements PedidoServicie {
         this.gateways = gateways;
         this.pedidoTrak = pedidoTrak;
         this.pedidoMapper = pedidoMapper;
-        this.btsApiClient = btsApiClient;
-        this.novaApiClient = novaApiClient;
         this.objectMapper = objectMapper;
         this.emailService = emailService;
         this.usuarioFeignClient = usuarioFeignClient;
@@ -266,16 +255,20 @@ public class PedidoServicieImpl implements PedidoServicie {
             return;
         }
 
+        // 🛡️ Verificación server-a-servidor ANTES de marcar como pagado: antes se
+        // guardaba PAGADO incondicionalmente y un fallo de captura solo se logueaba,
+        // así que cualquiera que conociera un paymentId real (visible en el propio
+        // checkout del cliente, ej. inspeccionando la llamada de red) podía llamar a
+        // este flujo sin haber pagado de verdad. Si la pasarela no confirma el pago,
+        // la excepción se propaga y el pedido NO se marca como pagado.
+        String gatewayKey = (pedido.getPaymentGateway() != null) ? pedido.getPaymentGateway() + "Gateway" : "revolutGateway";
+        PaymentGateway gateway = gateways.get(gatewayKey);
+        if (gateway != null) {
+            gateway.capturePago(paymentId);
+        }
+
         pedido.setEstado(PedidoEstado.PAGADO);
         pedido.setPaymentDate(LocalDateTime.now());
-
-        try {
-            String gatewayKey = (pedido.getPaymentGateway() != null) ? pedido.getPaymentGateway() + "Gateway" : "revolutGateway";
-            PaymentGateway gateway = gateways.get(gatewayKey);
-            if (gateway != null) gateway.capturePago(paymentId);
-        } catch (Exception e) {
-            System.err.println("Error capturando pago: " + e.getMessage());
-        }
 
         Pedido pedidoPagado = pedidoRepository.save(pedido);
         pedidoTrak.registrarPago(pedidoPagado);
@@ -344,136 +337,17 @@ public class PedidoServicieImpl implements PedidoServicie {
 
     @Override
     public void pushPedidoAProveedor(Long idPedido, PedidoPushRequest pushRequest) {
-        Pedido pedido = pedidoRepository.findById(idPedido)
-                .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
-
-        Map<Long, Long> manualSelections = pushRequest.getManualSelections();
-
-        for (PedidoProducto linea : pedido.getLineas()) {
-            if (manualSelections != null && manualSelections.containsKey(linea.getId())) {
-                Producto manualP = productoRepository.findById(manualSelections.get(linea.getId())).orElse(null);
-                if (manualP != null) {
-                    linea.setDistribuidor(manualP.getDistribuidor());
-                    linea.setSku(manualP.getSku());
-                    linea.setSkuProveedor(manualP.getSkuProveedor());
-                }
-            } else {
-                String eanBuscado = linea.getEan();
-                String skuBuscado = linea.getSku();
-                List<Producto> candidatos = productoRepository.findAll().stream()
-                    .filter(p -> (
-                        (eanBuscado != null && !eanBuscado.isBlank() && eanBuscado.equals(p.getEan())) ||
-                        (skuBuscado != null && !skuBuscado.isBlank() && skuBuscado.equals(p.getSku()))
-                    ))
-                    .collect(Collectors.toList());
-
-                Optional<Producto> mejor = candidatos.stream()
-                    .filter(p -> p.getDistribuidor() != null)
-                    .min(Comparator.comparing(
-                        p -> p.getPrecio() != null ? p.getPrecio() : BigDecimal.valueOf(Double.MAX_VALUE)
-                    ));
-
-                if (mejor.isPresent()) {
-                    Producto mp = mejor.get();
-                    linea.setDistribuidor(mp.getDistribuidor());
-                    linea.setSku(mp.getSku());
-                    linea.setSkuProveedor(mp.getSkuProveedor());
-                }
-            }
-        }
-
-        Map<String, List<PedidoProducto>> porDistribuidor = pedido.getLineas().stream()
-            .filter(l -> l.getDistribuidor() != null)
-            .collect(Collectors.groupingBy(l -> l.getDistribuidor().name()));
-
-        StringBuilder logPush = new StringBuilder();
-        for (Map.Entry<String, List<PedidoProducto>> entry : porDistribuidor.entrySet()) {
-            String dist = entry.getKey();
-            List<PedidoProducto> lineas = entry.getValue();
-            try {
-                if ("BTS".equalsIgnoreCase(dist)) {
-                    btsApiClient.pushPedido(pedido, lineas);
-                    logPush.append("BTS OK. ");
-                } else if ("NOVA".equalsIgnoreCase(dist) || "NOVAENGEL".equalsIgnoreCase(dist)) {
-                    novaApiClient.pushPedido(pedido, lineas);
-                    logPush.append("NOVA OK. ");
-                } else {
-                    logPush.append("Distribuidor desconocido: ").append(dist).append(". ");
-                }
-            } catch (Exception e) {
-                logPush.append(dist).append(" ERROR: ").append(e.getMessage()).append(". ");
-            }
-        }
-
-        pedido.setPushLog(logPush.toString());
-        pedidoRepository.save(pedido);
+        // El fulfillment ahora lo gestiona SellerKing mediante GET /api/internal/orders
     }
 
     @Override
     public void syncTrackingConProveedor(Long idPedido) {
-        Pedido pedido = pedidoRepository.findById(idPedido)
-                .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
-
-        String dist = pedido.getLineas() != null && !pedido.getLineas().isEmpty()
-                && pedido.getLineas().get(0).getDistribuidor() != null
-                ? pedido.getLineas().get(0).getDistribuidor().name() : null;
-
-        if (dist == null) {
-            System.err.println("Sin distribuidor asignado al pedido #" + idPedido);
-            return;
-        }
-
-        try {
-            String trackingNum = null;
-            if ("BTS".equalsIgnoreCase(dist)) {
-                trackingNum = btsApiClient.getTracking(pedido);
-            } else if ("NOVA".equalsIgnoreCase(dist) || "NOVAENGEL".equalsIgnoreCase(dist)) {
-                trackingNum = novaApiClient.getTracking(pedido);
-            }
-
-            if (trackingNum != null && !trackingNum.isBlank()) {
-                String urlTracking = "https://www.correos.es/ss/Satellite/site/pagina-inicio_buscador_y_seguimiento/sidioma=es_ES&numero=" +
-                        URLEncoder.encode(trackingNum, StandardCharsets.UTF_8);
-                // FIX: usar setNumSeguimiento (no setNumeroSeguimiento) para que compile
-                pedido.setNumSeguimiento(trackingNum);
-                pedido.setUrlSeguimiento(urlTracking);
-                pedidoRepository.save(pedido);
-            }
-        } catch (Exception e) {
-            System.err.println("[TRACKING SYNC] Error para pedido #" + idPedido + ": " + e.getMessage());
-        }
+        // El tracking lo notifica SellerKing mediante POST /api/internal/orders/{id}/tracking
     }
 
     @Override
     public TrackingInfoDTO getTrackingExterno(Long idPedido) {
-        Pedido pedido = pedidoRepository.findById(idPedido)
-                .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
-
-        String dist = pedido.getLineas() != null && !pedido.getLineas().isEmpty()
-                && pedido.getLineas().get(0).getDistribuidor() != null
-                ? pedido.getLineas().get(0).getDistribuidor().name() : null;
-
-        if (dist == null) return null;
-
-        try {
-            String trackingNum = null;
-            if ("BTS".equalsIgnoreCase(dist)) {
-                trackingNum = btsApiClient.getTracking(pedido);
-            } else if ("NOVA".equalsIgnoreCase(dist) || "NOVAENGEL".equalsIgnoreCase(dist)) {
-                trackingNum = novaApiClient.getTracking(pedido);
-            }
-
-            if (trackingNum != null && !trackingNum.isBlank()) {
-                String urlTracking = "https://www.correos.es/ss/Satellite/site/pagina-inicio_buscador_y_seguimiento/sidioma=es_ES&numero=" +
-                        URLEncoder.encode(trackingNum, StandardCharsets.UTF_8);
-                pedido.setNumSeguimiento(trackingNum);
-                pedido.setUrlSeguimiento(urlTracking);
-                pedidoRepository.save(pedido);
-                return new TrackingInfoDTO(trackingNum, urlTracking);
-            }
-        } catch (Exception e) {
-            System.err.println("[TRACKING] Error: " + e.getMessage());
-        }
+        // El tracking lo notifica SellerKing mediante POST /api/internal/orders/{id}/tracking
         return null;
     }
 

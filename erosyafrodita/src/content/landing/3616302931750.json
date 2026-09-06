@@ -1,0 +1,53 @@
+{
+  "brand": "Lacoste",
+  "claim": "Frescura limpia y elegancia relajada para el día a día.",
+  "shortDescription": "Inspirada en el icónico polo blanco de la marca, L.12.12 Blanc captura la esencia de la simplicidad refinada. Una fragancia limpia, pura y refrescante que combina notas cítricas, florales y amaderadas con un toque sofisticado de gamuza.",
+  "benefits": [
+    "Fragancia sumamente limpia, fresca y reconfortante.",
+    "Excelente versatilidad, ideal para el uso diario y la oficina.",
+    "Aroma minimalista y atemporal que transmite pulcritud."
+  ],
+  "fragranceFamily": "Amaderada Aromática",
+  "topNotes": [
+    "Pomelo",
+    "Romero",
+    "Cardamomo"
+  ],
+  "heartNotes": [
+    "Ylang-ylang",
+    "Nardos"
+  ],
+  "baseNotes": [
+    "Gamuza",
+    "Cedro de Virginia",
+    "Cuero",
+    "Vetiver"
+  ],
+  "recommendedFor": [
+    "Hombres activos",
+    "Amantes del estilo casual y deportivo",
+    "Quienes buscan un aroma pulcro y diario"
+  ],
+  "recommendedOccasions": [
+    "Uso diario",
+    "Trabajo y oficina",
+    "Actividades deportivas",
+    "Eventos de día informal"
+  ],
+  "season": [
+    "Primavera",
+    "Verano"
+  ],
+  "faqs": [
+    {
+      "question": "¿Qué tipo de fragancia es Lacoste L.12.12 Blanc?",
+      "answer": "Es un Eau de Toilette (EDT) fresco, caracterizado por una salida cítrica y aromática que evoluciona hacia notas florales limpias, asentadas sobre una base masculina y amaderada."
+    },
+    {
+      "question": "¿A qué huele esta fragancia?",
+      "answer": "Su apertura es vibrante y herbal gracias al pomelo y al romero. En el corazón se suaviza con el dulzor floral del nardo y el ylang-ylang, terminando en un fondo masculino y aterciopelado de cuero y cedro."
+    }
+  ],
+  "seoTitle": "",
+  "seoDescription": "Fragancia clásica, limpia y deportiva para el hombre moderno."
+}

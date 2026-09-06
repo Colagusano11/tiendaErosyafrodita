@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -27,7 +28,7 @@ import java.util.concurrent.TimeUnit;
  *   - Shopmania: https://www.shopmania.es/merchant → Feed URL
  */
 @RestController
-@RequestMapping("/api/feed")
+@RequestMapping({"/api/feed", "/feed"})
 @CrossOrigin(origins = "*")
 public class FeedComparadoresController {
 
@@ -60,7 +61,7 @@ public class FeedComparadoresController {
                 + "\tdescription\tcategory\tbrand\tean\tavailability\tcondition\n");
 
         for (Producto p : productos) {
-            if (p.getPrecio() == null || p.getPrecio() <= 0) continue;
+            if (p.getPrecio() == null || p.getPrecio().compareTo(BigDecimal.ZERO) <= 0) continue;
             if (p.getStock() != null && p.getStock() <= 0) continue;
 
             String titulo = elegirTitulo(p);
@@ -104,7 +105,7 @@ public class FeedComparadoresController {
         csv.append("id;nombre;url;precio;imagen;descripcion;marca;ean;disponibilidad\n");
 
         for (Producto p : productos) {
-            if (p.getPrecio() == null || p.getPrecio() <= 0) continue;
+            if (p.getPrecio() == null || p.getPrecio().compareTo(BigDecimal.ZERO) <= 0) continue;
             if (p.getStock() != null && p.getStock() <= 0) continue;
 
             String titulo = elegirTitulo(p);
@@ -143,7 +144,7 @@ public class FeedComparadoresController {
         csv.append("id,nombre,url,precio,moneda,imagen,descripcion,categoria,marca,ean,disponibilidad\n");
 
         for (Producto p : productos) {
-            if (p.getPrecio() == null || p.getPrecio() <= 0) continue;
+            if (p.getPrecio() == null || p.getPrecio().compareTo(BigDecimal.ZERO) <= 0) continue;
             if (p.getStock() != null && p.getStock() <= 0) continue;
 
             String titulo = elegirTitulo(p);
@@ -243,9 +244,10 @@ public class FeedComparadoresController {
     }
 
     private double precioFinal(Producto p) {
-        return (p.getPrecioOferta() != null && p.getPrecioOferta() > 0 && p.getPrecioOferta() < p.getPrecio())
-                ? p.getPrecioOferta()
-                : p.getPrecio();
+        boolean ofertaValida = p.getPrecioOferta() != null
+                && p.getPrecioOferta().compareTo(BigDecimal.ZERO) > 0
+                && p.getPrecioOferta().compareTo(p.getPrecio()) < 0;
+        return ofertaValida ? p.getPrecioOferta().doubleValue() : p.getPrecio().doubleValue();
     }
 
     private String generarSlug(String nombre) {

@@ -1,16 +1,23 @@
 -- V10: Añade campos de copy IA al modelo de producto
--- titulo_seo       → <title> optimizado para Google (max 60 chars)
--- descripcion_seo  → meta description + ficha de producto (max 160 chars)
--- copy_instagram   → texto del post con emojis y hashtags
--- copy_generado_en → timestamp de última generación (para saber si está obsoleto)
+-- MySQL no soporta ADD COLUMN IF NOT EXISTS — se usa INFORMATION_SCHEMA.
+-- MySQL no soporta índices parciales (WHERE en CREATE INDEX) — se omite.
 
-ALTER TABLE productos
-    ADD COLUMN IF NOT EXISTS titulo_seo       VARCHAR(100),
-    ADD COLUMN IF NOT EXISTS descripcion_seo  VARCHAR(320),
-    ADD COLUMN IF NOT EXISTS copy_instagram   TEXT,
-    ADD COLUMN IF NOT EXISTS copy_generado_en TIMESTAMP;
+SELECT IF(COUNT(*) = 0, 'ALTER TABLE productos ADD COLUMN titulo_seo VARCHAR(100)', 'SELECT 1')
+INTO @s FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='productos' AND column_name='titulo_seo';
+PREPARE _s FROM @s; EXECUTE _s; DEALLOCATE PREPARE _s;
 
--- Índice para encontrar rápido los productos que aún no tienen copy generado
-CREATE INDEX IF NOT EXISTS idx_productos_sin_copy
-    ON productos (copy_generado_en)
-    WHERE copy_generado_en IS NULL;
+SELECT IF(COUNT(*) = 0, 'ALTER TABLE productos ADD COLUMN descripcion_seo VARCHAR(320)', 'SELECT 1')
+INTO @s FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='productos' AND column_name='descripcion_seo';
+PREPARE _s FROM @s; EXECUTE _s; DEALLOCATE PREPARE _s;
+
+SELECT IF(COUNT(*) = 0, 'ALTER TABLE productos ADD COLUMN copy_instagram TEXT', 'SELECT 1')
+INTO @s FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='productos' AND column_name='copy_instagram';
+PREPARE _s FROM @s; EXECUTE _s; DEALLOCATE PREPARE _s;
+
+SELECT IF(COUNT(*) = 0, 'ALTER TABLE productos ADD COLUMN copy_generado_en TIMESTAMP NULL', 'SELECT 1')
+INTO @s FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='productos' AND column_name='copy_generado_en';
+PREPARE _s FROM @s; EXECUTE _s; DEALLOCATE PREPARE _s;
+
+SELECT IF(COUNT(*) = 0, 'CREATE INDEX idx_productos_sin_copy ON productos(copy_generado_en)', 'SELECT 1')
+INTO @s FROM information_schema.statistics WHERE table_schema=DATABASE() AND table_name='productos' AND index_name='idx_productos_sin_copy';
+PREPARE _s FROM @s; EXECUTE _s; DEALLOCATE PREPARE _s;

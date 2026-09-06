@@ -15,14 +15,14 @@ interface SEOProps {
   ean?: string;
 }
 
-const SITE_NAME  = 'Eros y Afrodita';
+const SITE_NAME  = 'AGE Parfums';
 const SITE_URL   = 'https://erosyafrodita.com';
 const OG_DEFAULT = `${SITE_URL}/og-image.png`;
 
 const SEO: React.FC<SEOProps> = ({
   title,
-  description = 'Boutique exclusiva de perfumes de lujo. Descubre la esencia de los dioses en Eros y Afrodita.',
-  keywords    = 'perfumes, lujo, belleza, Eros y Afrodita, fragancias',
+  description = 'Boutique exclusiva de perfumes de lujo. Descubre la esencia de los dioses en AGE Parfums.',
+  keywords    = 'perfumes, lujo, belleza, AGE Parfums, fragancias',
   image       = OG_DEFAULT,
   url,
   type        = 'website',

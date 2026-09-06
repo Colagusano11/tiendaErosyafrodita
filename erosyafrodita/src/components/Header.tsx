@@ -70,14 +70,14 @@ const Header: React.FC = () => {
           >
             <img
               src={logoEros}
-              alt="Eros & Afrodita logo"
-              className="size-8 sm:size-10 rounded-full object-cover shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform duration-500"
+              alt="AGE Parfums logo"
+              className="size-12 sm:size-16 rounded-full object-cover shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform duration-500"
             />
             <div className="flex flex-col -gap-0.5 ml-1 sm:ml-0">
               <span className="text-[10px] xs:text-xs sm:text-lg font-black tracking-tighter leading-none uppercase">
-                Eros<span className="text-primary italic font-serif">&</span>Afrodita
+                AGE <span className="text-primary italic font-serif">Parfums</span>
               </span>
-              <span className="text-[5px] sm:text-[8px] font-black uppercase tracking-[0.05em] sm:tracking-[0.3em] text-primary/60">LA ESENCIA DIVINA</span>
+              <span className="text-[5px] sm:text-[8px] font-black uppercase tracking-[0.05em] sm:tracking-[0.3em] text-primary/60">LA ERA DE LAS FRAGANCIAS</span>
             </div>
           </Link>
         </div>
@@ -124,7 +124,7 @@ const Header: React.FC = () => {
                 favorite
               </span>
               {wishlistCount > 0 && (
-                <span className="absolute -top-1 -right-1 size-4 rounded-full bg-primary border-2 border-charcoal text-[8px] font-black text-background-dark flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 size-4 rounded-full bg-primary border-2 border-charcoal text-[8px] font-black text-charcoal flex items-center justify-center">
                   {wishlistCount}
                 </span>
               )}
@@ -142,7 +142,7 @@ const Header: React.FC = () => {
                 shopping_bag
               </span>
               {itemCount > 0 && (
-                <span className="absolute -top-1 -right-1 size-4 rounded-full bg-primary border-2 border-charcoal text-[8px] font-black text-background-dark flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 size-4 rounded-full bg-primary border-2 border-charcoal text-[8px] font-black text-charcoal flex items-center justify-center">
                   {itemCount}
                 </span>
               )}
@@ -153,13 +153,13 @@ const Header: React.FC = () => {
           {/* Cuenta */}
           <Link
             to={isAuthenticated
-              ? (isAdmin ? "/admin/orders" : "/profile?tab=datos")
+              ? (isAdmin ? "/admin/coupons" : "/profile?tab=datos")
               : "/login"
             }
             className="flex flex-col items-center gap-1 group"
           >
             <div className={`size-9 sm:size-10 rounded-full flex items-center justify-center transition-all ${isAuthenticated
-                ? "bg-primary text-background-dark font-black text-[10px] sm:text-xs border-2 border-primary/20 group-hover:scale-110 shadow-lg shadow-primary/10"
+                ? "bg-primary text-charcoal font-black text-[10px] sm:text-xs border-2 border-primary/20 group-hover:scale-110 shadow-lg shadow-primary/10"
                 : "bg-charcoal-lighter text-white/80 group-hover:bg-primary group-hover:text-charcoal"
               }`}
             >
@@ -181,12 +181,12 @@ const Header: React.FC = () => {
         <div className="fixed inset-0 z-[100] lg:hidden animate-fade-in">
           {/* Overlay */}
           <div 
-            className="absolute inset-0 bg-background-dark/80 backdrop-blur-sm" 
+            className="absolute inset-0 bg-charcoal/80 backdrop-blur-sm"
             onClick={() => setIsMobileMenuOpen(false)}
           />
           
           {/* Menu Content */}
-          <div className="absolute left-0 top-0 h-full w-[300px] bg-[#121212] p-8 shadow-[30px_0_60px_rgba(0,0,0,0.8)] animate-slide-right border-r border-white/5 flex flex-col">
+          <div className="absolute left-0 top-0 h-full w-[300px] bg-charcoal p-8 shadow-[30px_0_60px_rgba(0,0,0,0.8)] animate-slide-right border-r border-white/5 flex flex-col">
             <div className="flex justify-between items-center mb-12">
               <div className="flex flex-col">
                 <span className="text-[10px] font-black tracking-[0.4em] text-primary uppercase italic leading-none">Menú</span>

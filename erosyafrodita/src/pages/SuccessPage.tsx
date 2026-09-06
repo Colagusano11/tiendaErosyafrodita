@@ -75,7 +75,7 @@ const SuccessPage: React.FC = () => {
   const totalMostrar = state.total ?? (pedido ? pedido.total : 0);
 
   return (
-    <div className="bg-background-dark font-display text-white antialiased min-h-screen flex flex-col selection:bg-primary/30">
+    <div className="bg-background-dark font-display text-charcoal antialiased min-h-screen flex flex-col selection:bg-primary/30">
       <Header />
 
       <main className="flex-grow flex justify-center py-12 md:py-20 px-4">
@@ -93,11 +93,11 @@ const SuccessPage: React.FC = () => {
             </div>
             
             <div className="space-y-4">
-              <h1 className="text-5xl md:text-6xl font-black tracking-tighter text-white">
+              <h1 className="text-5xl md:text-6xl font-black tracking-tighter text-charcoal">
                 Pedido <span className="text-primary italic">Confirmado</span>
               </h1>
-              <p className="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto font-light leading-relaxed">
-                Gracias por confiar en <span className="text-white font-bold">Erosyafrodita</span>. 
+              <p className="text-charcoal/60 text-lg md:text-xl max-w-2xl mx-auto font-light leading-relaxed">
+                Gracias por confiar en <span className="text-charcoal font-bold">AGE Parfums</span>.
                 {finalPedidoId && (
                   <>
                     <br />
@@ -117,7 +117,7 @@ const SuccessPage: React.FC = () => {
                         }
                       }}
                       id="copy-btn"
-                      className="ml-3 inline-flex items-center justify-center size-8 rounded-full bg-white/5 border border-white/10 text-white/40 hover:text-primary hover:border-primary/30 transition-all active:scale-95"
+                      className="ml-3 inline-flex items-center justify-center size-8 rounded-full bg-charcoal/5 border border-charcoal/10 text-charcoal/40 hover:text-primary hover:border-primary/30 transition-all active:scale-95"
                       title="Copiar número de pedido"
                     >
                       <span className="material-symbols-outlined text-sm">content_copy</span>
@@ -168,11 +168,11 @@ const SuccessPage: React.FC = () => {
                   <div className="space-y-8">
                     {pedido.productos.map((prod, idx) => (
                       <div key={idx} className="flex items-center gap-6 group/item">
-                        <div className="size-20 md:size-24 shrink-0 rounded-2xl overflow-hidden bg-background-dark border border-white/5 p-2 transition-all group-hover/item:border-primary/30 flex items-center justify-center">
+                        <div className="size-20 md:size-24 shrink-0 rounded-2xl overflow-hidden bg-background-dark border border-charcoal/10 p-2 transition-all group-hover/item:border-primary/30 flex items-center justify-center">
                           {prod.imagen ? (
                             <img src={prod.imagen} alt={prod.nombreProducto} className="max-w-full max-h-full object-contain" />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-white/5 uppercase text-[10px] font-bold text-gray-600">No Img</div>
+                            <div className="w-full h-full flex items-center justify-center bg-charcoal/5 uppercase text-[10px] font-bold text-gray-600">No Img</div>
                           )}
                         </div>
                         <div className="flex-grow">
@@ -216,8 +216,8 @@ const SuccessPage: React.FC = () => {
                       <h5 className="text-[10px] font-black uppercase tracking-[0.2em]">Pago Seguro</h5>
                     </div>
                     <div className="flex items-center gap-3">
-                      <div className="size-8 rounded-lg bg-background-dark border border-white/10 flex items-center justify-center">
-                        <span className="material-symbols-outlined text-white/40 text-sm">credit_card</span>
+                      <div className="size-8 rounded-lg bg-background-dark border border-charcoal/10 flex items-center justify-center">
+                        <span className="material-symbols-outlined text-charcoal/40 text-sm">credit_card</span>
                       </div>
                       <span className="text-white text-sm font-bold tracking-tight">Transacción Finalizada</span>
                     </div>
@@ -225,18 +225,18 @@ const SuccessPage: React.FC = () => {
                 </div>
 
                 {/* Totals Section */}
-                <div className="bg-background-dark/50 rounded-[2rem] p-8 border border-white/5 space-y-4 shadow-inner">
+                <div className="bg-background-dark/50 rounded-[2rem] p-8 border border-charcoal/10 space-y-4 shadow-inner">
                   <div className="flex justify-between text-xs font-bold uppercase tracking-widest">
                     <span className="text-gray-500">Valor de la Colección</span>
-                    <span className="text-white">{totalMostrar.toFixed(2)}€</span>
+                    <span className="text-charcoal">{totalMostrar.toFixed(2)}€</span>
                   </div>
                   <div className="flex justify-between text-xs font-bold uppercase tracking-widest">
                     <span className="text-gray-500">Servicio de Entrega</span>
                     <span className="text-primary">Premium Gratis</span>
                   </div>
-                  <div className="h-px bg-white/5 my-2" />
+                  <div className="h-px bg-charcoal/10 my-2" />
                   <div className="flex justify-between items-baseline pt-2">
-                    <span className="text-xl font-black text-white uppercase tracking-tighter">Importe total</span>
+                    <span className="text-xl font-black text-charcoal uppercase tracking-tighter">Importe total</span>
                     <span className="text-4xl font-black text-primary shadow-primary/20 drop-shadow-xl">
                       {totalMostrar.toFixed(2)}<span className="text-xl ml-1">€</span>
                     </span>
@@ -250,7 +250,7 @@ const SuccessPage: React.FC = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-6">
             <button
               onClick={() => navigate(pedido?.usuarioId ? "/profile?tab=pedidos" : "/track-order")}
-              className="w-full sm:w-auto px-10 h-14 rounded-full border border-white/10 bg-surface-dark text-white font-bold text-xs tracking-widest uppercase hover:bg-white hover:text-background-dark transition-all flex items-center justify-center gap-3"
+              className="w-full sm:w-auto px-10 h-14 rounded-full border border-white/10 bg-surface-dark text-white font-bold text-xs tracking-widest uppercase hover:bg-white hover:text-charcoal transition-all flex items-center justify-center gap-3"
             >
               <span className="material-symbols-outlined text-[18px]">
                 {pedido?.usuarioId ? "receipt_long" : "travel_explore"}
@@ -260,7 +260,7 @@ const SuccessPage: React.FC = () => {
 
             <button
               onClick={() => navigate("/")}
-              className="w-full sm:w-auto px-12 h-14 rounded-full bg-primary text-background-dark font-black text-xs tracking-widest uppercase hover:bg-yellow-400 hover:shadow-[0_0_30px_rgba(242,185,13,0.3)] transition-all flex items-center justify-center gap-3 group"
+              className="w-full sm:w-auto px-12 h-14 rounded-full bg-primary text-charcoal font-black text-xs tracking-widest uppercase hover:bg-yellow-400 hover:shadow-[0_0_30px_rgba(242,185,13,0.3)] transition-all flex items-center justify-center gap-3 group"
             >
               Ir a la tienda
               <span className="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">
@@ -270,7 +270,7 @@ const SuccessPage: React.FC = () => {
           </div>
 
           <p className="text-center text-gray-500 text-xs font-medium tracking-widest uppercase">
-            Experiencia gestionada por Erosyafrodita Concierge
+            Experiencia gestionada por AGE Parfums Concierge
           </p>
         </div>
       </main>

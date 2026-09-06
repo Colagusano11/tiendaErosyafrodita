@@ -11,11 +11,11 @@ const Footer: React.FC = () => (
           <div className="flex items-center gap-2 mb-3">
             <img
               src={logoEros}
-              alt="Eros & Afrodita"
+              alt="AGE Parfums"
               className="size-6 rounded-full object-cover"
             />
             <span className="font-semibold text-sm text-white">
-              Erosyafrodita
+              AGE Parfums
             </span>
           </div>
           <p className="text-[11px] leading-relaxed">
@@ -133,7 +133,7 @@ const Footer: React.FC = () => (
       </div>
 
       <div className="mt-12 border-t border-white/5 pt-8 flex flex-col md:flex-row items-center justify-between gap-6 text-[10px] font-bold uppercase tracking-[0.2em] text-white/30">
-        <span>© 2026 Eros & Afrodita.</span>
+        <span>© 2026 AGE Parfums.</span>
         <div className="flex gap-6">
           <span className="hover:text-primary cursor-pointer transition-colors">Instagram</span>
           <span className="hover:text-primary cursor-pointer transition-colors">LinkedIn</span>

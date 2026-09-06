@@ -22,6 +22,8 @@ CREATE TABLE IF NOT EXISTS distribuidor (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Tabla principal de productos
+-- FKs a categorias/distribuidor omitidas: esas tablas pueden preexistir con schema distinto
+-- (creadas por Hibernate). JPA gestiona las relaciones sin necesidad de FK a nivel de BD.
 CREATE TABLE IF NOT EXISTS producto (
     id                  BIGINT AUTO_INCREMENT PRIMARY KEY,
     nombre              VARCHAR(500) NOT NULL,
@@ -37,9 +39,7 @@ CREATE TABLE IF NOT EXISTS producto (
     categoria_id        BIGINT,
     distribuidor_id     BIGINT,
     created_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_producto_categoria    FOREIGN KEY (categoria_id)    REFERENCES categorias(id),
-    CONSTRAINT fk_producto_distribuidor FOREIGN KEY (distribuidor_id) REFERENCES distribuidor(id)
+    updated_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Variantes de venta de un producto (tallas/presentaciones)

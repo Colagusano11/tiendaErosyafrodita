@@ -21,13 +21,13 @@ const Contact: React.FC = () => {
   };
 
   return (
-    <div className="bg-background-dark font-display text-white min-h-screen flex flex-col">
+    <div className="bg-background-dark font-display text-charcoal min-h-screen flex flex-col">
       <Header />
       <main className="flex-1 flex justify-center py-10 px-4">
         <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-10">
           <div>
             <h1 className="text-4xl font-bold mb-4">Contáctanos</h1>
-            <p className="text-gray-400 mb-8">¿Tienes dudas? Escríbenos y nuestros expertos te responderán con la atención que mereces.</p>
+            <p className="text-charcoal/60 mb-8">¿Tienes dudas? Escríbenos y nuestros expertos te responderán con la atención que mereces.</p>
             <div className="space-y-4">
               <div className="flex gap-4 p-4 bg-surface-dark rounded-xl border border-white/5">
                 <span className="material-symbols-outlined text-primary">mail</span>
@@ -41,22 +41,22 @@ const Contact: React.FC = () => {
 
           <form onSubmit={handleSubmit} className="bg-surface-dark p-8 rounded-2xl border border-white/5 flex flex-col gap-4 shadow-xl">
             <input 
-              className="bg-background-dark border border-border-dark rounded-lg p-3 text-white focus:ring-2 focus:ring-primary/50 outline-none" 
-              placeholder="Nombre" 
+              className="bg-background-dark border border-border-dark rounded-lg p-3 text-charcoal focus:ring-2 focus:ring-primary/50 outline-none"
+              placeholder="Nombre"
               value={formData.nombre}
               required
               onChange={e => setFormData({ ...formData, nombre: e.target.value })}
             />
             <input 
-              className="bg-background-dark border border-border-dark rounded-lg p-3 text-white focus:ring-2 focus:ring-primary/50 outline-none" 
-              placeholder="Email" 
+              className="bg-background-dark border border-border-dark rounded-lg p-3 text-charcoal focus:ring-2 focus:ring-primary/50 outline-none"
+              placeholder="Email"
               type="email" 
               value={formData.email}
               required
               onChange={e => setFormData({ ...formData, email: e.target.value })}
             />
             <textarea 
-              className="bg-background-dark border border-border-dark rounded-lg p-3 text-white h-32 focus:ring-2 focus:ring-primary/50 outline-none" 
+              className="bg-background-dark border border-border-dark rounded-lg p-3 text-charcoal h-32 focus:ring-2 focus:ring-primary/50 outline-none"
               placeholder="Mensaje"
               value={formData.mensaje}
               required

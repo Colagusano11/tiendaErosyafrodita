@@ -517,14 +517,14 @@ const Checkout: React.FC = () => {
         currency: "EUR",
         intent: "capture"
       }}>
-        <div className="bg-background-dark text-white font-display antialiased min-h-screen flex flex-col">
+        <div className="bg-background-dark text-charcoal font-display antialiased min-h-screen flex flex-col">
       <Header />
 
       <main className="flex-grow w-full max-w-[1440px] mx-auto py-6 sm:py-10 px-4 sm:px-10">
         <div className="w-full">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 sm:mb-8 gap-4 border-b border-white/5 pb-6">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 sm:mb-8 gap-4 border-b border-charcoal/10 pb-6">
             <div>
-              <h1 className="text-white text-2xl sm:text-3xl md:text-4xl font-black leading-tight tracking-tight mb-1 sm:mb-2">
+              <h1 className="text-charcoal text-2xl sm:text-3xl md:text-4xl font-black leading-tight tracking-tight mb-1 sm:mb-2">
                 Finalizar Ritual
               </h1>
               <p className="text-primary text-[10px] sm:text-sm font-black uppercase tracking-widest opacity-60">
@@ -533,10 +533,10 @@ const Checkout: React.FC = () => {
             </div>
             <nav className="flex items-center gap-2 text-xs font-black uppercase tracking-widest">
               <span className="text-primary">Envío</span>
-              <span className="text-white/20">/</span>
-              <span className="text-white/40">Pago</span>
-              <span className="text-white/20">/</span>
-              <span className="text-white/40">Olimpo</span>
+              <span className="text-charcoal/20">/</span>
+              <span className="text-charcoal/40">Pago</span>
+              <span className="text-charcoal/20">/</span>
+              <span className="text-charcoal/40">Olimpo</span>
             </nav>
           </div>
 
@@ -559,43 +559,43 @@ const Checkout: React.FC = () => {
                   {userProfile && (userProfile.direccionPrimaria) && (
                     <div 
                       onClick={() => setIsUsingSavedAddress(true)}
-                      className={`group p-6 rounded-2xl border transition-all cursor-pointer ${isUsingSavedAddress ? 'bg-primary/5 border-primary shadow-2xl shadow-primary/10' : 'bg-black/20 border-white/5 hover:border-white/10'}`}
+                      className={`group p-6 rounded-2xl border transition-all cursor-pointer ${isUsingSavedAddress ? 'bg-primary/5 border-primary shadow-2xl shadow-primary/10' : 'bg-charcoal/5 border-charcoal/10 hover:border-charcoal/10'}`}
                     >
                       <h3 className="text-xs font-black uppercase tracking-widest mb-4 flex items-center gap-2">
                         <span className="material-symbols-outlined text-primary text-sm">home</span>
                         Dirección Guardada
                       </h3>
-                      <p className="text-sm text-white font-medium">{userProfile.direccionPrimaria} {userProfile.numero}</p>
-                      <p className="text-xs text-white/40 font-light mt-1">{userProfile.codigoPostal} {userProfile.poblacion}, {userProfile.provincia}</p>
+                      <p className="text-sm text-charcoal font-medium">{userProfile.direccionPrimaria} {userProfile.numero}</p>
+                      <p className="text-xs text-charcoal/40 font-light mt-1">{userProfile.codigoPostal} {userProfile.poblacion}, {userProfile.provincia}</p>
                     </div>
                   )}
                   
                     <div className="flex flex-col gap-4">
                       <h3 
                         onClick={() => setIsUsingSavedAddress(false)}
-                        className={`text-xs font-black uppercase tracking-widest flex items-center gap-2 cursor-pointer transition-colors ${!isUsingSavedAddress ? 'text-primary' : 'text-white/40 hover:text-white'}`}
+                        className={`text-xs font-black uppercase tracking-widest flex items-center gap-2 cursor-pointer transition-colors ${!isUsingSavedAddress ? 'text-primary' : 'text-charcoal/40 hover:text-charcoal'}`}
                       >
                         <span className="material-symbols-outlined text-sm">{!isUsingSavedAddress ? 'edit_location' : 'add_location'}</span>
                         {userProfile && userProfile.direccionPrimaria ? 'Usar otra dirección' : 'Detalles de Envío'}
                       </h3>
                       
                       {(!isUsingSavedAddress || !userProfile?.direccionPrimaria) && (
-                        <div className="grid grid-cols-1 gap-4 p-6 rounded-2xl border border-white/10 bg-white/5 animate-fade-in mt-2 mb-4">
+                        <div className="grid grid-cols-1 gap-4 p-6 rounded-2xl border border-charcoal/10 bg-charcoal/5 animate-fade-in mt-2 mb-4">
                           <div className="grid grid-cols-2 gap-4">
-                            <input required className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-white focus:bg-background-dark transition-all" placeholder="NOMBRE*" value={tempAddress.nombre} onChange={e => setTempAddress({...tempAddress, nombre: e.target.value})} />
-                            <input required className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-white focus:bg-background-dark transition-all" placeholder="APELLIDOS*" value={tempAddress.apellidos} onChange={e => setTempAddress({...tempAddress, apellidos: e.target.value})} />
+                            <input required className="w-full bg-charcoal/10 border border-charcoal/10 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-charcoal focus:bg-background-dark transition-all" placeholder="NOMBRE*" value={tempAddress.nombre} onChange={e => setTempAddress({...tempAddress, nombre: e.target.value})} />
+                            <input required className="w-full bg-charcoal/10 border border-charcoal/10 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-charcoal focus:bg-background-dark transition-all" placeholder="APELLIDOS*" value={tempAddress.apellidos} onChange={e => setTempAddress({...tempAddress, apellidos: e.target.value})} />
                           </div>
                           <div className="relative">
-                             <input required className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-white focus:bg-background-dark transition-all pr-12" placeholder="CALLE / AVENIDA / NÚMERO*" value={tempAddress.calle} onChange={e => setTempAddress({...tempAddress, calle: e.target.value})} />
+                             <input required className="w-full bg-charcoal/10 border border-charcoal/10 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-charcoal focus:bg-background-dark transition-all pr-12" placeholder="CALLE / AVENIDA / NÚMERO*" value={tempAddress.calle} onChange={e => setTempAddress({...tempAddress, calle: e.target.value})} />
                              <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-primary opacity-30 text-base">location_on</span>
                           </div>
                           <div className="grid grid-cols-2 gap-4">
-                            <input required className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-white focus:bg-background-dark transition-all" placeholder="POBLACIÓN*" value={tempAddress.poblacion} onChange={e => setTempAddress({...tempAddress, poblacion: e.target.value})} />
-                            <input required className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-white focus:bg-background-dark transition-all" placeholder="CÓDIGO POSTAL*" value={tempAddress.codigoPostal} onChange={e => setTempAddress({...tempAddress, codigoPostal: e.target.value})} />
+                            <input required className="w-full bg-charcoal/10 border border-charcoal/10 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-charcoal focus:bg-background-dark transition-all" placeholder="POBLACIÓN*" value={tempAddress.poblacion} onChange={e => setTempAddress({...tempAddress, poblacion: e.target.value})} />
+                            <input required className="w-full bg-charcoal/10 border border-charcoal/10 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-charcoal focus:bg-background-dark transition-all" placeholder="CÓDIGO POSTAL*" value={tempAddress.codigoPostal} onChange={e => setTempAddress({...tempAddress, codigoPostal: e.target.value})} />
                           </div>
                           <div className="grid grid-cols-2 gap-4">
-                            <input required className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-white focus:bg-background-dark transition-all" placeholder="PROVINCIA*" value={tempAddress.provincia} onChange={e => setTempAddress({...tempAddress, provincia: e.target.value})} />
-                            <input required className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-white focus:bg-background-dark transition-all" placeholder="TELÉFONO MÓVIL (9 dígitos)*" value={tempAddress.telefono} onChange={e => setTempAddress({...tempAddress, telefono: e.target.value})} />
+                            <input required className="w-full bg-charcoal/10 border border-charcoal/10 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-charcoal focus:bg-background-dark transition-all" placeholder="PROVINCIA*" value={tempAddress.provincia} onChange={e => setTempAddress({...tempAddress, provincia: e.target.value})} />
+                            <input required className="w-full bg-charcoal/10 border border-charcoal/10 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-charcoal focus:bg-background-dark transition-all" placeholder="TELÉFONO MÓVIL (9 dígitos)*" value={tempAddress.telefono} onChange={e => setTempAddress({...tempAddress, telefono: e.target.value})} />
                           </div>
                           {userEmail && (
                             <label className="flex items-center gap-2 cursor-pointer mt-2 group w-fit">
@@ -603,15 +603,15 @@ const Checkout: React.FC = () => {
                                 type="checkbox" 
                                 checked={tempAddress.saveToProfile} 
                                 onChange={e => setTempAddress({...tempAddress, saveToProfile: e.target.checked})}
-                                className="size-4 rounded border-white/10 bg-black/40 checked:bg-primary checked:border-primary transition-all cursor-pointer"
+                                className="size-4 rounded border-charcoal/10 bg-charcoal/10 checked:bg-primary checked:border-primary transition-all cursor-pointer"
                               />
-                              <span className="text-[10px] font-black uppercase tracking-widest text-white/40 group-hover:text-primary transition-colors">Guardar esta dirección en mi perfil</span>
+                              <span className="text-[10px] font-black uppercase tracking-widest text-charcoal/40 group-hover:text-primary transition-colors">Guardar esta dirección en mi perfil</span>
                             </label>
                           )}
                           {!userEmail && (
                             <input 
                               type="email"
-                              className="w-full bg-primary/10 border border-primary/20 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-white focus:bg-background-dark transition-all placeholder:text-primary/40 mt-2" 
+                              className="w-full bg-primary/10 border border-primary/20 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-charcoal focus:bg-background-dark transition-all placeholder:text-primary/40 mt-2" 
                               placeholder="CORREO ELECTRÓNICO (OBLIGATORIO PARA PAGAR)*" 
                               value={tempAddress.email} 
                               onChange={e => setTempAddress({...tempAddress, email: e.target.value})} 
@@ -633,10 +633,10 @@ const Checkout: React.FC = () => {
                     Pago Seguro
                   </h2>
                   
-                  <div className="bg-white/5 border border-white/10 rounded-3xl p-8 flex flex-col gap-8">
+                  <div className="bg-charcoal/5 border border-charcoal/10 rounded-3xl p-8 flex flex-col gap-8">
                     
                     {/* Selector de Método de Pago en el paso de pago */}
-                    <div className="flex flex-col gap-4 pb-6 border-b border-white/5">
+                    <div className="flex flex-col gap-4 pb-6 border-b border-charcoal/10">
                         <h3 className="text-xs font-black uppercase tracking-widest text-primary flex items-center gap-2">
                           <span className="material-symbols-outlined text-sm">payments</span>
                           Elige tu Método de Pago
@@ -644,14 +644,14 @@ const Checkout: React.FC = () => {
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                           <div 
                             onClick={() => setSelectedMethod('card')}
-                            className={`p-4 rounded-xl border transition-all cursor-pointer flex flex-col items-center gap-2 text-center ${selectedMethod === 'card' ? 'bg-primary/5 border-primary shadow-lg shadow-primary/10' : 'bg-black/20 border-white/5 hover:border-white/10'}`}
+                            className={`p-4 rounded-xl border transition-all cursor-pointer flex flex-col items-center gap-2 text-center ${selectedMethod === 'card' ? 'bg-primary/5 border-primary shadow-lg shadow-primary/10' : 'bg-charcoal/5 border-charcoal/10 hover:border-charcoal/10'}`}
                           >
                             <span className="material-symbols-outlined text-xl">credit_card</span>
                             <span className="text-[10px] font-black uppercase tracking-widest">Tarjeta</span>
                           </div>
                           <div 
                             onClick={() => setSelectedMethod('revolut_pay')}
-                            className={`p-4 rounded-xl border transition-all cursor-pointer flex flex-col items-center gap-2 text-center ${selectedMethod === 'revolut_pay' ? 'bg-primary/5 border-primary shadow-lg shadow-primary/10' : 'bg-black/20 border-white/5 hover:border-white/10'}`}
+                            className={`p-4 rounded-xl border transition-all cursor-pointer flex flex-col items-center gap-2 text-center ${selectedMethod === 'revolut_pay' ? 'bg-primary/5 border-primary shadow-lg shadow-primary/10' : 'bg-charcoal/5 border-charcoal/10 hover:border-charcoal/10'}`}
                           >
                             <div className="h-5 flex items-center justify-center">
                               <span className="font-black text-xs">Revolut Pay</span>
@@ -660,9 +660,9 @@ const Checkout: React.FC = () => {
                           </div>
                           <div 
                             onClick={() => setSelectedMethod('mobile_pay')}
-                            className={`p-4 rounded-xl border transition-all cursor-pointer flex flex-col items-center gap-2 text-center ${selectedMethod === 'mobile_pay' ? 'bg-primary/5 border-primary shadow-lg shadow-primary/10' : 'bg-black/20 border-white/5 hover:border-white/10'}`}
+                            className={`p-4 rounded-xl border transition-all cursor-pointer flex flex-col items-center gap-2 text-center ${selectedMethod === 'mobile_pay' ? 'bg-primary/5 border-primary shadow-lg shadow-primary/10' : 'bg-charcoal/5 border-charcoal/10 hover:border-charcoal/10'}`}
                           >
-                            <div className="flex gap-1 h-5 items-center justify-center text-white">
+                            <div className="flex gap-1 h-5 items-center justify-center text-charcoal">
                               <span className="material-symbols-outlined text-xl">phone_iphone</span>
                               <span className="material-symbols-outlined text-sm">contactless</span>
                             </div>
@@ -670,7 +670,7 @@ const Checkout: React.FC = () => {
                           </div>
                           <div 
                             onClick={() => setSelectedMethod('paypal')}
-                            className={`p-4 rounded-xl border transition-all cursor-pointer flex flex-col items-center gap-2 text-center ${selectedMethod === 'paypal' ? 'bg-primary/5 border-primary shadow-lg shadow-primary/10' : 'bg-black/20 border-white/5 hover:border-white/10'}`}
+                            className={`p-4 rounded-xl border transition-all cursor-pointer flex flex-col items-center gap-2 text-center ${selectedMethod === 'paypal' ? 'bg-primary/5 border-primary shadow-lg shadow-primary/10' : 'bg-charcoal/5 border-charcoal/10 hover:border-charcoal/10'}`}
                           >
                             <div className="h-5 flex items-center justify-center">
                                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" className="h-4 object-contain" alt="PayPal" />
@@ -680,12 +680,12 @@ const Checkout: React.FC = () => {
                         </div>
                     </div>
                     <div className={`${selectedMethod === 'card' ? 'flex flex-col gap-6 animate-fade-in' : 'hidden'}`}>
-                      <p className="text-sm font-bold text-white/60 uppercase tracking-widest">Información de la tarjeta</p>
+                      <p className="text-sm font-bold text-charcoal/60 uppercase tracking-widest">Información de la tarjeta</p>
                       
                       <div className="flex flex-col gap-2">
-                        <label className="text-[10px] text-white/40 uppercase tracking-[0.2em] font-black ml-1">Nombre del Titular</label>
+                        <label className="text-[10px] text-charcoal/40 uppercase tracking-[0.2em] font-black ml-1">Nombre del Titular</label>
                         <input 
-                            className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-4 text-sm focus:border-primary outline-none text-white focus:bg-background-dark transition-all placeholder:text-white/10"
+                            className="w-full bg-charcoal/10 border border-charcoal/10 rounded-xl px-4 py-4 text-sm focus:border-primary outline-none text-charcoal focus:bg-background-dark transition-all placeholder:text-charcoal/10"
                             placeholder="Nombre del Titular"
                             value={cardholderName.toUpperCase()}
                             onChange={e => setCardholderName(e.target.value)}
@@ -694,14 +694,14 @@ const Checkout: React.FC = () => {
 
                       <div className="flex flex-col gap-4">
                         <div className="flex justify-between items-end ml-1">
-                           <label className="text-[10px] text-white/40 uppercase tracking-[0.2em] font-black">Datos de Seguridad</label>
-                           <div className="flex gap-12 text-[9px] text-white/20 uppercase font-bold pr-12 hidden sm:flex">
+                           <label className="text-[10px] text-charcoal/40 uppercase tracking-[0.2em] font-black">Datos de Seguridad</label>
+                           <div className="flex gap-12 text-[9px] text-charcoal/20 uppercase font-bold pr-12 hidden sm:flex">
                               <span>Número Tarjeta</span>
                               <span>Cad.</span>
                               <span>CVV</span>
                            </div>
                         </div>
-                        <div className="bg-black/40 border border-white/5 rounded-2xl p-6 min-h-[60px]">
+                        <div className="bg-charcoal/10 border border-charcoal/10 rounded-2xl p-6 min-h-[60px]">
                             <div id="revolut-card-field"></div>
                         </div>
                       </div>
@@ -710,18 +710,18 @@ const Checkout: React.FC = () => {
                     <div className={`${selectedMethod === 'revolut_pay' ? 'flex flex-col items-center gap-6 py-10 animate-fade-in' : 'hidden'}`}>
                        <div className="text-center flex flex-col gap-2 mb-4">
                           <p className="text-primary font-black text-xl uppercase tracking-widest italic">Revolut Pay</p>
-                          <p className="text-xs text-white/40 font-light">Confirma tu pago en un momento con tu cuenta Revolut</p>
+                          <p className="text-xs text-charcoal/40 font-light">Confirma tu pago en un momento con tu cuenta Revolut</p>
                        </div>
                        <div id="revolut-pay-button" className="w-full max-w-[300px] min-h-[50px]"></div>
                     </div>
 
                     <div className={`${selectedMethod === 'mobile_pay' ? 'flex flex-col items-center gap-6 py-10 animate-fade-in' : 'hidden'}`}>
                        <div className="text-center flex flex-col gap-2 mb-4">
-                          <p className="text-white font-black text-xl uppercase tracking-widest flex items-center justify-center gap-2">
+                          <p className="text-charcoal font-black text-xl uppercase tracking-widest flex items-center justify-center gap-2">
                             <span className="material-symbols-outlined text-2xl">phone_iphone</span>
                             Apple Pay / Google Pay
                           </p>
-                          <p className="text-xs text-white/40 font-light">Pago seguro y rápido desde tu dispositivo</p>
+                          <p className="text-xs text-charcoal/40 font-light">Pago seguro y rápido desde tu dispositivo</p>
                        </div>
                        <div id="revolut-payment-request" className="w-full max-w-[300px] min-h-[50px]"></div>
                        {!isMobilePaySupported && (
@@ -734,7 +734,7 @@ const Checkout: React.FC = () => {
                           <p className="text-[#0070ba] font-black text-xl uppercase tracking-widest flex items-center justify-center gap-2">
                             PayPal
                           </p>
-                          <p className="text-xs text-white/40 font-light">Paga con tu saldo, cuenta bancaria o tarjeta a través de PayPal</p>
+                          <p className="text-xs text-charcoal/40 font-light">Paga con tu saldo, cuenta bancaria o tarjeta a través de PayPal</p>
                        </div>
                        <div className="w-full max-w-[350px]">
                           <PayPalButtons 
@@ -769,7 +769,7 @@ const Checkout: React.FC = () => {
                         type="button"
                         onClick={handleCancelPayment}
                         disabled={isPaying}
-                        className="text-[10px] text-white/40 uppercase tracking-widest font-bold hover:text-white transition-colors flex items-center gap-1"
+                        className="text-[10px] text-charcoal/40 uppercase tracking-widest font-bold hover:text-charcoal transition-colors flex items-center gap-1"
                       >
                         <span className="material-symbols-outlined !text-[14px]">arrow_back</span>
                         Volver a envío
@@ -785,7 +785,7 @@ const Checkout: React.FC = () => {
 
             {/* Right Column */}
             <div className="lg:col-span-5 xl:col-span-4 lg:sticky lg:top-24">
-              <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-10 flex flex-col gap-8">
+              <div className="bg-charcoal/5 border border-charcoal/10 rounded-[2.5rem] p-10 flex flex-col gap-8">
                 <h3 className="text-xl font-black">Tu Selección</h3>
                 
                 <div className="flex flex-col gap-6 max-h-[300px] overflow-y-auto no-scrollbar pr-2">
@@ -794,14 +794,14 @@ const Checkout: React.FC = () => {
                       <img src={item.product.imagen} className="size-16 rounded-2xl bg-white p-2 object-contain shadow-xl" alt="" />
                       <div className="flex-1">
                         <h4 className="text-xs font-bold leading-tight">{item.product.nombre}</h4>
-                        <p className="text-[10px] text-white/30 uppercase tracking-widest mt-1">{item.quantity} Unidad(es)</p>
+                        <p className="text-[10px] text-charcoal/30 uppercase tracking-widest mt-1">{item.quantity} Unidad(es)</p>
                       </div>
                       <span className="font-black text-sm">{( (item.product.precioUnitario || item.product.precioPVP || item.product.precio) * item.quantity).toFixed(2)}€</span>
                     </div>
                   ))}
                 </div>
 
-                <div className="flex flex-col gap-3 border-t border-white/5 pt-8">
+                <div className="flex flex-col gap-3 border-t border-charcoal/10 pt-8">
                   {/* Cupón / Descuento */}
                   <div className="flex flex-col gap-3 mb-4">
                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-1">¿Tienes un cupón?</p>
@@ -812,7 +812,7 @@ const Checkout: React.FC = () => {
                         value={couponCode}
                         onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
                         disabled={!!appliedCoupon || isValidatingCoupon}
-                        className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs font-black uppercase tracking-widest outline-none focus:border-primary/50 transition-all disabled:opacity-50"
+                        className="flex-1 bg-charcoal/10 border border-charcoal/10 rounded-xl px-4 py-3 text-xs font-black uppercase tracking-widest outline-none focus:border-primary/50 transition-all disabled:opacity-50"
                       />
                       {appliedCoupon ? (
                         <button 
@@ -827,7 +827,7 @@ const Checkout: React.FC = () => {
                           type="button"
                           onClick={handleApplyCoupon}
                           disabled={!couponCode || isValidatingCoupon}
-                          className="px-6 bg-white/10 hover:bg-primary hover:text-charcoal border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50"
+                          className="px-6 bg-charcoal/10 hover:bg-primary hover:text-charcoal border border-charcoal/10 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50"
                         >
                           {isValidatingCoupon ? '...' : 'Aplicar'}
                         </button>
@@ -836,9 +836,9 @@ const Checkout: React.FC = () => {
                   </div>
 
                   {(appliedCoupon || LAUNCH_PROMO_ACTIVE) && (
-                    <div className="flex justify-between text-xs text-white/40 uppercase tracking-widest">
+                    <div className="flex justify-between text-xs text-charcoal/40 uppercase tracking-widest">
                       <span>Precio original</span>
-                      <span className="font-bold text-white/40 line-through">
+                      <span className="font-bold text-charcoal/40 line-through">
                         {total.toFixed(2)}€
                       </span>
                     </div>
@@ -864,7 +864,7 @@ const Checkout: React.FC = () => {
                       </span>
                     </div>
                   )}
-                  <div className="flex justify-between text-xs text-white/40 uppercase tracking-widest">
+                  <div className="flex justify-between text-xs text-charcoal/40 uppercase tracking-widest">
                     <span>Gastos de Envío</span>
                     <span className="font-black text-emerald-400">GRATIS</span>
                   </div>
@@ -890,15 +890,15 @@ const Checkout: React.FC = () => {
 
                   {/* Trust Badges - Refuerzo de conversión */}
                   <div className="flex flex-col gap-4 mt-2">
-                    <div className="h-px bg-white/5 w-full mb-2" />
+                    <div className="h-px bg-charcoal/5 w-full mb-2" />
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="flex flex-col items-center text-center gap-1 p-3 rounded-2xl bg-black/20 border border-white/5">
+                      <div className="flex flex-col items-center text-center gap-1 p-3 rounded-2xl bg-charcoal/5 border border-charcoal/10">
                         <span className="material-symbols-outlined text-primary text-lg">verified_user</span>
-                        <span className="text-[8px] font-black uppercase text-white/60 tracking-widest">Pago 100% Seguro</span>
+                        <span className="text-[8px] font-black uppercase text-charcoal/60 tracking-widest">Pago 100% Seguro</span>
                       </div>
-                      <div className="flex flex-col items-center text-center gap-1 p-3 rounded-2xl bg-black/20 border border-white/5">
+                      <div className="flex flex-col items-center text-center gap-1 p-3 rounded-2xl bg-charcoal/5 border border-charcoal/10">
                         <span className="material-symbols-outlined text-primary text-lg">local_shipping</span>
-                        <span className="text-[8px] font-black uppercase text-white/60 tracking-widest">Envíos VIP 24/48h</span>
+                        <span className="text-[8px] font-black uppercase text-charcoal/60 tracking-widest">Envíos VIP 24/48h</span>
                       </div>
                     </div>
                   </div>

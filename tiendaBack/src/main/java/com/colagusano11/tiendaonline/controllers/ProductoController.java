@@ -5,8 +5,6 @@ import com.colagusano11.tiendaonline.models.Distribuidor;
 import com.colagusano11.tiendaonline.models.Producto;
 import com.colagusano11.tiendaonline.models.ProductoVenta;
 import com.colagusano11.tiendaonline.services.ProductoService;
-import com.colagusano11.tiendaonline.services.ProductoNovaengelService;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +22,6 @@ public class ProductoController {
 
     @Autowired
     private ProductoService productoService;
-
-    @Autowired
-    private ProductoNovaengelService novaService;
 
     public ProductoController(){}
 

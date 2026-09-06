@@ -21,7 +21,7 @@ import java.util.Map;
  * GET /api/feeds/google-shopping/status    (estado del feed: nº productos, última generación)
  */
 @RestController
-@RequestMapping("/api/feeds")
+@RequestMapping({"/api/feeds", "/feeds"})
 public class FeedController {
 
     private final GoogleShoppingFeedService feedService;

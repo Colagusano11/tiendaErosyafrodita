@@ -17,6 +17,12 @@ import { suscribirAvisoStock } from "../api/stock";
 import StockAlertModal from "../components/StockAlertModal";
 
 
+import { getMarketingContent } from "../config/marketingDemo";
+import { FragranceProfileGrid } from "../components/product-landing/FragranceProfileGrid";
+import { ProductVideoSection } from "../components/product-landing/ProductVideoSection";
+import { ProductGalleryGrid } from "../components/product-landing/ProductGalleryGrid";
+import { ProductFAQAccordion } from "../components/product-landing/ProductFAQAccordion";
+
 // Marcas curadas de Novedades (Sincronizado con Home)
 const NOVEDADES_BRANDS = [
   "CALVIN KLEIN", "HOLLISTER", "KARL LAGERFELD", "L'OCCITANE EN PROVENCE",
@@ -35,6 +41,28 @@ function shuffleArray<T>(arr: T[]): T[] {
   return copy;
 }
 
+const isDarkImage = (url: string | null): boolean => {
+  if (!url) return false;
+  const l = url.toLowerCase();
+  if (l.includes("btswholesaler") || l.includes("images.bts")) {
+    return false;
+  }
+  if (l.includes("/uploads/")) {
+    if (
+      l.endsWith("lacoste.jpg") ||
+      l.endsWith("lacoste1.jpg") ||
+      l.endsWith("bambu.jpg") ||
+      l.endsWith("bambu1.jpg") ||
+      l.endsWith("rochas.jpg") ||
+      l.endsWith("rochas1.jpg")
+    ) {
+      return false;
+    }
+    return true;
+  }
+  return false;
+};
+
 const ProductDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
 
@@ -46,6 +74,7 @@ const ProductDetail: React.FC = () => {
   const [product, setProduct] = useState<Producto | null>(null);
   const [selectedImg, setSelectedImg] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasPurchased, setHasPurchased] = useState(false);
   
@@ -204,7 +233,7 @@ const ProductDetail: React.FC = () => {
         <Header />
         <main className="flex-grow w-full max-w-[1440px] mx-auto px-4 md:px-10 py-20 text-center">
           <h2 className="text-3xl font-bold mb-6 italic text-red-400">{error ?? "Producto no encontrado"}</h2>
-          <Link to="/catalog" className="px-8 py-3 bg-white text-black rounded-full font-bold uppercase tracking-widest text-xs hover:bg-primary transition-colors">
+          <Link to="/catalog" className="px-8 py-3 bg-charcoal text-white rounded-full font-bold uppercase tracking-widest text-xs hover:bg-primary hover:text-charcoal transition-colors">
             Volver al catálogo
           </Link>
         </main>
@@ -215,7 +244,7 @@ const ProductDetail: React.FC = () => {
 
   const img = product.imagen;
   const name = product.nombre;
-  const brand = product.manufacturer ?? "Eros & Afrodita";
+  const brand = product.manufacturer ?? "AGE Parfums";
   const precioPVP = product.precioPVP ?? product.precio;
   const precioFinal = product.enOferta
     ? (product.precioOferta ?? applyPromo(precioPVP))
@@ -224,14 +253,14 @@ const ProductDetail: React.FC = () => {
   const rating = 4.8;
   const mainImg = selectedImg ?? img;
 
-  // ── SEO: usa copy generado por IA si existe, si no fallback manual ──
+  const marketingContent = product ? getMarketingContent(product.ean) : null;
   const seoTitle = product.tituloSeo
-    ?? `${name} | Eros y Afrodita`;
+    ?? `${name} | AGE Parfums`;
 
   const seoDescription = product.descripcionSeo
     ?? (product.descripcion
         ? product.descripcion.replace(/<[^>]+>/g, "").slice(0, 155)
-        : `Descubre ${name} de ${brand}. Fragancia exclusiva con envío gratis en Eros y Afrodita.`);
+        : `Descubre ${name} de ${brand}. Fragancia exclusiva con envío gratis en AGE Parfums.`);
 
   return (
     <div className="bg-background-dark text-text-main font-display flex flex-col min-h-screen">
@@ -239,7 +268,7 @@ const ProductDetail: React.FC = () => {
         title={seoTitle}
         description={seoDescription}
         image={mainImg || undefined}
-        keywords={`${name}, ${brand}, perfumes de lujo, eros y afrodita, comprar perfume online`}
+        keywords={`${name}, ${brand}, perfumes de lujo, AGE Parfums, comprar perfume online`}
         type="product"
         price={precioFinal.toFixed(2)}
         availability={product.stock > 0 ? 'in stock' : 'out of stock'}
@@ -321,7 +350,7 @@ const ProductDetail: React.FC = () => {
       </script>
       <Header />
       <main className="flex-grow w-full max-w-[1440px] mx-auto px-4 md:px-10 py-6 md:py-10">
-        <nav className="mb-8 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/30">
+        <nav className="mb-8 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-charcoal/30">
           <Link to="/" className="hover:text-primary transition-colors">Inicio</Link>
           <span className="material-symbols-outlined !text-[12px]">chevron_right</span>
           <Link to="/catalog" className="hover:text-primary transition-colors">Catálogo</Link>
@@ -330,12 +359,20 @@ const ProductDetail: React.FC = () => {
         </nav>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 mb-16">
-          {/* Gallery - Versión inteligente que solo muestra lo que carga */}
-          <div className="flex flex-col gap-6 lg:max-w-[420px]">
+
+          {/* Gallery - Estilo Amazon con miniaturas a la izquierda en escritorio */}
+          <div className="flex flex-col lg:flex-row-reverse gap-4 lg:max-w-[500px] w-full items-start">
+            
+            {/* Imagen Principal - Fondo dinámico inteligente (blanco para botellas, oscuro para fotos de ambiente/campaña) */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="bg-white rounded-[2.5rem] p-8 aspect-square flex items-center justify-center relative overflow-hidden group shadow-2xl border border-white/5"
+              className={`rounded-3xl p-6 aspect-square flex items-center justify-center relative overflow-hidden group shadow-2xl border border-transparent flex-grow w-full transition-colors duration-300
+                ${
+                  isDarkImage(selectedImg || validUrls[0])
+                    ? "bg-charcoal" 
+                    : "bg-white"
+                }`}
             >
               {(imgLoading || loading) ? (
                 <div className="size-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
@@ -343,7 +380,7 @@ const ProductDetail: React.FC = () => {
                 <img
                   src={selectedImg || validUrls[0]}
                   alt={name}
-                  className="max-w-[90%] max-h-[90%] object-contain transition-transform duration-700 group-hover:scale-105 drop-shadow-md"
+                  className="max-w-[90%] max-h-[90%] object-contain transition-transform duration-700 group-hover:scale-105"
                 />
               ) : (
                 <div className="flex flex-col items-center justify-center gap-3 text-charcoal/20">
@@ -353,21 +390,27 @@ const ProductDetail: React.FC = () => {
               )}
             </motion.div>
 
+            {/* Miniaturas de variantes (Amazon style a la izquierda) - Fondo dinámico por miniatura */}
             {validUrls.length > 1 && (
-              <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2">
-                {validUrls.map((thumb, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setSelectedImg(thumb)}
-                    className={`size-24 rounded-2xl bg-white p-2 border-2 transition-all shrink-0 overflow-hidden shadow-sm ${selectedImg === thumb ? "border-primary" : "border-transparent opacity-60 hover:opacity-100"}`}
-                  >
-                    <img
-                      src={thumb}
-                      className="w-full h-full object-contain"
-                      alt={`vista-${i}`}
-                    />
-                  </button>
-                ))}
+              <div className="flex lg:flex-col gap-3 overflow-x-auto lg:overflow-y-auto no-scrollbar pb-2 lg:pb-0 shrink-0 lg:w-20 w-full justify-start">
+                {validUrls.map((thumb, i) => {
+                  const isDarkBg = isDarkImage(thumb);
+                  return (
+                    <button
+                      key={i}
+                      onClick={() => setSelectedImg(thumb)}
+                      className={`size-16 lg:size-20 rounded-xl p-1.5 border-2 transition-all shrink-0 overflow-hidden shadow-sm flex items-center justify-center
+                        ${selectedImg === thumb ? "border-primary" : "border-transparent opacity-60 hover:opacity-100"}
+                        ${isDarkBg ? "bg-charcoal" : "bg-white"}`}
+                    >
+                      <img
+                        src={thumb}
+                        className="max-w-full max-h-full object-contain"
+                        alt={`vista-${i}`}
+                      />
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -380,7 +423,7 @@ const ProductDetail: React.FC = () => {
               transition={{ delay: 0.2 }}
             >
               <span className="text-xs font-black tracking-[0.4em] text-primary uppercase mb-4 block">{brand}</span>
-              <h1 className="text-2xl lg:text-3xl font-black text-white mb-4 leading-tight tracking-tighter">
+              <h1 className="text-2xl lg:text-3xl font-black text-charcoal mb-4 leading-tight tracking-tighter">
                 {name}
               </h1>
 
@@ -390,15 +433,95 @@ const ProductDetail: React.FC = () => {
                     <span key={s} className={`material-symbols-outlined !text-[16px] ${s <= Math.round(reviewsMedia) ? "text-primary" : "text-gray-600"}`}>star</span>
                   ))}
                 </div>
-                <span className="text-[9px] font-black uppercase tracking-widest text-white/40">
+                <span className="text-[9px] font-black uppercase tracking-widest text-charcoal/40">
                   {reviewsTotal > 0 ? `${reviewsTotal} opinión${reviewsTotal !== 1 ? "es" : ""}` : "Sin opiniones aún"}
                 </span>
               </div>
 
               {/* Tag EAN */}
-              <div className="flex items-center gap-2 mb-6 text-[10px] uppercase tracking-widest text-white/30 font-bold">
+              <div className="flex items-center gap-2 mb-6 text-[10px] uppercase tracking-widest text-charcoal/30 font-bold">
                 <span>ean:</span>
-                <span className="text-white/60">{product.ean || "—"}</span>
+                <span className="text-charcoal/60">{product.ean || "—"}</span>
+              </div>
+
+              {marketingContent && (
+                <div className="mb-6 border-l-2 border-primary/45 pl-4 py-1.5 bg-charcoal/[0.02] rounded-r-xl">
+                  <p className="text-primary text-sm font-extrabold uppercase tracking-wider mb-2">
+                    {marketingContent.claim}
+                  </p>
+                  <p className="text-charcoal/80 text-sm font-normal leading-relaxed max-w-lg font-sans">
+                    {marketingContent.shortDescription}
+                  </p>
+                </div>
+              )}
+
+              {product.descripcion && product.descripcion.includes("<") ? (
+                <div 
+                  className="premium-description-container mb-8 max-w-lg"
+                  dangerouslySetInnerHTML={{ __html: product.descripcion }}
+                />
+              ) : (
+                <p className="text-charcoal/80 text-sm leading-relaxed mb-8 max-w-lg font-normal font-sans">
+                  {product.descripcion || "Una obra maestra olfativa diseñada para aquellos que buscan dejar una huella divina. Ingredientes seleccionados para garantizar la máxima pureza y longevidad en la piel."}
+                </p>
+              )}
+
+              {/* Desplegable de Características (Estilo Amazon) */}
+              <div className="border-t border-charcoal/10 mt-2 mb-8 pt-4">
+                <button
+                  onClick={() => setDetailsOpen(!detailsOpen)}
+                  className="w-full flex items-center justify-between text-charcoal hover:text-primary transition-colors py-2"
+                >
+                  <span className="text-xs font-bold uppercase tracking-wider flex items-center gap-2">
+                    <span className="material-symbols-outlined !text-[16px]">info</span> Detalles y Características
+                  </span>
+                  <span className={`material-symbols-outlined transition-transform duration-300 ${detailsOpen ? "rotate-180" : ""}`}>
+                    expand_more
+                  </span>
+                </button>
+                
+                <div
+                  className="transition-all duration-300 overflow-hidden"
+                  style={{ maxHeight: detailsOpen ? "320px" : "0px" }}
+                >
+                  <div className="grid grid-cols-2 gap-x-8 gap-y-3 py-4 text-xs uppercase tracking-wider text-charcoal/70 border-b border-charcoal/10 font-medium font-sans">
+                    <div className="flex justify-between border-b border-charcoal/10 pb-1">
+                      <span>Marca:</span>
+                      <span className="text-charcoal font-semibold">{brand}</span>
+                    </div>
+                    <div className="flex justify-between border-b border-charcoal/10 pb-1">
+                      <span>Género:</span>
+                      <span className="text-charcoal font-semibold">{product.gender || "Unisex"}</span>
+                    </div>
+                    <div className="flex justify-between border-b border-charcoal/10 pb-1">
+                      <span>Concentración:</span>
+                      <span className="text-charcoal font-semibold">
+                        {name.toLowerCase().includes("eau de toilette") || name.toLowerCase().includes("edt") ? "Eau de Toilette" : 
+                         name.toLowerCase().includes("eau de parfum") || name.toLowerCase().includes("edp") ? "Eau de Parfum" : "Colonia"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between border-b border-charcoal/10 pb-1">
+                      <span>Volumen:</span>
+                      <span className="text-charcoal font-semibold">{name.match(/\d+\s*ml/i)?.[0] || "100ml"}</span>
+                    </div>
+                    <div className="flex justify-between border-b border-charcoal/10 pb-1">
+                      <span>Familia:</span>
+                      <span className="text-charcoal font-semibold">{marketingContent?.fragranceFamily || "Aromática"}</span>
+                    </div>
+                    <div className="flex justify-between border-b border-charcoal/10 pb-1">
+                      <span>Formato:</span>
+                      <span className="text-charcoal font-semibold">Vaporizador</span>
+                    </div>
+                    <div className="flex justify-between border-b border-charcoal/10 pb-1 col-span-2">
+                      <span>Código EAN:</span>
+                      <span className="text-charcoal font-semibold">{product.ean || "—"}</span>
+                    </div>
+                    <div className="flex justify-between pb-1 col-span-2">
+                      <span>Referencia SKU:</span>
+                      <span className="text-charcoal font-semibold">{product.sku || "—"}</span>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div className="flex items-center gap-6 mb-8">
@@ -407,7 +530,7 @@ const ProductDetail: React.FC = () => {
                     {precioFinal.toFixed(2)} €
                   </span>
                   {hayDescuento && (
-                    <span className="text-sm text-white/30 line-through">{precioPVP.toFixed(2)} €</span>
+                    <span className="text-sm text-charcoal/30 line-through">{precioPVP.toFixed(2)} €</span>
                   )}
                   {product.enOferta && (
                     <span className="text-[10px] font-black text-emerald-400 bg-emerald-400/10 px-3 py-1 rounded-full border border-emerald-400/20">Oferta</span>
@@ -428,8 +551,8 @@ const ProductDetail: React.FC = () => {
 
               {/* Selector de Tamaños (Variantes) */}
               {variantes.length > 0 && (
-                <div className="mb-6">
-                  <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-white/30 mb-3 flex items-center gap-2">
+                <div className="mb-8">
+                  <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-charcoal/30 mb-3 flex items-center gap-2">
                     <span className="material-symbols-outlined !text-[12px]">Straighten</span> Selección de Tamaño:
                   </h4>
                   <div className="flex flex-wrap gap-2">
@@ -440,24 +563,13 @@ const ProductDetail: React.FC = () => {
                       <Link 
                         key={v.id} 
                         to={`/product/${v.slug || v.id}`}
-                        className="px-4 py-2 rounded-xl border border-white/5 text-white/30 text-[9px] font-black hover:border-primary hover:text-white transition-all bg-white/5"
+                        className="px-4 py-2 rounded-xl border border-charcoal/10 text-charcoal/30 text-[9px] font-black hover:border-primary hover:text-charcoal transition-all bg-charcoal/5"
                       >
                         {v.nombre.match(/\d+\s*ml/i)?.[0] || "Ver opción"}
                       </Link>
                     ))}
                   </div>
                 </div>
-              )}
-
-              {product.descripcion && product.descripcion.includes("<") ? (
-                <div 
-                  className="premium-description-container mb-8 max-w-lg"
-                  dangerouslySetInnerHTML={{ __html: product.descripcion }}
-                />
-              ) : (
-                <p className="text-white/40 text-[11px] leading-relaxed mb-8 max-w-lg font-light">
-                  {product.descripcion || "Una obra maestra olfativa diseñada para aquellos que buscan dejar una huella divina. Ingredientes seleccionados para garantizar la máxima pureza y longevidad en la piel."}
-                </p>
               )}
 
               <div className="flex flex-wrap gap-4 mb-10">
@@ -480,7 +592,7 @@ const ProductDetail: React.FC = () => {
                   onClick={() => product && toggleWishlist(product)}
                   className={`size-12 rounded-full border flex items-center justify-center transition-all ${isInWishlist(product.id)
                       ? "bg-primary border-primary text-charcoal"
-                      : "border-white/10 text-white/30 hover:border-primary hover:text-primary"
+                      : "border-charcoal/10 text-charcoal/30 hover:border-primary hover:text-primary"
                     }`}
                 >
                   <span className={`material-symbols-outlined ${isInWishlist(product.id) ? "filled" : ""}`}>favorite</span>
@@ -490,15 +602,24 @@ const ProductDetail: React.FC = () => {
           </div>
         </div>
 
+        {/* --- SECCIONES DE MARKETING ADAPTADAS (PERFUME LACOSTE/ROCHAS/ADOLFO DOMINGUEZ) --- */}
+        {marketingContent && (
+          <div className="space-y-4">
+            <FragranceProfileGrid marketing={marketingContent} />
+            <ProductVideoSection product={product} marketing={marketingContent} />
+            <ProductGalleryGrid />
+          </div>
+        )}
+
         {/* --- SECCIÓN RECOMENDACIONES --- */}
         {recomendados.length > 0 && (
           <section className="mb-24 py-16 px-4 md:px-10 bg-gradient-to-r from-primary/5 via-transparent to-transparent rounded-[3rem] border-l border-primary/20">
             <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-6">
               <div>
-                <h3 className="text-2xl font-black text-white tracking-tighter">Joyas del <span className="text-primary italic font-serif">Olimpo</span></h3>
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 mt-2">Novedades recomendadas para ti</p>
+                <h3 className="text-2xl font-black text-charcoal tracking-tighter">Joyas del <span className="text-primary italic font-serif">Olimpo</span></h3>
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-charcoal/30 mt-2">Novedades recomendadas para ti</p>
               </div>
-              <Link to="/catalog?status=NUEVOS" className="text-[10px] font-black uppercase tracking-widest text-primary hover:text-white transition-colors underline underline-offset-8">Ver todas las novedades</Link>
+              <Link to="/catalog?status=NUEVOS" className="text-[10px] font-black uppercase tracking-widest text-primary hover:text-charcoal transition-colors underline underline-offset-8">Ver todas las novedades</Link>
             </div>
             
             <div className="flex gap-6 overflow-x-auto pb-10 -mx-4 px-4 scrollbar-hide">
@@ -512,7 +633,7 @@ const ProductDetail: React.FC = () => {
         )}
 
         {/* --- SECCIÓN DE RESEÑAS --- */}
-        <section className="border-t border-white/5 pt-24 pb-20">
+        <section className="border-t border-charcoal/10 pt-24 pb-20">
           <div className="flex flex-col lg:flex-row gap-20">
             {/* Resumen de Ratings */}
             <div className="w-full lg:w-1/3">
@@ -525,7 +646,7 @@ const ProductDetail: React.FC = () => {
                       <span key={s} className={`material-symbols-outlined ${s <= Math.round(reviewsMedia) ? "text-primary" : "text-gray-600"}`}>star</span>
                     ))}
                   </div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-white/30">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-charcoal/30">
                     {reviewsTotal > 0 ? `Basado en ${reviewsTotal} ritual${reviewsTotal !== 1 ? "es" : ""}` : "Sin valoraciones aún"}
                   </p>
                 </div>
@@ -537,11 +658,11 @@ const ProductDetail: React.FC = () => {
                   const pct = reviewsTotal > 0 ? Math.round((count / reviewsTotal) * 100) : 0;
                   return (
                     <div key={num} className="flex items-center gap-4">
-                      <span className="text-[10px] font-bold text-white/40 w-2">{num}</span>
-                      <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
+                      <span className="text-[10px] font-bold text-charcoal/40 w-2">{num}</span>
+                      <div className="flex-1 h-1.5 bg-charcoal/5 rounded-full overflow-hidden">
                         <div className="h-full bg-primary transition-all duration-500" style={{ width: `${pct}%` }}></div>
                       </div>
-                      <span className="text-[10px] text-white/20 w-6 text-right">{pct}%</span>
+                      <span className="text-[10px] text-charcoal/20 w-6 text-right">{pct}%</span>
                     </div>
                   );
                 })}
@@ -551,17 +672,17 @@ const ProductDetail: React.FC = () => {
             {/* Lista y Formulario */}
             <div className="flex-1">
               {/* Formulario */}
-              <div className="bg-white/5 backdrop-blur-3xl p-8 lg:p-12 rounded-[2.5rem] border border-white/10 mb-16 relative overflow-hidden group">
+              <div className="bg-charcoal/5 backdrop-blur-3xl p-8 lg:p-12 rounded-[2.5rem] border border-charcoal/10 mb-16 relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16"></div>
                 <h4 className="text-lg font-black mb-6 uppercase tracking-widest">Comparte tu Experiencia</h4>
 
                 {!isAuthenticated ? (
-                  <p className="text-white/40 text-sm font-light">
+                  <p className="text-charcoal/40 text-sm font-light">
                     <Link to="/login" className="text-primary hover:underline font-bold">Inicia sesión</Link> para dejar una reseña.
                   </p>
                 ) : !hasPurchased ? (
                   <div className="flex flex-col gap-4">
-                    <p className="text-white/40 text-sm font-light">
+                    <p className="text-charcoal/40 text-sm font-light">
                       Solo los usuarios que han <span className="text-primary font-bold italic">adquirido esta esencia</span> pueden compartir su experiencia.
                     </p>
                     <div className="p-4 rounded-2xl bg-primary/5 border border-primary/10 inline-block w-fit">
@@ -573,7 +694,7 @@ const ProductDetail: React.FC = () => {
                 ) : (
                   <>
                     <div className="flex gap-1 mb-8 items-center">
-                      <span className="text-xs text-white/40 mr-4 font-bold uppercase">Calificación:</span>
+                      <span className="text-xs text-charcoal/40 mr-4 font-bold uppercase">Calificación:</span>
                       {[1, 2, 3, 4, 5].map(s => (
                         <button
                           key={s}
@@ -582,12 +703,12 @@ const ProductDetail: React.FC = () => {
                           onMouseLeave={() => setHoverRating(0)}
                           className="transition-colors"
                         >
-                          <span className={`material-symbols-outlined text-[28px] ${s <= (hoverRating || newRating) ? "text-primary" : "text-white/20"}`}>star</span>
+                          <span className={`material-symbols-outlined text-[28px] ${s <= (hoverRating || newRating) ? "text-primary" : "text-charcoal/20"}`}>star</span>
                         </button>
                       ))}
                     </div>
                     <textarea
-                      className="w-full bg-black/30 border border-white/5 rounded-3xl p-6 text-sm focus:border-primary/50 outline-none h-32 mb-4 font-light text-white/70 placeholder:text-white/20 transition-all"
+                      className="w-full bg-charcoal/10 border border-charcoal/10 rounded-3xl p-6 text-sm focus:border-primary/50 outline-none h-32 mb-4 font-light text-charcoal/70 placeholder:text-charcoal/20 transition-all"
                       placeholder="Describe cómo te hizo sentir esta fragancia..."
                       value={newComment}
                       onChange={e => setNewComment(e.target.value)}
@@ -607,7 +728,7 @@ const ProductDetail: React.FC = () => {
               {/* Comentarios */}
               <div className="space-y-12">
                 {reviews.length === 0 && (
-                  <p className="text-white/30 text-sm font-light italic">Aún no hay reseñas. ¡Sé el primero!</p>
+                  <p className="text-charcoal/30 text-sm font-light italic">Aún no hay reseñas. ¡Sé el primero!</p>
                 )}
                 {reviews.map(r => (
                   <motion.div
@@ -615,7 +736,7 @@ const ProductDetail: React.FC = () => {
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="border-b border-white/5 pb-12 last:border-0"
+                    className="border-b border-charcoal/10 pb-12 last:border-0"
                   >
                     <div className="flex justify-between items-start mb-6">
                       <div>
@@ -626,11 +747,11 @@ const ProductDetail: React.FC = () => {
                           ))}
                         </div>
                       </div>
-                      <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest">
+                      <span className="text-[10px] font-bold text-charcoal/20 uppercase tracking-widest">
                         {new Date(r.fecha).toLocaleDateString("es-ES", { day: "2-digit", month: "short", year: "numeric" })}
                       </span>
                     </div>
-                    {r.comentario && <p className="text-white/50 text-sm leading-relaxed italic font-light">"{r.comentario}"</p>}
+                    {r.comentario && <p className="text-charcoal/50 text-sm leading-relaxed italic font-light">"{r.comentario}"</p>}
                   </motion.div>
                 ))}
               </div>

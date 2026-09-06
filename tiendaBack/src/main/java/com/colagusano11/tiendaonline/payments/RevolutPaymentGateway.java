@@ -76,6 +76,24 @@ public class RevolutPaymentGateway implements PaymentGateway {
 
   @Override
   public void capturePago(String paymentId) {
-    // Revolut captura automáticamente o vía webhook/client-side SDK
+    // 🛡️ Antes esto era un no-op que confiaba en que /pedidos/pago/confirmar solo lo
+    // llamara el cliente tras un pago real. Ahora se comprueba el estado real del
+    // pedido en la API de Revolut antes de dejar que marcarPedidoPagado() continúe.
+    try {
+      java.util.Map<String, Object> order = webClient.get()
+          .uri(this.apiUrl + "/orders/" + paymentId)
+          .retrieve()
+          .bodyToMono(new org.springframework.core.ParameterizedTypeReference<java.util.Map<String, Object>>() {})
+          .block();
+
+      String state = order != null ? (String) order.get("state") : null;
+      if (!"COMPLETED".equalsIgnoreCase(state)) {
+        throw new RuntimeException("Pedido Revolut " + paymentId + " no está COMPLETED (estado real: " + state + ")");
+      }
+    } catch (RuntimeException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new RuntimeException("Error verificando pago en Revolut: " + e.getMessage(), e);
+    }
   }
 }

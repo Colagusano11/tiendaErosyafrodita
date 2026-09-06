@@ -25,7 +25,6 @@ public interface ProductoService{
     List<Producto> findAllByEan(String ean);
    
     String createSku(Producto p);
-    String createSku2(Producto p);
     Producto findByEanAndDistribuidor(String ean, Distribuidor distribuidor);
 
     Page<Producto> filtrarProductos(String manufacturer,

@@ -9,10 +9,42 @@ import { useCart } from "../context/CartContext";
 import { useTranslation } from "../i18n";
 import { motion } from "framer-motion";
 import SEO from "../components/SEO";
-import homeBg from "../assets/home-background.png";
-import homeHeader from "../assets/home-header.png";
+import homeHeader from "../assets/home-header.jpeg";
 
 // Las marcas se cargan ahora desde la configuración del backend.
+
+const CATEGORY_PILLS = [
+  { value: "Perfumes", label: "Perfumes", icon: "flare", color: "amber" },
+  { value: "Cosmética", label: "Cosmética", icon: "spa", color: "emerald" },
+  { value: "Maquillaje", label: "Maquillaje", icon: "brush", color: "rose" },
+  { value: "Cabello", label: "Cabello", icon: "content_cut", color: "yellow" },
+  { value: "Parafarmacia", label: "Parafarmacia", icon: "medical_services", color: "green" },
+  { value: "Linea de Baño", label: "Línea de Baño", icon: "bathtub", color: "sky" },
+  { value: "Complementos", label: "Complementos", icon: "eyeglasses", color: "cyan" },
+  { value: "Otros", label: "Otros", icon: "apps", color: "violet" },
+] as const;
+
+const CATEGORY_PILL_CLASSES: Record<string, string> = {
+  amber: "hover:border-amber-400 hover:text-amber-300",
+  emerald: "hover:border-emerald-400 hover:text-emerald-300",
+  rose: "hover:border-rose-400 hover:text-rose-300",
+  yellow: "hover:border-yellow-500 hover:text-yellow-400",
+  green: "hover:border-green-400 hover:text-green-300",
+  sky: "hover:border-sky-400 hover:text-sky-300",
+  cyan: "hover:border-cyan-400 hover:text-cyan-300",
+  violet: "hover:border-violet-400 hover:text-violet-300",
+};
+
+const CATEGORY_ICON_COLOR_CLASSES: Record<string, string> = {
+  amber: "text-amber-400",
+  emerald: "text-emerald-400",
+  rose: "text-rose-400",
+  yellow: "text-yellow-500",
+  green: "text-green-400",
+  sky: "text-sky-400",
+  cyan: "text-cyan-400",
+  violet: "text-violet-400",
+};
 
 function shuffleArray<T>(arr: T[]): T[] {
   const copy = [...arr];
@@ -32,6 +64,8 @@ const HomePage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [availableBrands, setAvailableBrands] = useState<string[]>([]);
+  const [availableCategories, setAvailableCategories] = useState<Set<string>>(new Set());
   const navigate = useNavigate();
 
   const handleSearch = () => {
@@ -54,6 +88,18 @@ const HomePage: React.FC = () => {
 
         const content: Producto[] = data.content || [];
         const withImage = content.filter(p => !!p.imagen && p.stock > 0);
+
+        // Marcas y categorías realmente disponibles ahora mismo (catálogo en vivo,
+        // no una lista fija) — así el marquee y las pastillas de categoría se
+        // adaptan solos según lo que subas a la tienda.
+        const brandSet = new Set<string>();
+        const categorySet = new Set<string>();
+        withImage.forEach(p => {
+          if (p.manufacturer) brandSet.add(p.manufacturer.trim());
+          if (p.categoria) categorySet.add(p.categoria.trim());
+        });
+        setAvailableBrands(Array.from(brandSet).sort((a, b) => a.localeCompare(b)));
+        setAvailableCategories(categorySet);
 
         // Parsear marcas desde config
         const novedadesBrands = config.novedadesBrands 
@@ -115,22 +161,11 @@ const HomePage: React.FC = () => {
   const { t } = useTranslation();
 
   return (
-    <div className="text-white font-display flex flex-col min-h-screen relative">
-      {/* Full-page background image — blurred & dimmed */}
-      <div
-        className="fixed inset-0 -z-10 pointer-events-none"
-        style={{
-          backgroundImage: `url(${homeBg})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          filter: "blur(6px) brightness(0.22) saturate(0.6)",
-          transform: "scale(1.05)",
-        }}
-      />
+    <div className="bg-white text-charcoal font-display flex flex-col min-h-screen relative">
       <SEO
-        title="Eros & Afrodita | Ritual de Belleza y Lujo"
+        title="AGE Parfums | Ritual de Belleza y Lujo"
         description="Descubre nuestra exclusiva colección de perfumes y cosmética premium. Ritual de belleza inspirado en los dioses para hombres y mujeres."
-        keywords="perfumes de lujo, cosmética premium, Eros y Afrodita, belleza divina, fragancias exclusivas"
+        keywords="perfumes de lujo, cosmética premium, AGE Parfums, belleza divina, fragancias exclusivas"
       />
       {/* Schema.org JSON-LD para la Organización y Sitio Web */}
       <script type="application/ld+json">
@@ -138,7 +173,7 @@ const HomePage: React.FC = () => {
           {
             "@context": "https://schema.org",
             "@type": "WebSite",
-            "name": "Eros & Afrodita",
+            "name": "AGE Parfums",
             "url": "https://erosyafrodita.com",
             "potentialAction": {
               "@type": "SearchAction",
@@ -149,7 +184,7 @@ const HomePage: React.FC = () => {
           {
             "@context": "https://schema.org",
             "@type": "Organization",
-            "name": "Eros & Afrodita",
+            "name": "AGE Parfums",
             "url": "https://erosyafrodita.com",
             "logo": "https://erosyafrodita.com/logo-eros.png",
             "contactPoint": {
@@ -180,7 +215,7 @@ const HomePage: React.FC = () => {
             >
               <img
                 src={homeHeader}
-                alt="Eros & Afrodita — Colección"
+                alt="AGE Parfums — Colección"
                 className="w-full h-auto min-h-[200px] sm:min-h-[300px] lg:h-auto object-cover sm:object-cover"
                 style={{ objectPosition: window.innerWidth < 640 ? "right center" : "center center" }}
               />
@@ -193,7 +228,7 @@ const HomePage: React.FC = () => {
                     transition={{ delay: 0.5 }}
                     className="text-2xl xs:text-3xl font-black text-white leading-none uppercase tracking-tighter drop-shadow-[0_4px_15px_rgba(0,0,0,1)]"
                   >
-                    Eros <span className="text-primary italic font-serif">&</span> Afrodita
+                    AGE <span className="text-primary italic font-serif">Parfums</span>
                   </motion.h1>
                   <motion.p 
                     initial={{ opacity: 0 }}
@@ -240,14 +275,6 @@ const HomePage: React.FC = () => {
                     Buscar
                   </button>
                 </div>
-
-                {/* Tendencias más compactas en móvil */}
-                <div className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[8px] sm:text-[9px] font-black uppercase tracking-[0.2em] text-white/30">
-                    <span className="text-primary/50 italic">Tendencias:</span>
-                    <Link to="/catalog?search=Rochas" className="hover:text-primary transition-colors">Rochas</Link>
-                    <Link to="/catalog?search=Kilian" className="hover:text-primary transition-colors">Kilian</Link>
-                    <Link to="/catalog?search=Hermes" className="hover:text-primary transition-colors">Hermes</Link>
-                  </div>
               </div>
             </motion.div>
           </div>
@@ -258,96 +285,36 @@ const HomePage: React.FC = () => {
           <div className="max-w-[1440px] mx-auto">
             <div className="flex flex-wrap lg:flex-nowrap items-center justify-center gap-2 sm:gap-2 overflow-x-auto lg:overflow-visible pb-4 lg:pb-0 no-scrollbar">
               
-              {/* Categorías Principales en orden solicitado */}
-              <Link
-                to="/catalog?categoria=Perfumes"
-                className="flex h-10 whitespace-nowrap items-center justify-center gap-2 rounded-full bg-surface-dark text-gray-200 border border-white/10 hover:border-amber-400 hover:text-amber-300 px-3 sm:px-4 transition-all hover:bg-white/5"
-              >
-                <span className="material-symbols-outlined notranslate normal-case text-[18px] text-amber-400">
-                  flare
-                </span>
-                <span className="text-sm font-medium">Perfumes</span>
-              </Link>
-              <Link
-                to="/catalog?categoria=Cosmética"
-                className="flex h-10 whitespace-nowrap items-center justify-center gap-2 rounded-full bg-surface-dark text-gray-200 border border-white/10 hover:border-emerald-400 hover:text-emerald-300 px-3 sm:px-4 transition-all hover:bg-white/5"
-              >
-                <span className="material-symbols-outlined notranslate normal-case text-[18px] text-emerald-400">
-                  spa
-                </span>
-                <span className="text-sm font-medium">Cosmética</span>
-              </Link>
-              <Link
-                to="/catalog?categoria=Maquillaje"
-                className="flex h-10 whitespace-nowrap items-center justify-center gap-2 rounded-full bg-surface-dark text-gray-200 border border-white/10 hover:border-rose-400 hover:text-rose-300 px-3 sm:px-4 transition-all hover:bg-white/5"
-              >
-                <span className="material-symbols-outlined notranslate normal-case text-[18px] text-rose-400">
-                  brush
-                </span>
-                <span className="text-sm font-medium">Maquillaje</span>
-              </Link>
-              <Link
-                to="/catalog?categoria=Cabello"
-                className="flex h-10 whitespace-nowrap items-center justify-center gap-2 rounded-full bg-surface-dark text-gray-200 border border-white/10 hover:border-yellow-500 hover:text-yellow-400 px-3 sm:px-4 transition-all hover:bg-white/5"
-              >
-                <span className="material-symbols-outlined notranslate normal-case text-[18px] text-yellow-500">
-                  content_cut
-                </span>
-                <span className="text-sm font-medium">Cabello</span>
-              </Link>
-              <Link
-                to="/catalog?categoria=Parafarmacia"
-                className="flex h-10 whitespace-nowrap items-center justify-center gap-2 rounded-full bg-surface-dark text-gray-200 border border-white/10 hover:border-green-400 hover:text-green-300 px-3 sm:px-4 transition-all hover:bg-white/5"
-              >
-                <span className="material-symbols-outlined notranslate normal-case text-[18px] text-green-400">
-                  medical_services
-                </span>
-                <span className="text-sm font-medium">Parafarmacia</span>
-              </Link>
-              <Link
-                to="/catalog?categoria=Linea de Baño"
-                className="flex h-10 whitespace-nowrap items-center justify-center gap-2 rounded-full bg-surface-dark text-gray-200 border border-white/10 hover:border-sky-400 hover:text-sky-300 px-3 sm:px-4 transition-all hover:bg-white/5"
-              >
-                <span className="material-symbols-outlined notranslate normal-case text-[18px] text-sky-400">
-                  bathtub
-                </span>
-                <span className="text-sm font-medium">Línea de Baño</span>
-              </Link>
-              <Link
-                to="/catalog?categoria=Complementos"
-                className="flex h-10 whitespace-nowrap items-center justify-center gap-2 rounded-full bg-surface-dark text-gray-200 border border-white/10 hover:border-cyan-400 hover:text-cyan-300 px-3 sm:px-4 transition-all hover:bg-white/5"
-              >
-                <span className="material-symbols-outlined notranslate normal-case text-[18px] text-cyan-400">
-                  eyeglasses
-                </span>
-                <span className="text-sm font-medium">Complementos</span>
-              </Link>
-              <Link
-                to="/catalog?categoria=Otros"
-                className="flex h-10 whitespace-nowrap items-center justify-center gap-2 rounded-full bg-surface-dark text-gray-200 border border-white/10 hover:border-violet-400 hover:text-violet-300 px-3 sm:px-4 transition-all hover:bg-white/5"
-              >
-                <span className="material-symbols-outlined notranslate normal-case text-[18px] text-violet-400">
-                  apps
-                </span>
-                <span className="text-sm font-medium">Otros</span>
-              </Link>
+              {/* Solo se muestran las categorías con productos disponibles ahora mismo */}
+              {CATEGORY_PILLS.filter(cat => availableCategories.has(cat.value)).map(cat => (
+                <Link
+                  key={cat.value}
+                  to={`/catalog?categoria=${encodeURIComponent(cat.value)}`}
+                  className={`flex h-10 whitespace-nowrap items-center justify-center gap-2 rounded-full bg-surface-dark text-gray-200 border border-white/10 px-3 sm:px-4 transition-all hover:bg-white/5 ${CATEGORY_PILL_CLASSES[cat.color]}`}
+                >
+                  <span className={`material-symbols-outlined notranslate normal-case text-[18px] ${CATEGORY_ICON_COLOR_CLASSES[cat.color]}`}>
+                    {cat.icon}
+                  </span>
+                  <span className="text-sm font-medium">{cat.label}</span>
+                </Link>
+              ))}
             </div>
           </div>
         </div>
         
 
         {/* Novedades */}
-        <section className="px-4 lg:px-20 py-16 bg-charcoal/75">
+        <section className="px-4 lg:px-20 py-16 bg-white">
           <div className="max-w-[1440px] mx-auto">
             <Link to="/catalog?status=NOVEDADES" className="group block mb-8">
-              <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-white uppercase italic flex items-center gap-4 group-hover:text-primary transition-colors">
+              <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-charcoal uppercase italic flex items-center gap-4 group-hover:text-primary transition-colors">
                 Novedades
                 <span className="material-symbols-outlined text-primary group-hover:translate-x-2 transition-transform">arrow_forward</span>
               </h2>
             </Link>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 lg:gap-6">
               {loading && (
-                <p className="text-white/60 col-span-full">
+                <p className="text-charcoal/60 col-span-full">
                   Cargando productos...
                 </p>
               )}
@@ -372,9 +339,9 @@ const HomePage: React.FC = () => {
                   onClick={() => setNovedadesCount(c => c + 10)}
                   className="group flex flex-col items-center gap-2 transition-all hover:scale-105"
                 >
-                  <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40 group-hover:text-primary transition-colors">Ver más</span>
-                  <div className="size-10 rounded-full border border-white/10 flex items-center justify-center group-hover:border-primary/50 group-hover:bg-primary/5 transition-all">
-                    <span className="material-symbols-outlined text-white/20 group-hover:text-primary transition-colors">expand_more</span>
+                  <span className="text-[10px] font-black uppercase tracking-[0.4em] text-charcoal/40 group-hover:text-primary transition-colors">Ver más</span>
+                  <div className="size-10 rounded-full border border-charcoal/10 flex items-center justify-center group-hover:border-primary/50 group-hover:bg-primary/5 transition-all">
+                    <span className="material-symbols-outlined text-charcoal/30 group-hover:text-primary transition-colors">expand_more</span>
                   </div>
                 </button>
               </div>
@@ -383,53 +350,37 @@ const HomePage: React.FC = () => {
         </section>
 
 
-        {/* Marcas Destacadas (Loop Infinito) - Versión Compacta */}
-        <section className="py-12 border-y border-white/5 bg-charcoal/75 overflow-hidden relative">
-          <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-charcoal to-transparent z-10"></div>
-          <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-charcoal to-transparent z-10"></div>
+        {/* Marcas Destacadas (Loop Infinito) — construido con las marcas realmente
+            disponibles en el catálogo, para no anunciar marcas que no vendemos */}
+        {availableBrands.length > 0 && (
+          <section className="py-12 border-y border-charcoal/10 bg-white overflow-hidden relative">
+            <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-white to-transparent z-10"></div>
+            <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-white to-transparent z-10"></div>
 
-          <motion.div
-            className="flex w-max items-center gap-16"
-            animate={{ x: [0, -1500] }}
-            transition={{
-              x: {
-                repeat: Infinity,
-                repeatType: "loop",
-                duration: 25,
-                ease: "linear",
-              },
-            }}
-          >
-            {[
-              "ADOLFO DOMINGUEZ", "KILIAN", "4711", "ROCHAS",
-              "LOLITA LEMPICKA", "HERMÈS", "CLINIQUE", "SLAVA ZAÏTSEV", "LOEWE",
-              "CHANEL", "DIOR", "GUCCI", "PRADA", "ARMANI",
-            ].concat([
-              "ADOLFO DOMINGUEZ", "KILIAN", "4711", "ROCHAS",
-              "LOLITA LEMPICKA", "HERMÈS", "CLINIQUE", "SLAVA ZAÏTSEV", "LOEWE",
-              "CHANEL", "DIOR", "GUCCI", "PRADA", "ARMANI",
-            ]).map((brand, i) => (
-              <Link
-                key={i}
-                to={`/catalog?manufacturer=${encodeURIComponent(brand)}`}
-                className="text-[10px] font-black tracking-[0.4em] text-white/15 uppercase hover:text-primary transition-all whitespace-nowrap cursor-pointer hover:scale-110"
-                title={`Ver productos de ${brand}`}
-              >
-                {brand}
-              </Link>
-            ))}
-          </motion.div>
-        </section>
+            <div className="animate-infinite-scroll items-center gap-16">
+              {availableBrands.concat(availableBrands).map((brand, i) => (
+                <Link
+                  key={`${brand}-${i}`}
+                  to={`/catalog?manufacturer=${encodeURIComponent(brand)}`}
+                  className="text-[10px] font-black tracking-[0.4em] text-charcoal/20 uppercase hover:text-primary transition-all whitespace-nowrap cursor-pointer hover:scale-110"
+                  title={`Ver productos de ${brand}`}
+                >
+                  {brand}
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Oferta destacada - Versión más compacta */}
         {featuredProduct && (
-          <section className="px-4 lg:px-20 py-12 bg-charcoal/75">
+          <section className="px-4 lg:px-20 py-12 bg-white">
             <div className="max-w-[1200px] mx-auto">
               <motion.div
                 initial={{ opacity: 0, scale: 0.98 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
-                className="rounded-[1.5rem] lg:rounded-[2.5rem] overflow-hidden bg-charcoal-surface border border-white/5 flex flex-col lg:flex-row shadow-2xl glass-panel"
+                className="rounded-[1.5rem] lg:rounded-[2.5rem] overflow-hidden bg-charcoal-surface border border-charcoal/10 flex flex-col lg:flex-row shadow-2xl glass-panel"
               >
                 <div className="w-full lg:w-[400px] h-64 sm:h-80 lg:h-[400px] bg-white flex items-center justify-center relative overflow-hidden group/img p-10">
                   <div className="absolute inset-0 bg-gradient-to-tr from-charcoal/5 to-transparent pointer-events-none" />
@@ -442,10 +393,10 @@ const HomePage: React.FC = () => {
                 </div>
                 <div className="flex-1 p-6 sm:p-8 lg:p-12 flex flex-col justify-center">
                   <span className="text-[10px] sm:text-[12px] font-black tracking-[0.3em] uppercase text-primary mb-2 sm:mb-4">Oferta de la semana</span>
-                  <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black mb-3 sm:mb-4 text-white leading-tight">
+                  <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black mb-3 sm:mb-4 text-charcoal leading-tight">
                     {featuredProduct.nombre}
                   </h3>
-                  <p className="text-xs sm:text-sm text-white/50 mb-6 sm:mb-8 max-w-md font-light leading-relaxed">
+                  <p className="text-xs sm:text-sm text-charcoal/50 mb-6 sm:mb-8 max-w-md font-light leading-relaxed">
                     Descubre la esencia exclusiva de {featuredProduct.manufacturer}.
                     Una oportunidad única para elevar tu colección personal.
                   </p>
@@ -453,7 +404,7 @@ const HomePage: React.FC = () => {
                     <span className="text-2xl sm:text-3xl font-black text-emerald-400">
                       {(featuredProduct.precioPVP || featuredProduct.precio || 0).toFixed(2)} €
                     </span>
-                    <span className="text-base sm:text-lg text-white/20 line-through">
+                    <span className="text-base sm:text-lg text-charcoal/20 line-through">
                       {((featuredProduct.precioPVP || featuredProduct.precio || 0) * 1.35).toFixed(2)} €
                     </span>
                     <span className="text-[10px] sm:text-xs font-black text-emerald-400 bg-emerald-400/10 px-2 sm:px-3 py-1 rounded-full border border-emerald-400/20">
@@ -469,7 +420,7 @@ const HomePage: React.FC = () => {
                     </button>
                     <Link
                       to={`/product/${featuredProduct.id}`}
-                      className="flex-1 sm:flex-none h-11 sm:h-12 px-6 sm:px-8 rounded-full border border-white/10 text-white text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-white/5 transition-all flex items-center justify-center"
+                      className="flex-1 sm:flex-none h-11 sm:h-12 px-6 sm:px-8 rounded-full border border-charcoal/10 text-charcoal text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-charcoal/5 transition-all flex items-center justify-center"
                     >
                       Detalles
                     </Link>
@@ -481,11 +432,11 @@ const HomePage: React.FC = () => {
         )}
 
         {/* Recomendados */}
-        <section className="px-4 lg:px-20 pb-24 bg-charcoal/75">
+        <section className="px-4 lg:px-20 pb-24 bg-white">
           <div className="max-w-[1440px] mx-auto">
             <div className="flex items-center justify-between mb-10">
-              <h3 className="text-2xl font-bold text-white">Recomendados para ti</h3>
-              <Link to="/catalog" className="text-xs font-black uppercase tracking-widest text-primary hover:text-white flex items-center gap-2 transition-colors">
+              <h3 className="text-2xl font-bold text-charcoal">Recomendados para ti</h3>
+              <Link to="/catalog" className="text-xs font-black uppercase tracking-widest text-primary hover:text-charcoal flex items-center gap-2 transition-colors">
                 Ver más <span className="material-symbols-outlined text-sm">arrow_forward</span>
               </Link>
             </div>

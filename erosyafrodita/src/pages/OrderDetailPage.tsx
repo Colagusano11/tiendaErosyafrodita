@@ -101,7 +101,7 @@ const OrderDetailPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="bg-background-dark min-h-screen flex items-center justify-center text-white">
+      <div className="bg-background-dark min-h-screen flex items-center justify-center text-charcoal">
         Cargando pedido...
       </div>
     );
@@ -109,7 +109,7 @@ const OrderDetailPage: React.FC = () => {
 
   if (error || !pedido) {
     return (
-      <div className="bg-background-dark min-h-screen flex flex-col items-center justify-center text-white">
+      <div className="bg-background-dark min-h-screen flex flex-col items-center justify-center text-charcoal">
         <p className="mb-4">{error ?? "Pedido no encontrado."}</p>
         <Link
           to="/profile?tab=pedidos"
@@ -139,7 +139,7 @@ const OrderDetailPage: React.FC = () => {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-3">
-                <h1 className="text-white text-3xl md:text-4xl font-black tracking-tight">
+                <h1 className="text-charcoal text-3xl md:text-4xl font-black tracking-tight">
                   Pedido #{pedido.idPedido}
                 </h1>
                 <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${pedido.estado === 'ENTREGADO'
@@ -151,7 +151,7 @@ const OrderDetailPage: React.FC = () => {
                   {pedido.estado}
                 </span>
               </div>
-              <p className="text-[#cbbc90] text-base">
+              <p className="text-charcoal/60 text-base">
                 Realizado el {fecha}
               </p>
             </div>
@@ -160,7 +160,7 @@ const OrderDetailPage: React.FC = () => {
                 <button
                   onClick={handleRePay}
                   disabled={paying}
-                  className="group flex items-center justify-center gap-2 h-10 px-5 rounded-full border border-primary/30 text-primary hover:text-background-dark hover:bg-primary transition-all text-sm font-bold bg-primary/10 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="group flex items-center justify-center gap-2 h-10 px-5 rounded-full border border-primary/30 text-primary hover:text-charcoal hover:bg-primary transition-all text-sm font-bold bg-primary/10 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className={`material-symbols-outlined text-[18px] ${paying ? 'animate-spin' : ''}`}>
                     {paying ? 'sync' : 'credit_card'}
@@ -180,13 +180,13 @@ const OrderDetailPage: React.FC = () => {
                   <span>{cancelling ? "Anulando..." : "Anular Pedido"}</span>
                 </button>
               )}
-              <button onClick={() => setShowInvoiceModal(true)} className="group flex items-center justify-center gap-2 h-10 px-5 rounded-full border border-[#493f22] text-[#cbbc90] hover:text-white hover:border-white transition-all text-sm font-bold bg-transparent">
+              <button onClick={() => setShowInvoiceModal(true)} className="group flex items-center justify-center gap-2 h-10 px-5 rounded-full border border-charcoal/15 text-charcoal/60 hover:text-white hover:bg-charcoal hover:border-charcoal transition-all text-sm font-bold bg-transparent">
                 <span className="material-symbols-outlined text-[18px]">
                   print
                 </span>
                 <span>Factura</span>
               </button>
-              <button className="group flex items-center justify-center gap-2 h-10 px-5 rounded-full border border-[#493f22] text-[#cbbc90] hover:text-white hover:border-white transition-all text-sm font-bold bg-transparent">
+              <button className="group flex items-center justify-center gap-2 h-10 px-5 rounded-full border border-charcoal/15 text-charcoal/60 hover:text-white hover:bg-charcoal hover:border-charcoal transition-all text-sm font-bold bg-transparent">
                 <span className="material-symbols-outlined text-[18px]">
                   support_agent
                 </span>
@@ -195,134 +195,89 @@ const OrderDetailPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Order Status Steps (Dinámico y Sincronizado) */}
-          <div className="w-full bg-[#1a170d] rounded-2xl p-8 md:p-12 border border-[#493f22]/30 shadow-2xl relative overflow-hidden group">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-
-            <div className="flex flex-col md:flex-row justify-between w-full relative">
-              {/* Barra de progreso de fondo */}
-              <div className="hidden md:block absolute top-[16px] left-[40px] right-[40px] h-[3px] bg-white/5 z-0 rounded-full">
-                <div
-                  className="h-full bg-primary shadow-[0_0_15px_rgba(242,185,13,0.3)] transition-all duration-1000 ease-out"
-                  style={{
-                    width: `${pedido.estado === 'ENTREGADO' ? '100%' :
-                        pedido.estado === 'ENVIADO' ? '100%' :
-                          pedido.estado === 'RECIBIDO' ? '66%' :
-                            pedido.estado === 'PAGADO' ? '33%' : '0%'
-                      }`
-                  }}
-                />
-              </div>
-
-              {/* Paso 1: Confirmado (Estado: PAGADO+) */}
-              <div className="relative z-10 flex flex-row md:flex-col items-center gap-4 md:gap-3 mb-6 md:mb-0 text-white">
-                <div className={`size-8 rounded-full flex items-center justify-center transition-all duration-500 ${['PAGADO', 'RECIBIDO', 'ENVIADO', 'ENTREGADO'].includes(pedido.estado)
-                    ? 'bg-primary text-background-dark shadow-[0_0_20px_rgba(242,185,13,0.4)] scale-110'
-                    : 'bg-white/5 text-white/20 border border-white/5'
-                  }`}>
-                  <span className="material-symbols-outlined text-sm font-black">
-                    {['PAGADO', 'RECIBIDO', 'ENVIADO', 'ENTREGADO'].includes(pedido.estado) ? 'check' : 'pending'}
-                  </span>
-                </div>
-                <div className="text-left md:text-center">
-                  <p className={`text-xs md:text-sm font-black uppercase tracking-widest ${['PAGADO', 'RECIBIDO', 'ENVIADO', 'ENTREGADO'].includes(pedido.estado) ? 'text-primary' : 'text-white/20'
-                    }`}>Confirmado</p>
-                  <p className="text-[10px] text-white/30 hidden md:block">Pedido Recibido</p>
-                </div>
-              </div>
-
-              {/* Paso 2: Preparando (Estado: RECIBIDO+) */}
-              <div className="relative z-10 flex flex-row md:flex-col items-center gap-4 md:gap-3 mb-6 md:mb-0 text-white">
-                <div className={`size-8 rounded-full flex items-center justify-center transition-all duration-500 ${['RECIBIDO', 'ENVIADO', 'ENTREGADO'].includes(pedido.estado)
-                    ? 'bg-primary text-background-dark shadow-[0_0_20px_rgba(242,185,13,0.4)] scale-110'
-                    : pedido.estado === 'PAGADO'
-                      ? 'bg-white/5 text-primary border border-primary/30 animate-pulse'
-                      : 'bg-white/5 text-white/20 border border-white/5'
-                  }`}>
-                  <span className="material-symbols-outlined text-sm font-black">
-                    {['RECIBIDO', 'ENVIADO', 'ENTREGADO'].includes(pedido.estado) ? 'check' : 'inventory_2'}
-                  </span>
-                </div>
-                <div className="text-left md:text-center">
-                  <p className={`text-xs md:text-sm font-black uppercase tracking-widest ${['RECIBIDO', 'ENVIADO', 'ENTREGADO'].includes(pedido.estado) ? 'text-primary' : 'text-white/20'
-                    }`}>Preparando</p>
-                  <p className="text-[10px] text-white/30 hidden md:block">En Almacén</p>
-                </div>
-              </div>
-
-              {/* Paso 3: En Camino (Estado: ENVIADO+) */}
-              <div className="relative z-10 flex flex-row md:flex-col items-center gap-4 md:gap-3 mb-6 md:mb-0 text-white">
-                <div className={`size-8 rounded-full flex items-center justify-center transition-all duration-500 ${['ENVIADO', 'ENTREGADO'].includes(pedido.estado)
-                    ? 'bg-primary text-background-dark shadow-[0_0_20px_rgba(242,185,13,0.4)] scale-110'
-                    : pedido.estado === 'RECIBIDO'
-                      ? 'bg-white/5 text-primary border border-primary/30 animate-pulse'
-                      : 'bg-white/5 text-white/20 border border-white/5'
-                  }`}>
-                  <span className="material-symbols-outlined text-sm font-black">
-                    {['ENTREGADO'].includes(pedido.estado) ? 'check' : 'local_shipping'}
-                  </span>
-                </div>
-                <div className="text-left md:text-center">
-                  <p className={`text-xs md:text-sm font-black uppercase tracking-widest ${['ENVIADO', 'ENTREGADO'].includes(pedido.estado) ? 'text-primary' : 'text-white/20'
-                    }`}>En Camino</p>
-                  <p className="text-[10px] text-white/30 hidden md:block">Transporte Activo</p>
-                </div>
-              </div>
-
-              {/* Paso 4: Entregado (Estado: ENTREGADO) */}
-              <div className="relative z-10 flex flex-row md:flex-col items-center gap-4 md:gap-3 text-white">
-                <div className={`size-8 rounded-full flex items-center justify-center transition-all duration-500 ${pedido.estado === 'ENTREGADO'
-                    ? 'bg-green-500 text-charcoal shadow-[0_0_20px_rgba(34,197,94,0.4)] scale-110'
-                    : pedido.estado === 'ENVIADO'
-                      ? 'bg-white/5 text-primary border border-primary/30 animate-pulse'
-                      : 'bg-white/5 text-white/20 border border-white/5'
-                  }`}>
-                  <span className="material-symbols-outlined text-sm font-black">
-                    {pedido.estado === 'ENTREGADO' ? 'done_all' : 'package_2'}
-                  </span>
-                </div>
-                <div className="text-left md:text-center">
-                  <p className={`text-xs md:text-sm font-black uppercase tracking-widest ${pedido.estado === 'ENTREGADO' ? 'text-green-500' : 'text-white/20'
-                    }`}>Entregado</p>
-                  <p className="text-[10px] text-white/30 hidden md:block">Finalizado</p>
-                </div>
-              </div>
-            </div>
+          {/* Estado del pedido — badges */}
+          <div className="flex flex-wrap items-center gap-3 mb-6">
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/15 border border-primary/30 text-primary text-[10px] font-black uppercase tracking-widest">
+              <span className="material-symbols-outlined text-sm">check_circle</span>
+              Confirmado
+            </span>
+            {['ENVIADO', 'ENTREGADO'].includes(pedido.estado) ? (
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[10px] font-black uppercase tracking-widest">
+                <span className="material-symbols-outlined text-sm">local_shipping</span>
+                {pedido.estado === 'ENTREGADO' ? 'Entregado' : 'En camino'}
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-black uppercase tracking-widest">
+                <span className="material-symbols-outlined text-sm">info</span>
+                Esperando tracking
+              </span>
+            )}
           </div>
+
+          {/* Tracking Link — visible cuando el pedido está enviado */}
+          {['ENVIADO', 'ENTREGADO'].includes(pedido.estado) && pedido.urlSeguimiento && (
+            <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-6 mb-6 flex flex-col sm:flex-row items-center gap-5">
+              <div className="flex items-center gap-4 flex-1">
+                <div className="size-12 rounded-xl bg-emerald-500/20 flex items-center justify-center shrink-0">
+                  <span className="material-symbols-outlined text-xl text-emerald-400">local_shipping</span>
+                </div>
+                <div>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-emerald-400 mb-1">Tu pedido está en camino</p>
+                  <p className="text-charcoal font-bold text-sm">
+                    {pedido.estadoProveedor ? `Transportista: ${pedido.estadoProveedor}` : "Pedido enviado"}
+                  </p>
+                  {pedido.numSeguimiento && (
+                    <p className="text-charcoal/50 text-xs mt-0.5">
+                      Nº seguimiento: <span className="text-charcoal font-bold">{pedido.numSeguimiento}</span>
+                    </p>
+                  )}
+                </div>
+              </div>
+              <a
+                href={pedido.urlSeguimiento}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="shrink-0 h-12 px-6 bg-emerald-500 hover:bg-emerald-400 text-white font-black text-[10px] uppercase tracking-[0.2em] rounded-xl transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-2"
+              >
+                <span className="material-symbols-outlined text-sm">open_in_new</span>
+                Rastrear mi envío
+              </a>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Column: Items */}
             <div className="lg:col-span-2 flex flex-col gap-6">
-              <h3 className="text-white text-xl font-bold">
+              <h3 className="text-charcoal text-xl font-bold">
                 Artículos ({numArticulos})
               </h3>
 
               {pedido.productos.map((prod) => (
                 <div
                   key={prod.idProducto + (prod.sku ?? '')}
-                  className="flex flex-col sm:flex-row gap-4 bg-[#2d281a] p-4 rounded-xl border border-[#493f22]/30 hover:border-primary/30 transition-colors group"
+                  className="flex flex-col sm:flex-row gap-4 bg-charcoal-surface p-4 rounded-xl border border-charcoal/10 hover:border-primary/30 transition-colors group"
                 >
                   {prod.imagen && (
                     <img
                       src={prod.imagen}
                       alt={prod.nombreProducto}
-                      className="rounded-lg size-24 sm:size-28 shrink-0 border border-[#493f22] object-cover"
+                      className="rounded-lg size-24 sm:size-28 shrink-0 border border-charcoal/10 object-cover"
                     />
                   )}
                   <div className="flex flex-1 flex-col justify-between">
                     <div>
                       <div className="flex justify-between items-start">
-                        <h4 className="text-white text-lg font-bold leading-tight group-hover:text-primary transition-colors">
+                        <h4 className="text-charcoal text-lg font-bold leading-tight group-hover:text-primary transition-colors">
                           {prod.nombreProducto}
                         </h4>
-                        <p className="text-white text-lg font-bold">
+                        <p className="text-charcoal text-lg font-bold">
                           {prod.precioTotalLinea.toFixed(2)} €
                         </p>
                       </div>
-                      <p className="text-[#cbbc90] text-sm mt-1">
+                      <p className="text-charcoal/60 text-sm mt-1">
                         SKU: {prod.sku ?? "-"}
                       </p>
-                      <p className="text-[#cbbc90] text-sm">
+                      <p className="text-charcoal/60 text-sm">
                         Cantidad: {prod.cantidad}{" "}
                         <span className="text-xs opacity-60">
                           ({prod.precioUnitario.toFixed(2)} €/u)
@@ -330,9 +285,9 @@ const OrderDetailPage: React.FC = () => {
                       </p>
 
                       {/* Dirección Integrada */}
-                      <div className="mt-6 pt-4 border-t border-white/5">
-                        <p className="text-primary/40 text-[10px] uppercase font-black tracking-widest mb-2">Destino del Ritual</p>
-                        <p className="text-gray-400 text-sm font-medium leading-relaxed italic">
+                      <div className="mt-6 pt-4 border-t border-charcoal/10">
+                        <p className="text-primary/60 text-[10px] uppercase font-black tracking-widest mb-2">Destino del Ritual</p>
+                        <p className="text-charcoal/60 text-sm font-medium leading-relaxed italic">
                           {pedido.nombre} {pedido.apellidos}<br />
                           {pedido.calle}<br />
                           {pedido.codigoPostal} {pedido.ciudad} ({pedido.provincia})
@@ -340,7 +295,7 @@ const OrderDetailPage: React.FC = () => {
                       </div>
                     </div>
                     <div className="flex justify-end mt-4 sm:mt-0">
-                      <button className="flex items-center gap-2 text-sm font-medium text-white hover:text-primary transition-colors px-3 py-1.5 rounded-full hover:bg-[#493f22]">
+                      <button className="flex items-center gap-2 text-sm font-medium text-charcoal hover:text-primary transition-colors px-3 py-1.5 rounded-full hover:bg-charcoal/5">
                         <span className="material-symbols-outlined text-[18px]">
                           rate_review
                         </span>
@@ -367,8 +322,8 @@ const OrderDetailPage: React.FC = () => {
             {/* Sidebar: Resumen + info */}
             <div className="flex flex-col gap-6">
               {/* Resumen */}
-              <div className="bg-[#2d281a] rounded-xl p-6 border border-[#493f22]/50">
-                <h3 className="text-white text-lg font-bold mb-4">
+              <div className="bg-charcoal-surface rounded-xl p-6 border border-charcoal/10">
+                <h3 className="text-charcoal text-lg font-bold mb-4">
                   Resumen
                 </h3>
 
@@ -381,33 +336,33 @@ const OrderDetailPage: React.FC = () => {
                           key={idx}
                           src={prod.imagen}
                           alt={prod.nombreProducto}
-                          className="w-8 h-8 rounded-lg border border-[#493f22] object-cover bg-background-dark"
+                          className="w-8 h-8 rounded-lg border border-charcoal/10 object-cover bg-background-dark"
                         />
                       ) : (
                         <div
                           key={idx}
-                          className="w-8 h-8 rounded-lg border border-[#493f22] bg-background-dark flex items-center justify-center text-[10px] text-gray-400"
+                          className="w-8 h-8 rounded-lg border border-charcoal/10 bg-background-dark flex items-center justify-center text-[10px] text-charcoal/50"
                         >
                           {prod.cantidad}
                         </div>
                       )
                     )}
                     {pedido.productos.length > 5 && (
-                      <div className="w-8 h-8 rounded-lg border border-[#493f22] bg-background-dark flex items-center justify-center text-[10px] text-gray-400">
+                      <div className="w-8 h-8 rounded-lg border border-charcoal/10 bg-background-dark flex items-center justify-center text-[10px] text-charcoal/50">
                         +{pedido.productos.length - 5}
                       </div>
                     )}
                   </div>
                 )}
 
-                <div className="flex flex-col gap-3 pb-4 border-b border-[#493f22]">
-                  <div className="flex justify-between text-[#cbbc90] text-sm">
+                <div className="flex flex-col gap-3 pb-4 border-b border-charcoal/10">
+                  <div className="flex justify-between text-charcoal/60 text-sm">
                     <span>Subtotal</span>
                     <span>{pedido.total.toFixed(2)} €</span>
                   </div>
                 </div>
                 <div className="flex justify-between pt-4 items-end">
-                  <span className="text-white text-base font-bold">
+                  <span className="text-charcoal text-base font-bold">
                     Total
                   </span>
                   <span className="text-primary text-2xl font-black">
@@ -433,7 +388,7 @@ const OrderDetailPage: React.FC = () => {
 
       {/* Invoice Modal */}
       {showInvoiceModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4 animate-fadeIn">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-charcoal/70 px-4 animate-fadeIn">
           <div className="bg-surface-dark border border-border-gold rounded-2xl p-8 max-w-sm w-full shadow-2xl relative">
             <button
               onClick={() => setShowInvoiceModal(false)}
@@ -450,13 +405,13 @@ const OrderDetailPage: React.FC = () => {
               <div className="flex gap-4 w-full mt-2">
                 <button
                   onClick={() => setShowInvoiceModal(false)}
-                  className="flex-1 py-3 rounded-xl border border-white/20 text-[#cbbc90] font-bold hover:bg-white/5 transition-colors text-sm"
+                  className="flex-1 py-3 rounded-xl border border-white/20 text-text-gold font-bold hover:bg-white/5 transition-colors text-sm"
                 >
                   Cerrar
                 </button>
                 <Link
                   to="/contacto"
-                  className="flex-1 py-3 rounded-xl bg-primary text-background-dark font-black uppercase text-xs tracking-widest flex items-center justify-center hover:bg-yellow-400 transition-all shadow-xl shadow-primary/20"
+                  className="flex-1 py-3 rounded-xl bg-primary text-charcoal font-black uppercase text-xs tracking-widest flex items-center justify-center hover:bg-yellow-400 transition-all shadow-xl shadow-primary/20"
                 >
                   Contacto
                 </Link>

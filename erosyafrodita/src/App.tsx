@@ -32,17 +32,12 @@ const Faq = lazy(() => import("./pages/Faq"));
 const Catalog = lazy(() => import("./pages/Catalog"));
 const SuccessPage = lazy(() => import("./pages/SuccessPage"));
 const OrderDetailPage = lazy(() => import("./pages/OrderDetailPage"));
-const AdminOrdersPage = lazy(() => import("./pages/AdminOrdersPage"));
-const AdminProductsPage = lazy(() => import("./pages/AdminProductsPage"));
 const AdminUsersPage = lazy(() => import("./pages/AdminUsersPage"));
 const AvisoLegal = lazy(() => import("./document/AvisoLegal"));
 const Terminos = lazy(() => import("./document/Terminos"));
 const Privacidad = lazy(() => import("./document/Privacidad"));
 const OrderTracking = lazy(() => import("./pages/OrderTracking"));
-const IdealoSyncPage = lazy(() => import("./pages/IdealoSyncPage"));
-const DashboardPage = lazy(() => import("./pages/DashboardPage"));
 const AdminCouponsPage = lazy(() => import("./pages/AdminCouponsPage"));
-const AdminMarketingPage = lazy(() => import("./pages/AdminMarketingPage"));
 
 // Component Imports
 import AdminRoute from "./components/AdminRoute";
@@ -91,15 +86,11 @@ const App: React.FC = () => {
                   <Route path="/legal/terminos" element={<Terminos />} />
                   <Route path="/track-order" element={<OrderTracking />} />
 
-                  {/* Rutas ADMIN */}
+                  {/* Rutas ADMIN — solo cupones y clientes; productos y pedidos se gestionan desde SellerKing */}
                   <Route element={<AdminRoute />}>
-                    <Route path="/admin" element={<DashboardPage />} />
-                    <Route path="/admin/orders" element={<AdminOrdersPage />} />
-                    <Route path="/admin/products" element={<AdminProductsPage />} />
-                    <Route path="/admin/users" element={<AdminUsersPage />} />
-                    <Route path="/admin/idealo" element={<IdealoSyncPage />} />
+                    <Route path="/admin" element={<Navigate to="/admin/coupons" replace />} />
                     <Route path="/admin/coupons" element={<AdminCouponsPage />} />
-                    <Route path="/admin/marketing" element={<AdminMarketingPage />} />
+                    <Route path="/admin/users" element={<AdminUsersPage />} />
                   </Route>
 
                   <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:#0f172a;}
+  a{color:#a855f7;text-decoration:none;}
+  a:hover{color:#c084fc;}
+  ::selection{background:#6366f1;color:#f8fafc;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</helmet>
+
+<div style="font-family:'Montserrat',sans-serif;background:#0f172a;color:#f8fafc;min-height:100vh;">
+
+  <header style="position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:20px 48px;background:rgba(15,23,42,0.85);backdrop-filter:blur(10px);border-bottom:1px solid #334155;">
+    <div style="font-weight:700;font-size:20px;letter-spacing:1px;">L.12.12 <span style="color:#a855f7;font-weight:300;">BLANC</span></div>
+    <nav style="display:flex;align-items:center;gap:32px;">
+      <a href="#notas" style="color:#94a3b8;font-weight:400;font-size:15px;">Notas</a>
+      <a href="#comprar" style="color:#94a3b8;font-weight:400;font-size:15px;">Comprar</a>
+      <a href="#faq" style="color:#94a3b8;font-weight:400;font-size:15px;">FAQ</a>
+      <div style="display:flex;align-items:center;gap:8px;background:#1e293b;border:1px solid #334155;border-radius:999px;padding:8px 16px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f8fafc" stroke-width="2"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+        <span style="font-size:14px;font-weight:600;">{{ cartCount }}</span>
+      </div>
+    </nav>
+  </header>
+
+  <section style="position:relative;height:92vh;min-height:640px;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+    <video autoplay loop muted playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+      <source src="uploads/Generame_imagenes_para_mi_land.mp4" type="video/mp4">
+    </video>
+    <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,23,42,0.55) 0%,rgba(15,23,42,0.75) 60%,#0f172a 100%);"></div>
+    <div style="position:relative;z-index:2;text-align:center;max-width:720px;padding:0 24px;animation:fadeUp 0.8s ease both;">
+      <div style="display:inline-block;padding:6px 16px;border-radius:999px;background:rgba(99,102,241,0.15);border:1px solid #6366f1;color:#a5b4fc;font-size:13px;font-weight:600;letter-spacing:1px;margin-bottom:24px;">EAU DE TOILETTE · 100 ML</div>
+      <h1 style="font-size:56px;font-weight:700;line-height:1.05;margin:0 0 16px;letter-spacing:-1px;">Lacoste L.12.12 <span style="color:#a855f7;">Blanc</span></h1>
+      <p style="font-size:18px;font-weight:300;color:#cbd5e1;line-height:1.6;margin:0 0 32px;">Fresco, elegante y atemporal. La fragancia que define la actitud clásica del deporte, reinventada para cada día.</p>
+      <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+        <a href="#comprar" style="padding:16px 36px;border-radius:14px;background:linear-gradient(135deg,#6366f1,#a855f7);color:#f8fafc;font-weight:600;font-size:16px;box-shadow:0 10px 30px rgba(99,102,241,0.35);transition:transform 0.2s, box-shadow 0.2s;display:inline-block;" style-hover="transform:translateY(-2px);box-shadow:0 14px 36px rgba(99,102,241,0.45);">Comprar ahora</a>
+        <a href="#notas" style="padding:16px 36px;border-radius:14px;background:transparent;border:1px solid #334155;color:#f8fafc;font-weight:600;font-size:16px;transition:border-color 0.2s;display:inline-block;" style-hover="border-color:#6366f1;">Descubrir notas</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="notas" style="padding:100px 48px;max-width:1200px;margin:0 auto;">
+    <div style="text-align:center;margin-bottom:64px;">
+      <p style="color:#10b981;font-weight:600;font-size:13px;letter-spacing:2px;text-transform:uppercase;margin:0 0 12px;">Composición olfativa</p>
+      <h2 style="font-size:38px;font-weight:700;margin:0;letter-spacing:-0.5px;">Notas que respiran frescura</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px;margin-bottom:80px;">
+      <sc-for list="{{ notes }}" as="n" hint-placeholder-count="3">
+        <div style="background:#1e293b;border:1px solid #334155;border-radius:20px;padding:32px 28px;transition:transform 0.25s, border-color 0.25s;" style-hover="transform:translateY(-6px);border-color:#6366f1;">
+          <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#6366f1,#a855f7);display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:22px;">{{ n.icon }}</div>
+          <div style="font-size:12px;font-weight:600;color:#a855f7;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;">{{ n.label }}</div>
+          <div style="font-size:20px;font-weight:600;margin-bottom:10px;">{{ n.title }}</div>
+          <div style="font-size:14px;font-weight:300;color:#94a3b8;line-height:1.6;">{{ n.desc }}</div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:center;">
+      <div style="border-radius:24px;overflow:hidden;border:1px solid #334155;box-shadow:0 20px 60px rgba(0,0,0,0.4);">
+        <img src="uploads/lacoste.jpg" alt="Lacoste L.12.12 Blanc" style="width:100%;display:block;background:#f8fafc;">
+      </div>
+      <div style="display:flex;flex-direction:column;gap:20px;">
+        <div style="border-radius:20px;overflow:hidden;border:1px solid #334155;">
+          <img src="uploads/lacoste1.jpg" alt="Detalle de fragancia" style="width:100%;display:block;">
+        </div>
+        <div style="border-radius:20px;overflow:hidden;border:1px solid #334155;">
+          <img src="uploads/lacoste2.jpg" alt="Ambiente Lacoste" style="width:100%;display:block;">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="comprar" style="padding:100px 48px;background:#1e293b;border-top:1px solid #334155;border-bottom:1px solid #334155;">
+    <div style="max-width:900px;margin:0 auto;background:#0f172a;border:1px solid #334155;border-radius:28px;padding:56px;display:grid;grid-template-columns:220px 1fr;gap:48px;align-items:center;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+      <img src="uploads/lacoste1.jpg" alt="Lacoste L.12.12 Blanc" style="width:100%;border-radius:18px;">
+      <div>
+        <div style="font-size:13px;font-weight:600;color:#10b981;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">Envío gratis · Stock disponible</div>
+        <h3 style="font-size:28px;font-weight:700;margin:0 0 12px;">Lacoste L.12.12 Blanc · 100 ml</h3>
+        <p style="color:#94a3b8;font-weight:300;font-size:15px;line-height:1.6;margin:0 0 24px;">Eau de Toilette vaporisateur natural spray. Original y sellado, listo para enviar hoy.</p>
+        <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:28px;">
+          <span style="font-size:36px;font-weight:700;">$289.900</span>
+          <span style="font-size:18px;color:#64748b;text-decoration:line-through;">$349.900</span>
+          <span style="font-size:13px;font-weight:600;color:#10b981;background:rgba(16,185,129,0.12);padding:4px 10px;border-radius:999px;">-17%</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;border:1px solid #334155;border-radius:12px;overflow:hidden;">
+            <button onClick="{{ decQty }}" style="width:44px;height:44px;background:#1e293b;color:#f8fafc;border:none;font-size:18px;cursor:pointer;" style-hover="background:#334155;">–</button>
+            <div style="width:48px;text-align:center;font-weight:600;font-size:16px;">{{ qty }}</div>
+            <button onClick="{{ incQty }}" style="width:44px;height:44px;background:#1e293b;color:#f8fafc;border:none;font-size:18px;cursor:pointer;" style-hover="background:#334155;">+</button>
+          </div>
+          <button onClick="{{ addToCart }}" style="flex:1;min-width:200px;padding:16px 28px;border-radius:14px;background:linear-gradient(135deg,#6366f1,#a855f7);color:#f8fafc;font-weight:600;font-size:16px;border:none;cursor:pointer;box-shadow:0 10px 30px rgba(99,102,241,0.35);transition:transform 0.2s;" style-hover="transform:translateY(-2px);">{{ addLabel }}</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq" style="padding:100px 48px;max-width:800px;margin:0 auto;">
+    <div style="text-align:center;margin-bottom:56px;">
+      <p style="color:#10b981;font-weight:600;font-size:13px;letter-spacing:2px;text-transform:uppercase;margin:0 0 12px;">Preguntas frecuentes</p>
+      <h2 style="font-size:38px;font-weight:700;margin:0;letter-spacing:-0.5px;">¿Tienes dudas?</h2>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <sc-for list="{{ faqs }}" as="f" hint-placeholder-count="4">
+        <div style="background:#1e293b;border:1px solid #334155;border-radius:18px;overflow:hidden;transition:border-color 0.2s;">
+          <button onClick="{{ f.toggle }}" style="width:100%;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px 26px;background:transparent;border:none;color:#f8fafc;font-size:16px;font-weight:600;text-align:left;cursor:pointer;">
+            <span>{{ f.q }}</span>
+            <span style="flex-shrink:0;width:28px;height:28px;border-radius:8px;background:#0f172a;display:flex;align-items:center;justify-content:center;font-size:16px;color:#a855f7;transform:{{ f.rot }};transition:transform 0.25s;">+</span>
+          </button>
+          <div style="max-height:{{ f.maxH }};overflow:hidden;transition:max-height 0.3s ease;">
+            <div style="padding:0 26px 22px;color:#94a3b8;font-size:14px;font-weight:300;line-height:1.7;">{{ f.a }}</div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <footer style="background:#0f172a;border-top:1px solid #334155;padding:64px 48px 32px;">
+    <div style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:40px;padding-bottom:40px;border-bottom:1px solid #334155;">
+      <div>
+        <div style="font-weight:700;font-size:20px;margin-bottom:12px;">L.12.12 <span style="color:#a855f7;font-weight:300;">BLANC</span></div>
+        <p style="color:#94a3b8;font-size:14px;font-weight:300;line-height:1.7;max-width:280px;">Fragancia inspirada en la actitud clásica del deporte. Frescura atemporal para cada día.</p>
+      </div>
+      <div>
+        <div style="font-weight:600;font-size:14px;margin-bottom:16px;color:#f8fafc;">Producto</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <a href="#notas" style="color:#94a3b8;font-size:14px;">Notas olfativas</a>
+          <a href="#comprar" style="color:#94a3b8;font-size:14px;">Comprar</a>
+          <a href="#faq" style="color:#94a3b8;font-size:14px;">Preguntas frecuentes</a>
+        </div>
+      </div>
+      <div>
+        <div style="font-weight:600;font-size:14px;margin-bottom:16px;color:#f8fafc;">Soporte</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <a href="#" style="color:#94a3b8;font-size:14px;">Envíos y devoluciones</a>
+          <a href="#" style="color:#94a3b8;font-size:14px;">Contacto</a>
+          <a href="#" style="color:#94a3b8;font-size:14px;">Política de privacidad</a>
+        </div>
+      </div>
+      <div>
+        <div style="font-weight:600;font-size:14px;margin-bottom:16px;color:#f8fafc;">Síguenos</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <a href="#" style="color:#94a3b8;font-size:14px;">Instagram</a>
+          <a href="#" style="color:#94a3b8;font-size:14px;">Facebook</a>
+          <a href="#" style="color:#94a3b8;font-size:14px;">TikTok</a>
+        </div>
+      </div>
+    </div>
+    <div style="max-width:1200px;margin:0 auto;padding-top:24px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+      <span style="color:#64748b;font-size:13px;">© 2026. Todos los derechos reservados.</span>
+      <span style="color:#64748b;font-size:13px;">Producto original · Pago 100% seguro</span>
+    </div>
+  </footer>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    qty: 1,
+    cartCount: 0,
+    addLabel: 'Agregar al carrito',
+    openFaq: 0,
+  };
+
+  incQty = () => this.setState(s => ({ qty: Math.min(s.qty + 1, 10) }));
+  decQty = () => this.setState(s => ({ qty: Math.max(s.qty - 1, 1) }));
+
+  addToCart = () => {
+    this.setState(s => ({ cartCount: s.cartCount + s.qty, addLabel: 'Agregado ✓' }));
+    clearTimeout(this._t);
+    this._t = setTimeout(() => this.setState({ addLabel: 'Agregar al carrito' }), 1800);
+  };
+
+  toggleFaq = (i) => this.setState(s => ({ openFaq: s.openFaq === i ? -1 : i }));
+
+  renderVals() {
+    const notesData = [
+      { icon: '🍊', label: 'Salida', title: 'Pomelo & Bergamota', desc: 'Un estallido cítrico que despierta los sentidos desde el primer instante.' },
+      { icon: '🌿', label: 'Corazón', title: 'Té Verde & Vetiver', desc: 'Un núcleo herbal y ligero que sostiene la frescura durante todo el día.' },
+      { icon: '🪵', label: 'Fondo', title: 'Almizcle & Madera', desc: 'Una estela cálida y elegante que perdura sin abrumar.' },
+    ];
+
+    const faqData = [
+      { q: '¿La fragancia es original?', a: 'Sí, 100% original y sellada de fábrica. Trabajamos únicamente con proveedores autorizados.' },
+      { q: '¿Cuánto tarda el envío?', a: 'Entre 2 y 5 días hábiles según tu ciudad. Recibirás un código de seguimiento apenas se despache tu pedido.' },
+      { q: '¿Puedo devolver el producto?', a: 'Sí, tienes 15 días desde la entrega para devoluciones si el empaque no ha sido abierto.' },
+      { q: '¿Qué métodos de pago aceptan?', a: 'Tarjetas de crédito/débito, PSE y pago contra entrega en ciudades seleccionadas.' },
+    ];
+
+    const faqs = faqData.map((f, i) => ({
+      ...f,
+      toggle: () => this.toggleFaq(i),
+      rot: this.state.openFaq === i ? 'rotate(45deg)' : 'rotate(0deg)',
+      maxH: this.state.openFaq === i ? '200px' : '0px',
+    }));
+
+    return {
+      notes: notesData,
+      faqs,
+      qty: this.state.qty,
+      cartCount: this.state.cartCount,
+      addLabel: this.state.addLabel,
+      incQty: this.incQty,
+      decQty: this.decQty,
+      addToCart: this.addToCart,
+    };
+  }
+}
+</script>
+</body>
+</html>

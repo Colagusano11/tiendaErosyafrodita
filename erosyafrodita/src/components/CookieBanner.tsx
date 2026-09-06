@@ -29,7 +29,7 @@ const CookieBanner: React.FC = () => {
           transition={{ type: "spring", damping: 25, stiffness: 200 }}
           className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] w-[90%] max-w-[500px]"
         >
-          <div className="bg-black border border-white/10 p-5 sm:p-8 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.8)] flex flex-col gap-5 sm:gap-6">
+          <div className="bg-charcoal border border-white/10 p-5 sm:p-8 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.8)] flex flex-col gap-5 sm:gap-6">
             <div className="flex items-start gap-4">
               <div className="size-10 sm:size-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
                 <span className="material-symbols-outlined text-primary text-xl sm:text-2xl">cookie</span>

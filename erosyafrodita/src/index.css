@@ -8,8 +8,8 @@
   }
   
   ::selection {
-    background-color: #f2b90d;
-    color: #18181b;
+    background-color: #BC8460;
+    color: #FFFFFF;
   }
 
   /* Force hide default browser arrow in select */
@@ -78,26 +78,24 @@
 
 /* Premium Product Description Styles */
 .premium-description-container h2 {
-  @apply text-xl font-black text-white italic tracking-tighter uppercase mb-6 border-l-4 border-primary pl-4;
+  @apply text-xl font-black text-charcoal italic tracking-tighter uppercase mb-6 border-l-4 border-primary pl-4;
 }
 
 .premium-description-container .premium-features {
-  @apply mb-8 bg-white/[0.03] p-6 rounded-3xl border border-white/5;
+  @apply mb-8 bg-charcoal/[0.03] p-6 rounded-3xl border border-charcoal/5;
 }
 
 .premium-description-container .premium-features ul {
   @apply space-y-3;
-}
-
-.premium-description-container .premium-features li {
-  @apply text-[11px] font-bold text-white/50 uppercase tracking-widest flex items-start gap-3;
+}.premium-description-container .premium-features li {
+  @apply text-xs font-medium text-charcoal/85 uppercase tracking-wider flex items-start gap-3;
 }
 
 .premium-description-container .premium-features li::before {
   content: '✦';
-  @apply text-primary text-[10px];
+  @apply text-primary text-xs;
 }
 
 .premium-description-container .premium-description p {
-  @apply text-white/40 text-[12px] leading-relaxed font-light italic border-t border-white/5 pt-6;
+  @apply text-charcoal/85 text-sm leading-relaxed font-normal border-t border-charcoal/5 pt-6;
 }
