@@ -6,10 +6,13 @@ import com.colagusano11.tiendaonline.models.*;
 import com.colagusano11.tiendaonline.payments.PaymentGateway;
 import com.colagusano11.tiendaonline.payments.dto.PaymentInitResponse;
 import com.colagusano11.tiendaonline.repositories.CarritoRepository;
+import com.colagusano11.tiendaonline.repositories.CuponRepository;
 import com.colagusano11.tiendaonline.repositories.PedidoRepository;
 import com.colagusano11.tiendaonline.repositories.ProductoRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -24,9 +27,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Service
 public class PedidoServicieImpl implements PedidoServicie {
 
+    // Deben coincidir con erosyafrodita/src/config/promo.ts (LAUNCH_PROMO_ACTIVE /
+    // LAUNCH_DISCOUNT). Es el descuento automático de lanzamiento sin cupón — el
+    // servidor es quien decide si se aplica y cuánto, nunca el cliente.
+    private static final boolean LAUNCH_PROMO_ACTIVE = true;
+    private static final BigDecimal LAUNCH_DISCOUNT = new BigDecimal("0.10");
+
     private final PedidoRepository pedidoRepository;
     private final ProductoRepository productoRepository;
     private final CarritoRepository carritoRepository;
+    private final CuponRepository cuponRepository;
     private final Map<String, PaymentGateway> gateways;
     private final PedidoTrakingService pedidoTrak;
     private final PedidoMapper pedidoMapper;
@@ -38,6 +48,7 @@ public class PedidoServicieImpl implements PedidoServicie {
             PedidoRepository pedidoRepository,
             ProductoRepository productoRepository,
             CarritoRepository carritoRepository,
+            CuponRepository cuponRepository,
             Map<String, PaymentGateway> gateways,
             PedidoTrakingService pedidoTrak,
             PedidoMapper pedidoMapper,
@@ -47,6 +58,7 @@ public class PedidoServicieImpl implements PedidoServicie {
         this.pedidoRepository = pedidoRepository;
         this.productoRepository = productoRepository;
         this.carritoRepository = carritoRepository;
+        this.cuponRepository = cuponRepository;
         this.gateways = gateways;
         this.pedidoTrak = pedidoTrak;
         this.pedidoMapper = pedidoMapper;
@@ -106,11 +118,7 @@ public class PedidoServicieImpl implements PedidoServicie {
         List<PedidoProducto> lineasPedido = new ArrayList<>();
         BigDecimal total = BigDecimal.ZERO;
 
-        BigDecimal factorPromo = BigDecimal.ONE;
-        if (pedidoRequest.getDescuento() != null && pedidoRequest.getDescuento() > 0
-                && pedidoRequest.getDescuento() < 1) {
-            factorPromo = BigDecimal.ONE.subtract(BigDecimal.valueOf(pedidoRequest.getDescuento()));
-        }
+        BigDecimal factorPromo = resolverFactorPromo(pedidoRequest.getCuponCodigo());
 
         if (pedidoRequest.getItems() != null && !pedidoRequest.getItems().isEmpty()) {
             // Intentar vincular con usuario existente por email si viene como invitado
@@ -172,7 +180,46 @@ public class PedidoServicieImpl implements PedidoServicie {
         return pedidoGuardado;
     }
 
-    private PedidoProducto crearLineaPedido(Pedido pedido, Producto producto, int cantidad, BigDecimal factorPromo) {
+    /**
+     * Calcula el factor multiplicador de precio (1 - descuento) a partir de un
+     * codigo de cupon, SIEMPRE resuelto en el servidor:
+     *   - Si se manda un codigo, se busca en BD y se exige que exista y este
+     *     vigente (activo + no expirado). Un codigo invalido rechaza el pedido
+     *     en vez de ignorarlo silenciosamente, para que el cliente sepa que su
+     *     cupon no se aplico.
+     *   - Si no se manda codigo, se aplica el descuento automatico de
+     *     lanzamiento (si esta activo) definido arriba como constante.
+     * El cliente nunca puede mandar un porcentaje de descuento directamente.
+     */
+    private BigDecimal resolverFactorPromo(String cuponCodigo) {
+        if (cuponCodigo != null && !cuponCodigo.isBlank()) {
+            Cupon cupon = cuponRepository.findByCodigo(cuponCodigo.toUpperCase().trim())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                            "El cupon '" + cuponCodigo + "' no existe"));
+            if (!cupon.isValido()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "El cupon '" + cuponCodigo + "' ha expirado o no esta activo");
+            }
+            return BigDecimal.ONE.subtract(
+                    BigDecimal.valueOf(cupon.getPorcentajeDescuento()).divide(BigDecimal.valueOf(100)));
+        }
+        if (LAUNCH_PROMO_ACTIVE) {
+            return BigDecimal.ONE.subtract(LAUNCH_DISCOUNT);
+        }
+        return BigDecimal.ONE;
+    }
+
+    private PedidoProducto crearLineaPedido(Pedido pedido, Producto producto, Integer cantidad, BigDecimal factorPromo) {
+        // Antes se aceptaba cualquier entero (incluida cantidad negativa o cero) sin
+        // validar: una cantidad negativa reducia (o incluso invertia el signo de)
+        // el total del pedido y, al descontar stock con "stockActual - cantidad",
+        // una cantidad negativa SUMABA stock en vez de restarlo.
+        if (cantidad == null || cantidad <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Cantidad invalida para el producto " + (producto != null ? producto.getNombre() : "desconocido")
+                    + ": " + cantidad);
+        }
+
         PedidoProducto lp = new PedidoProducto();
         lp.setPedido(pedido);
         lp.setProducto(producto);

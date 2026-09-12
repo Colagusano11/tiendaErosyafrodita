@@ -11,17 +11,27 @@ public class PedidoRequest {
         private String provincia;
         private String telefono;
         private String pais;
-        private Double descuento; // 0..1 — ej. 0.10 = -10% lanzamiento
+
+        /**
+         * Codigo de cupon introducido por el cliente (opcional). El porcentaje de
+         * descuento NUNCA se acepta directamente del cliente: se recalcula en el
+         * servidor a partir de este codigo (ver PedidoServicieImpl), consultando
+         * el cupon real en BD y comprobando que esta activo y no ha expirado.
+         * Antes se aceptaba un campo "descuento" (0..1) tal cual desde el
+         * frontend, sin validar contra ningun cupon — cualquiera podia mandar
+         * descuento=0.99 y pagar el 1% de cualquier pedido.
+         */
+        private String cuponCodigo;
 
         public PedidoRequest() {
         }
 
-        public Double getDescuento() {
-            return descuento;
+        public String getCuponCodigo() {
+            return cuponCodigo;
         }
 
-        public void setDescuento(Double descuento) {
-            this.descuento = descuento;
+        public void setCuponCodigo(String cuponCodigo) {
+            this.cuponCodigo = cuponCodigo;
         }
 
         private String email;

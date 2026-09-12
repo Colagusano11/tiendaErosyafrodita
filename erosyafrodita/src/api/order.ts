@@ -9,7 +9,11 @@ export interface PedidoRequest {
   provincia: string;
   telefono: string;
   pais: string;
-  descuento?: number; // 0..1 — ej. 0.10 para -10% de lanzamiento
+  // El servidor calcula el descuento: si se manda un cupón lo valida contra la
+  // BD (código, activo, no expirado); si no se manda ninguno, aplica el
+  // descuento automático de lanzamiento por su cuenta. El porcentaje nunca se
+  // acepta directamente del cliente.
+  cuponCodigo?: string;
   email?: string;
   items?: { productoId: number; cantidad: number }[];
 }

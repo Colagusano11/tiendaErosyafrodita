@@ -20,7 +20,7 @@ const Checkout: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isRetrying, setIsRetrying] = useState(false);
   
-  const { user: userEmail } = useAuth();
+  const { user: userEmail, isAuthenticated } = useAuth();
   const { showAlert } = useAlert();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
@@ -255,14 +255,13 @@ const Checkout: React.FC = () => {
 
 
 
-      // 3. Crear el pedido
-      const appliedDiscount = appliedCoupon 
-        ? appliedCoupon.porcentajeDescuento / 100 
-        : (LAUNCH_PROMO_ACTIVE ? LAUNCH_DISCOUNT : 0);
-
+      // 3. Crear el pedido — el % de descuento lo decide el servidor (ver
+      // PedidoServicieImpl.resolverFactorPromo): si hay cupón se manda su
+      // código para que lo valide contra la BD; si no, el propio backend
+      // aplica su descuento de lanzamiento sin que el cliente le diga cuánto.
       const pedido = await crearPedido({
         ...payload,
-        descuento: appliedDiscount,
+        cuponCodigo: appliedCoupon?.codigo,
         items: items.map(i => ({ productoId: i.product.id, cantidad: i.quantity }))
       });
       setCreatedPedido(pedido);
@@ -355,6 +354,20 @@ const Checkout: React.FC = () => {
 
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) return;
+
+    // Aplicar un cupón exige haber iniciado sesión (decisión de negocio: así
+    // capturamos el email de quien usa descuentos). Lo comprobamos aquí para
+    // dar un mensaje claro en vez de dejar que el interceptor de axios
+    // redirija de golpe a /login al recibir el 401 del backend.
+    if (!isAuthenticated) {
+      showAlert(
+        "Inicia sesión para usar un cupón",
+        "Los cupones de descuento están disponibles solo para clientes registrados. Inicia sesión o crea una cuenta gratuita para aplicar tu código.",
+        "warning"
+      );
+      return;
+    }
+
     setIsValidatingCoupon(true);
     try {
       const { validarCupon } = await import("../api/coupons");
@@ -805,6 +818,11 @@ const Checkout: React.FC = () => {
                   {/* Cupón / Descuento */}
                   <div className="flex flex-col gap-3 mb-4">
                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-1">¿Tienes un cupón?</p>
+                    {!isAuthenticated && (
+                      <p className="text-[10px] text-primary/70 font-medium -mt-1 px-1">
+                        Inicia sesión para poder aplicar un cupón de descuento.
+                      </p>
+                    )}
                     <div className="flex gap-2">
                       <input 
                         type="text" 

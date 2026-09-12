@@ -48,7 +48,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/internal/**").permitAll()
                 // Endpoints públicos: auth, registro, productos, categorías
                 .requestMatchers(HttpMethod.POST, "/auth/**", "/usuarios/registro").permitAll()
-                .requestMatchers(HttpMethod.GET, "/productos/**", "/categorias/**", "/api/feeds/**", "/feeds/**", "/api/feed/**", "/feed/**", "/proxy-image/**", "/resenas/**", "/pedidos/rastrear", "/api/cupones/validar/**", "/cupones/validar/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/productos/**", "/categorias/**", "/api/feeds/**", "/feeds/**", "/api/feed/**", "/feed/**", "/proxy-image/**", "/resenas/**", "/pedidos/rastrear").permitAll()
                 .requestMatchers(HttpMethod.POST, "/avisos-stock/suscribir", "/api/avisos-stock/suscribir").permitAll()
                 .requestMatchers(HttpMethod.GET, "/actuator/**").permitAll()
                 // Endpoints de Pedidos para Invitados (crear pedido y arrancar pago con Revolut)
@@ -65,6 +65,13 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/pagos/revolut/webhook", "/api/pagos/revolut/webhook").permitAll()
                 // SEGURIDAD: rescatar pedidos atascados requiere ADMIN (acción manual de emergencia)
                 .requestMatchers(HttpMethod.POST, "/pedidos/rescatar/**", "/api/pedidos/rescatar/**").hasAnyAuthority("ADMIN", "ROLE_ADMIN")
+                // SEGURIDAD: GET /pedidos (listado COMPLETO, todos los clientes) es solo para el
+                // panel de admin. Antes caía en el "anyRequest().authenticated()" genérico de más
+                // abajo, así que cualquier cliente logueado podía ver nombres, direcciones,
+                // teléfonos e importes de todos los pedidos de todos los demás clientes.
+                // /pedidos/{id} y /pedidos/historial NO se tocan: ya filtran por el usuario dueño
+                // del pedido en el propio servicio, así que siguen abiertos a cualquier logueado.
+                .requestMatchers(HttpMethod.GET, "/pedidos", "/api/pedidos").hasAnyAuthority("ADMIN", "ROLE_ADMIN")
                 // El resto de pedidos (cambiar estados, borrar, etc) requiere ADMIN
                 .requestMatchers(HttpMethod.POST, "/pedidos/**", "/api/pedidos/**").hasAnyAuthority("ADMIN", "ROLE_ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/pedidos/**", "/api/pedidos/**").hasAnyAuthority("ADMIN", "ROLE_ADMIN")
@@ -75,8 +82,12 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.PUT, "/idealo/**", "/api/idealo/**").permitAll()
                 .requestMatchers(HttpMethod.PATCH, "/idealo/**", "/api/idealo/**").permitAll()
                 .requestMatchers(HttpMethod.DELETE, "/idealo/**", "/api/idealo/**").permitAll()
-                // Cupónes: Permitir verlos a todos, pero solo ADMIN puede crear/borrar
-                .requestMatchers(HttpMethod.GET, "/api/cupones", "/api/cupones/**", "/cupones", "/cupones/**").permitAll()
+                // Cupones: validar un código exige estar logueado (decisión de negocio: para
+                // aplicar un cupón el cliente tiene que registrarse/iniciar sesión, así nos
+                // quedamos con su email) — ya no es un endpoint público de invitado. El listado
+                // completo de cupones (antes público del todo, exponía todos los códigos activos
+                // e inactivos a cualquiera sin sesión) y crear/borrar siguen siendo solo ADMIN.
+                .requestMatchers(HttpMethod.GET, "/cupones/validar/**", "/api/cupones/validar/**").authenticated()
                 .requestMatchers("/admin/**", "/api/admin/dashboard/**", "/api/cupones", "/api/cupones/**", "/cupones", "/cupones/**").hasAnyAuthority("ADMIN", "ROLE_ADMIN")
                 // API interna de proveedores — autenticación por API key (ver InternalApiKeyFilter)
                 .requestMatchers("/internal/**").permitAll()
