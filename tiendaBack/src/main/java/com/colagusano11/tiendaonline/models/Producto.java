@@ -94,6 +94,17 @@ public class Producto {
     @Column(name = "copy_generado_en")
     private LocalDateTime copyGeneradoEn;
 
+    /**
+     * Cuándo se publicó este producto por última vez en Instagram vía
+     * InstagramAutoPostScheduler. Null = nunca publicado — así el scheduler
+     * rota el catálogo eligiendo siempre el que lleve más tiempo sin salir.
+     */
+    @Column(name = "ultima_publicacion_instagram")
+    private LocalDateTime ultimaPublicacionInstagram;
+
+    public LocalDateTime getUltimaPublicacionInstagram()               { return ultimaPublicacionInstagram; }
+    public void setUltimaPublicacionInstagram(LocalDateTime v)         { this.ultimaPublicacionInstagram = v; }
+
     // ─── Lifecycle ────────────────────────────────────────────────────
 
     private void validarMargen() {

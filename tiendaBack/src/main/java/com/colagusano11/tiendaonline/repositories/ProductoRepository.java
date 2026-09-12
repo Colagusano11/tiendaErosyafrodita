@@ -324,4 +324,13 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>,
 
     /** Cuántos productos activos ya tienen título SEO generado */
     long countByActivoTrueAndTituloSeoIsNotNull();
+
+    // ─── Auto-publicación Instagram (InstagramAutoPostScheduler) ────────────
+
+    /**
+     * Siguiente producto a publicar: activo, con stock, y el que lleve más
+     * tiempo sin publicarse (NULL = nunca publicado, sale primero en MySQL
+     * con ORDER BY ASC). Desempate por id para que sea determinista.
+     */
+    Optional<Producto> findTopByActivoTrueAndStockGreaterThanOrderByUltimaPublicacionInstagramAscIdAsc(Integer stock);
 }
