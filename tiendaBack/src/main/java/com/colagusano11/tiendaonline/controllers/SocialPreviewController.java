@@ -3,7 +3,6 @@ package com.colagusano11.tiendaonline.controllers;
 import com.colagusano11.tiendaonline.models.Producto;
 import com.colagusano11.tiendaonline.repositories.ProductoRepository;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,7 +31,7 @@ public class SocialPreviewController {
         this.productoRepository = productoRepository;
     }
 
-    @GetMapping(value = "/social-preview/product/{slug}", produces = MediaType.TEXT_HTML_VALUE)
+    @GetMapping(value = "/social-preview/product/{slug}", produces = "text/html;charset=UTF-8")
     public ResponseEntity<String> productPreview(@PathVariable String slug) {
         Producto p = productoRepository.findBySlug(slug).orElse(null);
         if (p == null) {
