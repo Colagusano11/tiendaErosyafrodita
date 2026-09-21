@@ -88,12 +88,16 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>,
     // ─── Búsquedas avanzadas (paginadas) ─────────────────────────────────────
 
     /**
-     * Búsqueda agrupada para catálogo web y novedades (solo activos).
+     * Búsqueda agrupada para catálogo web y novedades (solo activos Y con stock).
+     * Un producto agotado desaparece del catálogo/novedades que ve el cliente —
+     * su ficha individual sigue accesible por slug (con el aviso de "avísame
+     * cuando vuelva"), pero no debe aparecer en el listado/buscador.
      * Filtra por los parámetros no nulos y ordena según el Pageable recibido.
      */
     @Query("""
         SELECT p FROM Producto p
         WHERE p.activo = true
+          AND p.stock > 0
           AND (:nombre       IS NULL OR LOWER(p.nombre)      LIKE LOWER(CONCAT('%', :nombre, '%')))
           AND (:categoria    IS NULL OR LOWER(p.categoria)   LIKE LOWER(CONCAT('%', :categoria, '%')))
           AND (:gender       IS NULL OR LOWER(p.gender)      = LOWER(:gender))
