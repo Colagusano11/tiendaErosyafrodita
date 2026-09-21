@@ -433,7 +433,7 @@ const HomePage: React.FC = () => {
                       Añadir
                     </button>
                     <Link
-                      to={`/product/${featuredProduct.id}`}
+                      to={`/product/${featuredProduct.slug || featuredProduct.id}`}
                       className="flex-1 sm:flex-none h-11 sm:h-12 px-6 sm:px-8 rounded-full border border-charcoal/10 text-charcoal text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-charcoal/5 transition-all flex items-center justify-center"
                     >
                       Detalles
