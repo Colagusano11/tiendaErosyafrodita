@@ -42,7 +42,7 @@
 .animate-infinite-scroll {
   display: flex;
   width: max-content;
-  animation: infinite-scroll 22s linear infinite;
+  animation: infinite-scroll 40s linear infinite;
 }
 
 /* Glassmorphism Classes */
