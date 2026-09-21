@@ -310,8 +310,8 @@ const Checkout: React.FC = () => {
         target: container,
         styles: {
           default: {
-            color: "#ffffff",
-            placeholder: { color: "rgba(255, 255, 255, 0.3)" }
+            color: "#0C3528",
+            placeholder: { color: "rgba(12, 53, 40, 0.4)" }
           }
         },
         onSuccess: async () => {
@@ -595,20 +595,20 @@ const Checkout: React.FC = () => {
                       {(!isUsingSavedAddress || !userProfile?.direccionPrimaria) && (
                         <div className="grid grid-cols-1 gap-4 p-6 rounded-2xl border border-charcoal/10 bg-charcoal/5 animate-fade-in mt-2 mb-4">
                           <div className="grid grid-cols-2 gap-4">
-                            <input required className="w-full bg-charcoal/10 border border-charcoal/10 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-charcoal focus:bg-background-dark transition-all" placeholder="NOMBRE*" value={tempAddress.nombre} onChange={e => setTempAddress({...tempAddress, nombre: e.target.value})} />
-                            <input required className="w-full bg-charcoal/10 border border-charcoal/10 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-charcoal focus:bg-background-dark transition-all" placeholder="APELLIDOS*" value={tempAddress.apellidos} onChange={e => setTempAddress({...tempAddress, apellidos: e.target.value})} />
+                            <input required className="w-full bg-charcoal/10 border border-charcoal/10 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-charcoal placeholder:text-charcoal/50 focus:bg-background-dark transition-all" placeholder="NOMBRE*" value={tempAddress.nombre} onChange={e => setTempAddress({...tempAddress, nombre: e.target.value})} />
+                            <input required className="w-full bg-charcoal/10 border border-charcoal/10 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-charcoal placeholder:text-charcoal/50 focus:bg-background-dark transition-all" placeholder="APELLIDOS*" value={tempAddress.apellidos} onChange={e => setTempAddress({...tempAddress, apellidos: e.target.value})} />
                           </div>
                           <div className="relative">
                              <input required className="w-full bg-charcoal/10 border border-charcoal/10 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-charcoal focus:bg-background-dark transition-all pr-12" placeholder="CALLE / AVENIDA / NÚMERO*" value={tempAddress.calle} onChange={e => setTempAddress({...tempAddress, calle: e.target.value})} />
                              <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-primary opacity-30 text-base">location_on</span>
                           </div>
                           <div className="grid grid-cols-2 gap-4">
-                            <input required className="w-full bg-charcoal/10 border border-charcoal/10 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-charcoal focus:bg-background-dark transition-all" placeholder="POBLACIÓN*" value={tempAddress.poblacion} onChange={e => setTempAddress({...tempAddress, poblacion: e.target.value})} />
-                            <input required className="w-full bg-charcoal/10 border border-charcoal/10 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-charcoal focus:bg-background-dark transition-all" placeholder="CÓDIGO POSTAL*" value={tempAddress.codigoPostal} onChange={e => setTempAddress({...tempAddress, codigoPostal: e.target.value})} />
+                            <input required className="w-full bg-charcoal/10 border border-charcoal/10 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-charcoal placeholder:text-charcoal/50 focus:bg-background-dark transition-all" placeholder="POBLACIÓN*" value={tempAddress.poblacion} onChange={e => setTempAddress({...tempAddress, poblacion: e.target.value})} />
+                            <input required className="w-full bg-charcoal/10 border border-charcoal/10 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-charcoal placeholder:text-charcoal/50 focus:bg-background-dark transition-all" placeholder="CÓDIGO POSTAL*" value={tempAddress.codigoPostal} onChange={e => setTempAddress({...tempAddress, codigoPostal: e.target.value})} />
                           </div>
                           <div className="grid grid-cols-2 gap-4">
-                            <input required className="w-full bg-charcoal/10 border border-charcoal/10 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-charcoal focus:bg-background-dark transition-all" placeholder="PROVINCIA*" value={tempAddress.provincia} onChange={e => setTempAddress({...tempAddress, provincia: e.target.value})} />
-                            <input required className="w-full bg-charcoal/10 border border-charcoal/10 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-charcoal focus:bg-background-dark transition-all" placeholder="TELÉFONO MÓVIL (9 dígitos)*" value={tempAddress.telefono} onChange={e => setTempAddress({...tempAddress, telefono: e.target.value})} />
+                            <input required className="w-full bg-charcoal/10 border border-charcoal/10 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-charcoal placeholder:text-charcoal/50 focus:bg-background-dark transition-all" placeholder="PROVINCIA*" value={tempAddress.provincia} onChange={e => setTempAddress({...tempAddress, provincia: e.target.value})} />
+                            <input required className="w-full bg-charcoal/10 border border-charcoal/10 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-charcoal placeholder:text-charcoal/50 focus:bg-background-dark transition-all" placeholder="TELÉFONO MÓVIL (9 dígitos)*" value={tempAddress.telefono} onChange={e => setTempAddress({...tempAddress, telefono: e.target.value})} />
                           </div>
                           {userEmail && (
                             <label className="flex items-center gap-2 cursor-pointer mt-2 group w-fit">
@@ -624,7 +624,7 @@ const Checkout: React.FC = () => {
                           {!userEmail && (
                             <input 
                               type="email"
-                              className="w-full bg-primary/10 border border-primary/20 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-charcoal focus:bg-background-dark transition-all placeholder:text-primary/40 mt-2" 
+                              className="w-full bg-primary/10 border border-primary/20 rounded-xl px-4 py-3 text-sm focus:border-primary outline-none text-charcoal focus:bg-background-dark transition-all placeholder:text-charcoal/50 mt-2"
                               placeholder="CORREO ELECTRÓNICO (OBLIGATORIO PARA PAGAR)*" 
                               value={tempAddress.email} 
                               onChange={e => setTempAddress({...tempAddress, email: e.target.value})} 
@@ -698,7 +698,7 @@ const Checkout: React.FC = () => {
                       <div className="flex flex-col gap-2">
                         <label className="text-[10px] text-charcoal/40 uppercase tracking-[0.2em] font-black ml-1">Nombre del Titular</label>
                         <input 
-                            className="w-full bg-charcoal/10 border border-charcoal/10 rounded-xl px-4 py-4 text-sm focus:border-primary outline-none text-charcoal focus:bg-background-dark transition-all placeholder:text-charcoal/10"
+                            className="w-full bg-charcoal/10 border border-charcoal/10 rounded-xl px-4 py-4 text-sm focus:border-primary outline-none text-charcoal focus:bg-background-dark transition-all placeholder:text-charcoal/50"
                             placeholder="Nombre del Titular"
                             value={cardholderName.toUpperCase()}
                             onChange={e => setCardholderName(e.target.value)}
