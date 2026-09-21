@@ -132,24 +132,22 @@ const Footer: React.FC = () => (
       </div>
 
       <div className="mt-12 border-t border-white/5 pt-8 flex flex-col md:flex-row items-center justify-between gap-6 text-[10px] font-bold uppercase tracking-[0.2em] text-white/30">
-        <span>© 2026 AGE Parfums.</span>
+        <span>
+          © 2026 AGE Parfums · Hecha por{" "}
+          <a
+            href="https://alvaromartinezlopez.dev"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="normal-case tracking-normal hover:text-primary transition-colors"
+          >
+            Álvaro Martínez López
+          </a>
+        </span>
         <div className="flex gap-6">
           <span className="hover:text-primary cursor-pointer transition-colors">Instagram</span>
           <span className="hover:text-primary cursor-pointer transition-colors">LinkedIn</span>
           <span className="hover:text-primary cursor-pointer transition-colors">X / Twitter</span>
         </div>
-      </div>
-
-      <div className="mt-6 pt-6 border-t border-white/5 text-center text-[10px] font-medium tracking-wide text-white/20">
-        Hecha por{" "}
-        <a
-          href="https://alvaromartinezlopez.dev"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-white/40 hover:text-primary transition-colors underline decoration-white/10 underline-offset-2"
-        >
-          Álvaro Martínez López
-        </a>
       </div>
     </div>
   </footer>
