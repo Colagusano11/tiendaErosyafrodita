@@ -538,10 +538,10 @@ const Checkout: React.FC = () => {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 sm:mb-8 gap-4 border-b border-charcoal/10 pb-6">
             <div>
               <h1 className="text-charcoal text-2xl sm:text-3xl md:text-4xl font-black leading-tight tracking-tight mb-1 sm:mb-2">
-                Finalizar Ritual
+                Finalizar Compra
               </h1>
               <p className="text-primary text-[10px] sm:text-sm font-black uppercase tracking-widest opacity-60">
-                Asegura tu adquisición divina
+                Completa tu pedido de forma segura
               </p>
             </div>
             <nav className="flex items-center gap-2 text-xs font-black uppercase tracking-widest">

@@ -35,7 +35,7 @@ const CookieBanner: React.FC = () => {
                 <span className="material-symbols-outlined text-primary text-xl sm:text-2xl">cookie</span>
               </div>
               <div className="space-y-1.5 sm:space-y-2">
-                <h4 className="text-white font-black uppercase tracking-widest text-[10px] sm:text-xs">Experiencia Divina</h4>
+                <h4 className="text-white font-black uppercase tracking-widest text-[10px] sm:text-xs">Uso de cookies</h4>
                 <p className="text-white/60 text-[10px] sm:text-[11px] leading-relaxed font-medium">
                   Utilizamos cookies para personalizar tu experiencia y mejorar tu visita a la tienda.
                   Al continuar, aceptas nuestra <Link to="/legal/privacidad" className="text-primary hover:underline">Política de Privacidad</Link>.
@@ -48,7 +48,7 @@ const CookieBanner: React.FC = () => {
                 onClick={handleAccept}
                 className="flex-1 h-11 sm:h-12 bg-primary text-charcoal rounded-full font-black text-[9px] sm:text-[10px] uppercase tracking-widest hover:bg-white hover:scale-[1.02] transition-all shadow-lg shadow-primary/10"
               >
-                Aceptar Alquimia
+                Aceptar
               </button>
               <button
                 onClick={() => setIsVisible(false)}

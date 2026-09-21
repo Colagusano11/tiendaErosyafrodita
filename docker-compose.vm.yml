@@ -1,0 +1,42 @@
+# ============================================================
+# docker-compose.vm.yml — PRODUCCIÓN en una VM con nginx del sistema
+# (no usa Traefik: esta VM ya tiene nginx + certbot gestionando otros
+# sitios como sellerking.app y fisiocalendar en los puertos 80/443)
+#
+# Uso: docker compose -f docker-compose.yml -f docker-compose.vm.yml up -d --build
+#
+# El frontend queda solo en 127.0.0.1:4001 — el nginx del sistema le hace
+# proxy_pass, igual que ya hace con fisiocalendar (127.0.0.1:3001).
+# Backend, mcsv-usuario y las bases de datos quedan solo en la red interna
+# de Docker, sin puerto expuesto al host.
+# ============================================================
+
+services:
+  db:
+    ports: !reset []
+
+  db-usuarios:
+    ports: !reset []
+
+  mcsv-usuario:
+    ports: !reset []
+
+  app:
+    ports: !reset []
+    environment:
+      # Las migraciones V1/V2 de Flyway crean tablas con nombres/columnas
+      # que no coinciden con las entidades JPA reales (p.ej. "producto" en
+      # vez de "productos") — nunca se notó porque en cualquier entorno que
+      # ha funcionado hasta ahora, Hibernate (ddl-auto=update) ya había
+      # creado el esquema real de antes. En una BD nueva de verdad, Flyway
+      # se ejecuta antes que Hibernate y esas migraciones rotas hacen
+      # fallar el arranque. Desactivar Flyway aquí y dejar que Hibernate
+      # construya el esquema real es exactamente lo que ya viene
+      # funcionando en local.
+      SPRING_FLYWAY_ENABLED: "false"
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      REVOLUT_WEBHOOK_URL: https://ageperfumes.com/api/pagos/revolut/webhook
+
+  frontend:
+    ports: !override
+      - "127.0.0.1:4001:80"

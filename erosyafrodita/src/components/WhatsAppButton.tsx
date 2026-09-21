@@ -31,7 +31,7 @@ const WhatsAppButton: React.FC = () => {
 
             {/* Etiqueta flotante al hover */}
             <div className="absolute right-20 bg-charcoal text-white text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-xl border border-white/10 opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0 transition-all pointer-events-none whitespace-nowrap shadow-2xl">
-                ¿Necesitas ayuda sagrada?
+                ¿Necesitas ayuda?
             </div>
         </motion.a>
     );

@@ -27,7 +27,7 @@ const TrackOrder: React.FC = () => {
             const data = await rastrearPedido(Number(orderId), email.trim());
             setPedido(data);
         } catch (err: any) {
-            setError("No hemos encontrado ningún pedido con esos datos en nuestro registro divino. Por favor, verifica el número y el correo.");
+            setError("No hemos encontrado ningún pedido con esos datos. Por favor, verifica el número y el correo.");
             setPedido(null);
         } finally {
             setLoading(false);

@@ -33,7 +33,10 @@
     }
   ],
   "recommendedOccasions": [],
-  "season": ["Primavera", "Verano"],
+  "season": [
+    "Primavera",
+    "Verano"
+  ],
   "faqs": [
     {
       "question": "¿Se puede usar en la cara y en el cuerpo?",
@@ -56,7 +59,7 @@
       "answer": "Sí, el gel lleva un ligero tinte guía para facilitar una aplicación uniforme, que desaparece a medida que el color se desarrolla sobre la piel."
     }
   ],
-  "videoUrl": "/uploads/clarins-autobronceador/clarins-ambiente.mp4",
+  "videoUrl": "https://res.cloudinary.com/dko3uwc6/video/upload/v1790005040/ageperfumes/clarins-autobronceador/clarins-ambiente.mp4",
   "seoTitle": "Gel Autobronceador Rostro y Cuerpo Clarins 125ml",
   "seoDescription": "Gel autobronceador Clarins 125ml para rostro y cuerpo. Bronceado natural y uniforme sin sol, 96% ingredientes naturales. Descúbrelo en AGE Parfums.",
   "testimonials": [],
