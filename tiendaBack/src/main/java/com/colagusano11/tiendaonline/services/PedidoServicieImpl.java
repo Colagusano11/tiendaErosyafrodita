@@ -311,7 +311,7 @@ public class PedidoServicieImpl implements PedidoServicie {
         String gatewayKey = (pedido.getPaymentGateway() != null) ? pedido.getPaymentGateway() + "Gateway" : "revolutGateway";
         PaymentGateway gateway = gateways.get(gatewayKey);
         if (gateway != null) {
-            gateway.capturePago(paymentId);
+            gateway.capturePago(pedido);
         }
 
         pedido.setEstado(PedidoEstado.PAGADO);

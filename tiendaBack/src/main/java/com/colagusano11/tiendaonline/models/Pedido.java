@@ -31,6 +31,9 @@ public class Pedido {
 
     private String paymentId;
     private String paymentGateway;
+    // Id real del pedido en la pasarela (Revolut: order.id). paymentId guarda el public_id
+    // que usa el widget del frontend; la API de Revolut solo consulta pedidos por order.id.
+    private String gatewayOrderId;
 
     // Campos de envío desglosados
     private String nombre;
@@ -213,6 +216,14 @@ public class Pedido {
 
     public void setPaymentId(String paymentId) {
         this.paymentId = paymentId;
+    }
+
+    public String getGatewayOrderId() {
+        return gatewayOrderId;
+    }
+
+    public void setGatewayOrderId(String gatewayOrderId) {
+        this.gatewayOrderId = gatewayOrderId;
     }
 
     public String getPaymentGateway() {

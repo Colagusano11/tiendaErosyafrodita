@@ -34,7 +34,7 @@ public class RevolutPaymentGateway implements PaymentGateway {
     java.util.Map<String, Object> body = new java.util.HashMap<>();
     body.put("amount", amountInCents);
     body.put("currency", "EUR");
-    body.put("description", "Pedido #" + pedido.getId() + " en Eros & Afrodita");
+    body.put("description", "Pedido #" + pedido.getId() + " en AGE Parfums");
     body.put("merchant_order_ext_id", pedido.getId().toString());
     if (pedido.getEmail() != null && !pedido.getEmail().isBlank()) {
         body.put("customer_email", pedido.getEmail());
@@ -63,6 +63,7 @@ public class RevolutPaymentGateway implements PaymentGateway {
       
       // Guardamos el public_id de Revolut como identificador de pago, ya que es el que el frontend devolverá
       pedido.setPaymentId(publicId);
+      pedido.setGatewayOrderId((String) response.get("id"));
 
       return new PaymentInitResponse(
           checkoutUrl,
@@ -72,6 +73,15 @@ public class RevolutPaymentGateway implements PaymentGateway {
       e.printStackTrace();
       throw new RuntimeException("Error al conectar con la pasarela de Revolut: " + e.getMessage());
     }
+  }
+
+  @Override
+  public void capturePago(Pedido pedido) {
+    String orderId = pedido.getGatewayOrderId();
+    if (orderId == null || orderId.isBlank()) {
+      throw new RuntimeException("Pedido " + pedido.getId() + " sin id de orden Revolut: no se puede verificar el pago");
+    }
+    capturePago(orderId);
   }
 
   @Override

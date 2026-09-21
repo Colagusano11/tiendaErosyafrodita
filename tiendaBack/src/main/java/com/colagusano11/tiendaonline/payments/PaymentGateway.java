@@ -9,5 +9,9 @@ public interface PaymentGateway {
 PaymentInitResponse crearPago(Pedido pedido);
 void capturePago(String paymentId);
 
+default void capturePago(Pedido pedido) {
+    capturePago(pedido.getPaymentId());
+}
+
 
 }
