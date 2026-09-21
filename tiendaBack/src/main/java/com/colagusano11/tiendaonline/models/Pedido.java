@@ -76,6 +76,16 @@ public class Pedido {
         this.id = id;
     }
 
+    /**
+     * Número de pedido legible para el cliente y para SellerKing: AGE-2026-00042.
+     * Única fuente de verdad — el correo de confirmación y la API interna de
+     * SellerKing deben mostrar siempre el mismo número.
+     */
+    public String getNumPedidoLegible() {
+        int anio = (fecha != null) ? fecha.getYear() : LocalDateTime.now().getYear();
+        return String.format("AGE-%d-%05d", anio, id);
+    }
+
     // === usuarioId en vez de UsuarioRegistroDto ===
     public Long getUsuarioId() {
         return usuarioId;

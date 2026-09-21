@@ -96,7 +96,7 @@ public class EmailService {
     }
 
     public void enviarEmailPedido(com.colagusano11.tiendaonline.models.Pedido pedido, String destino) {
-        String subject = "Confirmacion de Pedido #" + pedido.getId() + " - AGE Parfums";
+        String subject = "Confirmacion de Pedido " + pedido.getNumPedidoLegible() + " - AGE Parfums";
 
         StringBuilder productosHtml = new StringBuilder();
         productosHtml.append("<table width='100%' cellspacing='0' cellpadding='10' style='color:").append(COLOR_CREAM).append(";border-collapse:collapse;margin-bottom:30px;'>");
@@ -120,7 +120,7 @@ public class EmailService {
             "<h2 style='font-size:24px;margin-bottom:10px;color:" + COLOR_ACCENT + ";'>\u00a1Gracias por tu pedido!</h2>" +
             "<p style='font-size:16px;color:" + COLOR_MUTED + ";margin-bottom:30px;'>Hemos recibido tu solicitud. Tu seleccion esta siendo preparada con el maximo cuidado en AGE Parfums.</p>" +
             "<div style='background-color:rgba(0,0,0,0.15);padding:25px;border-radius:16px;margin-bottom:30px;'>" +
-            "  <p style='margin:0 0 10px;font-size:12px;color:" + COLOR_MUTED + ";text-transform:uppercase;'>Resumen del Pedido #" + pedido.getId() + "</p>" +
+            "  <p style='margin:0 0 10px;font-size:12px;color:" + COLOR_MUTED + ";text-transform:uppercase;'>Pedido " + pedido.getNumPedidoLegible() + "</p>" +
                productosHtml.toString() +
             "  <div style='border-top:1px solid " + COLOR_BORDER + ";padding-top:20px;'>" +
             "    <div style='display:flex;justify-content:space-between;margin-bottom:10px;'><span style='color:" + COLOR_MUTED + ";'>Subtotal:</span><span style='color:" + COLOR_CREAM + ";font-weight:bold;margin-left:auto;'> " + pedido.getTotal() + "\u20ac</span></div>" +
@@ -138,7 +138,7 @@ public class EmailService {
 
         String fullHtml = STYLISH_TEMPLATE.replace("{{CONTENT}}", content);
         enviarHtml(destino, subject, fullHtml);
-        enviarHtml("Erosyafrodita.com@gmail.com", "[ADMIN] Nuevo Pedido Recibido #" + pedido.getId(), fullHtml);
+        enviarHtml("Erosyafrodita.com@gmail.com", "[ADMIN] Nuevo Pedido Recibido " + pedido.getNumPedidoLegible(), fullHtml);
     }
 
     /**
@@ -151,7 +151,7 @@ public class EmailService {
                                   String numSeguimiento,
                                   String urlSeguimiento,
                                   String destino) {
-        String subject = "Tu pedido #" + pedido.getId() + " ha sido enviado \u2014 AGE Parfums";
+        String subject = "Tu pedido " + pedido.getNumPedidoLegible() + " ha sido enviado \u2014 AGE Parfums";
 
         String botonTracking = (urlSeguimiento != null && !urlSeguimiento.isBlank())
             ? "<div style='text-align:center;margin:30px 0;'>" +
@@ -166,7 +166,7 @@ public class EmailService {
         String content =
             "<h2 style='font-size:24px;margin-bottom:10px;color:" + COLOR_ACCENT + ";'>\u00a1Tu pedido est\u00e1 en camino!</h2>" +
             "<p style='font-size:16px;color:" + COLOR_MUTED + ";margin-bottom:20px;'>" +
-            "Hola <strong>" + pedido.getNombre() + "</strong>, tu pedido <strong>#" + pedido.getId() + "</strong> ha salido de nuestro almac\u00e9n y est\u00e1 en manos del transportista." +
+            "Hola <strong>" + pedido.getNombre() + "</strong>, tu pedido <strong>" + pedido.getNumPedidoLegible() + "</strong> ha salido de nuestro almac\u00e9n y est\u00e1 en manos del transportista." +
             "</p>" +
             botonTracking +
             numHtml +

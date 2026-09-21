@@ -158,7 +158,7 @@ public class SellerKingInternalController {
                 "ok", true,
                 "pedidoId", id,
                 "estado", pedido.getEstado(),
-                "numPedido", PedidoSalidaInterna.formatNumPedido(pedido)
+                "numPedido", pedido.getNumPedidoLegible()
         ));
     }
 
@@ -202,7 +202,7 @@ public class SellerKingInternalController {
      * No expone paymentId, paymentGateway ni datos contables.
      *
      * CAMPO CLAVE: erosOrderId == id (Long).
-     * CAMPO LEGIBLE: numPedido == "ERO-{anio}-{id:05d}" (ej: ERO-2026-00042)
+     * CAMPO LEGIBLE: numPedido == "AGE-{anio}-{id:05d}" (ej: AGE-2026-00042)
      *   -> Coincide con el numero que el cliente recibe en su email de confirmacion.
      */
     record PedidoSalidaInterna(
@@ -225,14 +225,6 @@ public class SellerKingInternalController {
             java.time.LocalDateTime fecha,
             List<LineaInterna> lineas
     ) {
-        /** Genera el numero de pedido legible: ERO-2026-00042 */
-        static String formatNumPedido(Pedido p) {
-            String anio = (p.getFecha() != null)
-                    ? String.valueOf(p.getFecha().getYear())
-                    : String.valueOf(java.time.LocalDateTime.now().getYear());
-            return String.format("ERO-%s-%05d", anio, p.getId());
-        }
-
         static PedidoSalidaInterna from(Pedido p) {
             List<LineaInterna> lineas = p.getLineas() == null ? List.of() :
                     p.getLineas().stream().map(l -> new LineaInterna(
@@ -246,7 +238,7 @@ public class SellerKingInternalController {
             return new PedidoSalidaInterna(
                     p.getId(),
                     p.getId(),             // erosOrderId
-                    formatNumPedido(p),    // numPedido: ERO-2026-00042
+                    p.getNumPedidoLegible(),    // numPedido: AGE-2026-00042
                     p.getEstado() != null ? p.getEstado().name() : null,
                     p.getEmail(),          // customerEmail
                     p.getEmail(),
