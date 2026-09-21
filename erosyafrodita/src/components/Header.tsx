@@ -4,7 +4,6 @@ import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
 import { useAuth } from "../context/AuthContext";
 import { useTranslation } from "../i18n";
-import logoEros from "../assets/logo-eros.png";
 
 const Header: React.FC = () => {
   const { items } = useCart();
@@ -69,7 +68,7 @@ const Header: React.FC = () => {
             className="flex items-center gap-2 sm:gap-3 text-white group"
           >
             <img
-              src={logoEros}
+              src="/AGE-SVG.jpeg"
               alt="AGE Parfums logo"
               className="size-12 sm:size-16 rounded-full object-cover shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform duration-500"
             />
@@ -190,7 +189,7 @@ const Header: React.FC = () => {
             <div className="flex justify-between items-center mb-12">
               <div className="flex flex-col">
                 <span className="text-[10px] font-black tracking-[0.4em] text-primary uppercase italic leading-none">Menú</span>
-                <span className="text-[8px] font-black text-white/20 uppercase tracking-widest mt-1">Explora el Olimpo</span>
+                <span className="text-[8px] font-black text-white/20 uppercase tracking-widest mt-1">Explora la tienda</span>
               </div>
               <button 
                 onClick={() => setIsMobileMenuOpen(false)}

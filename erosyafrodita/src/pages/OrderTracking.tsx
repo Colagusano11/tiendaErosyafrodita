@@ -52,7 +52,7 @@ const TrackOrder: React.FC = () => {
                                 <span className="text-primary text-[10px] font-black uppercase tracking-[0.5em] mb-4 block">Seguimiento de Pedido</span>
                                 <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-4">Rastrea tu Tesoro</h1>
                                 <p className="text-charcoal/50 text-sm font-light leading-relaxed">
-                                    Introduce los detalles que recibiste en tu correo de confirmación para ver el estado de tu ritual de belleza en tiempo real.
+                                    Introduce los detalles que recibiste en tu correo de confirmación para ver el estado de tu pedido en tiempo real.
                                 </p>
                             </div>
 
@@ -202,7 +202,7 @@ const TrackOrder: React.FC = () => {
                                 <div className="bg-white/5 px-8 py-6 border-b border-white/5">
                                     <h3 className="text-xs font-black uppercase tracking-[0.2em] text-white/40 flex items-center gap-2">
                                         <span className="material-symbols-outlined text-sm">shopping_basket</span>
-                                        Artículos en el Ritual
+                                        Artículos del pedido
                                     </h3>
                                 </div>
                                 <div className="p-8 md:p-10 space-y-8">

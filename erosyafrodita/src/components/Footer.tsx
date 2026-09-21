@@ -1,6 +1,5 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import logoEros from "../assets/logo-eros.png";
 
 const Footer: React.FC = () => (
   <footer className="bg-charcoal border-t border-white/10 mt-auto">
@@ -10,7 +9,7 @@ const Footer: React.FC = () => (
         <div className="md:col-span-1">
           <div className="flex items-center gap-2 mb-3">
             <img
-              src={logoEros}
+              src="/AGE-SVG.jpeg"
               alt="AGE Parfums"
               className="size-6 rounded-full object-cover"
             />
@@ -19,8 +18,8 @@ const Footer: React.FC = () => (
             </span>
           </div>
           <p className="text-[11px] leading-relaxed">
-            Tienda de lujo en fragancias y cosmética, seleccionando solo las
-            esencias más exclusivas.
+            Tienda de lujo en perfumería y cosmética, seleccionando solo los
+            productos más exclusivos.
           </p>
         </div>
 

@@ -73,7 +73,7 @@ const Wishlist: React.FC = () => {
           <div className="relative z-10 text-center md:text-left">
             <h3 className="text-xl sm:text-2xl font-black mb-2 uppercase tracking-tight text-white">¿Buscas algo específico?</h3>
             <p className="text-gray-400 text-xs sm:text-sm font-light max-w-md">
-              Nuestros expertos en perfumería pueden ayudarte a encontrar tu aroma ideal entre las esencias más exclusivas del Olimpo.
+              Nuestro equipo puede ayudarte a encontrar el producto ideal para ti entre nuestra selección exclusiva.
             </p>
           </div>
           <Link

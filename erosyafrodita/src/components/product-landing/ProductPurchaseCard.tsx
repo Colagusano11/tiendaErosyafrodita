@@ -56,18 +56,25 @@ export const ProductPurchaseCard: React.FC<ProductPurchaseCardProps> = ({
 
   return (
     <section id="comprar" className="w-full bg-perfume-sand text-perfume-green font-display py-16 md:py-24 border-b border-perfume-sand-dark">
-      <div className="w-full max-w-[950px] mx-auto px-4">
+      <div className="w-full max-w-[1440px] mx-auto px-4 md:px-10">
         
         {/* Contenedor de Compra Adaptado a la Estética Premium */}
         <div className="bg-white border border-perfume-sand-dark rounded-[2.5rem] p-8 md:p-14 grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-14 items-center shadow-md">
           
           {/* Miniatura del producto (Izquierda) */}
           <div className="md:col-span-5 bg-perfume-sand-dark p-6 rounded-3xl aspect-square flex items-center justify-center border border-perfume-sand-dark/60 shadow-inner">
-            <img
-              src={product.imagen || "/uploads/lacoste1.jpg"}
-              alt={name}
-              className="max-w-[85%] max-h-[85%] object-contain"
-            />
+            {product.imagen ? (
+              <img
+                src={product.imagen}
+                alt={name}
+                className="max-w-[85%] max-h-[85%] object-contain"
+              />
+            ) : (
+              <div className="flex flex-col items-center gap-2 text-perfume-green/20">
+                <span className="material-symbols-outlined text-5xl">hide_image</span>
+                <span className="text-[10px] font-black uppercase tracking-wider">Sin imagen</span>
+              </div>
+            )}
           </div>
 
           {/* Información y Compra (Derecha) */}
@@ -78,14 +85,19 @@ export const ProductPurchaseCard: React.FC<ProductPurchaseCardProps> = ({
               <span>Envío Gratis · Stock Disponible</span>
             </div>
 
+            {/* Marca */}
+            <span className="text-[10px] font-black text-perfume-green/50 uppercase tracking-widest mb-1">
+              {brand}
+            </span>
+
             {/* Nombre y Tamaño */}
             <h3 className="text-xl md:text-2xl font-black text-perfume-green mb-3 uppercase tracking-tight">
-              {brand} {name.split(" ").slice(1).join(" ")} · {size}
+              {name} · {size}
             </h3>
-            
+
             {/* Descripción */}
-            <p className="text-xs text-perfume-green/70 font-light leading-relaxed mb-6">
-              {product.descripcion || "Eau de Toilette vaporisateur natural spray. Fragancia 100% original y sellada, lista para enviar hoy mismo."}
+            <p className="text-lg text-perfume-green/70 font-light leading-relaxed mb-6">
+              {product.descripcion || "Producto 100% original y sellado, listo para enviar hoy mismo."}
             </p>
 
             {/* Precios y Descuento */}

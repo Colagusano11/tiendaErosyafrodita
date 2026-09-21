@@ -549,7 +549,7 @@ const Checkout: React.FC = () => {
               <span className="text-charcoal/20">/</span>
               <span className="text-charcoal/40">Pago</span>
               <span className="text-charcoal/20">/</span>
-              <span className="text-charcoal/40">Olimpo</span>
+              <span className="text-charcoal/40">Confirmación</span>
             </nav>
           </div>
 

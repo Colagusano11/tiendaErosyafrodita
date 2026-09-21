@@ -37,7 +37,7 @@ const CookieBanner: React.FC = () => {
               <div className="space-y-1.5 sm:space-y-2">
                 <h4 className="text-white font-black uppercase tracking-widest text-[10px] sm:text-xs">Experiencia Divina</h4>
                 <p className="text-white/60 text-[10px] sm:text-[11px] leading-relaxed font-medium">
-                  Utilizamos cookies para personalizar tu viaje olfativo y mejorar la experiencia en el Olimpo. 
+                  Utilizamos cookies para personalizar tu experiencia y mejorar tu visita a la tienda.
                   Al continuar, aceptas nuestra <Link to="/legal/privacidad" className="text-primary hover:underline">Política de Privacidad</Link>.
                 </p>
               </div>

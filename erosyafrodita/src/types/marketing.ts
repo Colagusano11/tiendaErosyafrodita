@@ -23,4 +23,27 @@ export interface ProductMarketingContent {
     title: string;
     desc: string;
   }[];
+  testimonials?: {
+    name: string;
+    text: string;
+    rating?: number;
+    photo?: string;
+  }[];
+  beforeAfter?: {
+    beforeImage: string;
+    afterImage: string;
+    caption?: string;
+    weeks?: number;
+  }[];
+  videoUrl?: string;
+  videoPoster?: string;
+  youtubeUrl?: string;
+  audienceFit?: {
+    title: string;
+    description: string;
+  }[];
+  productInfo?: string;
+  application?: string;
+  ingredients?: string;
+  manufacturerInfo?: string;
 }

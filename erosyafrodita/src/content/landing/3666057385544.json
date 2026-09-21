@@ -1,0 +1,64 @@
+{
+  "brand": "Clarins",
+  "claim": "Bronceado natural y uniforme sin exponerte al sol, con un 96% de ingredientes de origen natural.",
+  "shortDescription": "Gel autobronceador de la firma francesa Clarins para rostro y cuerpo, de textura fresca y no grasa que se funde al instante en la piel. Combina DHA y eritrulosa de origen vegetal (SelfTan Complex) con aloe vera y glicerina para lograr un moreno progresivo y natural, sin manchas ni efecto anaranjado.",
+  "productInfo": "Self Tan Instant Gel de Clarins, formato de 125ml. Textura en gel ligera de rápido secado, formulada para rostro y cuerpo. Al no llevar filtro solar, se usa como bronceado cosmético fuera de la exposición al sol, no como protección solar.",
+  "application": "Aplicar sobre piel limpia, seca y previamente exfoliada e hidratada, con movimientos circulares de la palma de la mano, evitando cejas y nacimiento del pelo. Lavarse bien las manos con jabón justo después y esperar unos minutos antes de vestirse. Puede reaplicarse 3-4 veces por semana para intensificar y mantener el tono de forma progresiva.",
+  "ingredients": "SelfTan Complex: combinación de DHA (dihidroxiacetona) y eritrulosa, dos azúcares de origen vegetal que reaccionan con la piel para generar el efecto bronceado sin necesidad de sol. Se completa con aloe vera y glicerina, que aportan hidratación y ayudan a un resultado más uniforme y de aspecto natural.",
+  "manufacturerInfo": "Clarins es una firma francesa de belleza fundada en 1954, pionera en el uso de extractos vegetales en cosmética y reconocida internacionalmente por sus tratamientos faciales y corporales de alta gama.",
+  "benefits": [
+    "Bronceado natural y progresivo, sin manchas ni efecto anaranjado",
+    "Fórmula con un 96% de ingredientes de origen natural, textura ligera y de rápida absorción",
+    "Se aplica y seca al instante: puede vestirse justo después"
+  ],
+  "recommendedFor": [
+    "Pieles que buscan un moreno uniforme sin exponerse al sol"
+  ],
+  "audienceFit": [
+    {
+      "title": "Quiere evitar la exposición solar",
+      "description": "Si prefieres cuidar tu piel del fotoenvejecimiento o simplemente evitar el sol directo, este gel te da un tono bronceado sin necesidad de radiación UV."
+    },
+    {
+      "title": "Piel clara que busca un tono uniforme",
+      "description": "El SelfTan Complex actúa de forma gradual, lo que ayuda a lograr un resultado uniforme incluso en pieles que suelen broncearse de forma irregular al sol."
+    },
+    {
+      "title": "Necesita un resultado rápido para una ocasión concreta",
+      "description": "Al secarse al instante y no requerir aclarado, es una opción práctica para tener un tono bronceado de cara a un evento sin planificar días de exposición solar."
+    },
+    {
+      "title": "Rutina de mantenimiento del moreno",
+      "description": "Aplicado 3-4 veces por semana ayuda a mantener y prolongar un bronceado ya existente durante todo el año, no solo en verano."
+    }
+  ],
+  "recommendedOccasions": [],
+  "season": ["Primavera", "Verano"],
+  "faqs": [
+    {
+      "question": "¿Se puede usar en la cara y en el cuerpo?",
+      "answer": "Sí, está formulado para ambas zonas. Solo hay que evitar la zona de las cejas y el nacimiento del pelo al aplicarlo."
+    },
+    {
+      "question": "¿Deja manchas en la ropa o en las sábanas?",
+      "answer": "El gel se seca muy rápido y se funde al instante en la piel, por lo que puede vestirse pasados unos minutos de la aplicación sin riesgo de manchar la ropa."
+    },
+    {
+      "question": "¿Lleva protección solar?",
+      "answer": "No, es un autobronceador cosmético sin filtro SPF. Si vas a exponerte al sol, necesitas aplicar tu protector solar habitual aparte."
+    },
+    {
+      "question": "¿Cada cuánto hay que aplicarlo?",
+      "answer": "Para un resultado progresivo y duradero, el fabricante recomienda aplicarlo entre 3 y 4 veces por semana."
+    },
+    {
+      "question": "¿Es normal que tenga un tono amarillento en el bote?",
+      "answer": "Sí, el gel lleva un ligero tinte guía para facilitar una aplicación uniforme, que desaparece a medida que el color se desarrolla sobre la piel."
+    }
+  ],
+  "videoUrl": "/uploads/clarins-autobronceador/clarins-ambiente.mp4",
+  "seoTitle": "Gel Autobronceador Rostro y Cuerpo Clarins 125ml",
+  "seoDescription": "Gel autobronceador Clarins 125ml para rostro y cuerpo. Bronceado natural y uniforme sin sol, 96% ingredientes naturales. Descúbrelo en AGE Parfums.",
+  "testimonials": [],
+  "beforeAfter": []
+}

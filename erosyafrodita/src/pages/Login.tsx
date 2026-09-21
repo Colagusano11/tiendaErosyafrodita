@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useAlert } from '../context/AlertContext';
-import logoEros from '../assets/logo-eros.png';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -54,7 +53,7 @@ const Login: React.FC = () => {
       if (sessionStorage.getItem('justVerified') === 'true') {
         sessionStorage.removeItem('justVerified');
         showConfirm(
-          "¡Bienvenido al Olimpo!",
+          "¡Cuenta activada!",
           "Tu cuenta ha sido activada con éxito. Te recomendamos completar tu perfil con tu nombre y dirección para agilizar tus futuros pedidos.",
           () => navigate('/profile?tab=datos'),
           "info",
@@ -173,7 +172,7 @@ const Login: React.FC = () => {
     <div className="bg-background-light text-charcoal font-display min-h-screen flex flex-col antialiased selection:bg-primary selection:text-black">
       <header className="flex items-center justify-between whitespace-nowrap px-6 py-4 lg:px-10 lg:py-6 w-full sm:absolute sm:top-0 sm:left-0 z-20">
         <div className="flex items-center gap-3 text-charcoal cursor-pointer hover:opacity-80 transition-opacity" onClick={() => navigate('/')}>
-          <img src={logoEros} alt="AGE Parfums" className="size-8 rounded-full object-cover" />
+          <img src="/AGE-SVG.jpeg" alt="AGE Parfums" className="size-10 sm:size-12 rounded-full object-cover shadow-lg shadow-primary/20" />
           <h2 className="text-charcoal text-lg sm:text-xl font-bold tracking-tight">AGE Parfums</h2>
         </div>
         <Link to="/" className="text-charcoal/70 hover:text-primary text-xs sm:text-sm font-medium transition-colors hidden sm:block">Volver a la tienda</Link>
@@ -182,17 +181,8 @@ const Login: React.FC = () => {
       <main className="flex-1 flex items-center justify-center p-4 lg:p-8 relative overflow-hidden min-h-[calc(100vh-80px)] sm:min-h-screen">
         <div className="absolute -top-[20%] -left-[10%] w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
         
-        <div className="w-full max-w-[1100px] bg-surface-dark/90 backdrop-blur-xl border border-border-gold rounded-2xl shadow-2xl overflow-hidden flex flex-col lg:flex-row min-h-[500px] sm:min-h-[650px]">
-          <div className="relative hidden lg:flex w-full lg:w-1/2 bg-surface-dark items-center justify-center overflow-hidden">
-            <div className="absolute inset-0 bg-cover bg-center transition-transform duration-[20s] ease-linear group-hover:scale-110" style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuC6wxGixQtU2utnCurP9NAMCX_QMCCHPlJYLMpzkMHGP4qjdHPh3Gdq_CPRqaYiHL_het1GXGa06XhVcKF5Lwy-5p4edZFrbPjsuYNk9OJVjdEdqWkCFTaej7JFdx1z3g09AxAUWiWmhvNphSKKErG6HWPLhh9GOJBn6IJUX6hUcZOtd2mcSp526s4IF0s0yJxNzxe5zalA3hZiFNtmyjPIJNlOOG5BC6_BQZSWutrJM_PZG3w9XD3ICtr_7f1CqcbMvCnh7BnPec_p')" }} />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-            <div className="relative z-10 p-12 text-center max-w-md">
-              <h3 className="text-3xl font-bold text-white mb-4">La esencia del lujo eterno.</h3>
-              <p className="text-gray-300 text-lg font-light leading-relaxed">Fragancias que despiertan los sentidos y realzan tu belleza natural.</p>
-            </div>
-          </div>
-
-          <div className="w-full lg:w-1/2 p-6 md:p-12 flex flex-col justify-center bg-surface-dark/50">
+        <div className="w-full max-w-[520px] bg-surface-dark/90 backdrop-blur-xl border border-border-gold rounded-2xl shadow-2xl overflow-hidden">
+          <div className="w-full p-6 md:p-12 flex flex-col justify-center bg-surface-dark/50">
             {/* Feedback Global */}
             {error && <div className="mb-6 p-4 rounded-[1.5rem] text-[10px] sm:text-xs font-black bg-rose-500/10 border border-rose-500/30 text-rose-400 animate-in fade-in slide-in-from-top-2 uppercase tracking-widest">{error}</div>}
             {success && <div className="mb-6 p-4 rounded-[1.5rem] text-[10px] sm:text-xs font-black bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 animate-in fade-in slide-in-from-top-2 uppercase tracking-widest">{success}</div>}

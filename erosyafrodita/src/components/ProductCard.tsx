@@ -97,7 +97,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onHide, rank }) => {
       transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
-      className="group relative flex flex-col rounded-2xl bg-charcoal-surface border border-white/5 hover:border-primary/25 transition-all duration-300 overflow-hidden cursor-pointer shadow-md hover:shadow-2xl hover:shadow-primary/10"
+      className="group relative flex flex-col rounded-2xl bg-charcoal-surface border border-charcoal/8 hover:border-primary/40 transition-all duration-300 overflow-hidden cursor-pointer shadow-md hover:shadow-2xl hover:shadow-primary/10"
     >
       {/* Full-card link */}
       <Link
@@ -198,13 +198,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onHide, rank }) => {
       {/* ── Info area ── */}
       <div className="flex flex-col gap-1.5 p-3 pt-2.5">
         {brand && (
-          <p className="text-[9px] font-bold text-primary/70 uppercase tracking-widest">
+          <p className="text-[9px] font-bold text-charcoal/50 uppercase tracking-widest">
             {brand}
           </p>
         )}
         <h3
           className={`text-[11px] sm:text-xs font-semibold leading-snug line-clamp-2 min-h-[2.4rem] transition-colors ${
-            outOfStock ? "text-white/50" : "text-white group-hover:text-primary"
+            outOfStock ? "text-charcoal/40" : "text-charcoal group-hover:underline"
           }`}
         >
           {name}
@@ -244,8 +244,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onHide, rank }) => {
                 aria-label={outOfStock ? "Avisarme cuando haya stock" : "Añadir al carrito"}
                 className={`relative z-10 size-9 rounded-full flex items-center justify-center transition-all duration-300 ${
                   outOfStock
-                    ? "bg-primary/15 text-primary hover:bg-primary hover:text-charcoal border border-primary/30"
-                    : "bg-white/8 hover:bg-primary text-gray-300 hover:text-charcoal border border-white/8"
+                    ? "bg-primary/15 text-charcoal hover:bg-primary hover:text-charcoal border border-primary/30"
+                    : "bg-charcoal/5 hover:bg-primary text-charcoal/60 hover:text-charcoal border border-charcoal/10"
                 }`}
               >
                 <span className="material-symbols-outlined !text-[16px]">

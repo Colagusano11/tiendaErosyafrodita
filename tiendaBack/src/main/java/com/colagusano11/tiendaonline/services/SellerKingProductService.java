@@ -20,7 +20,10 @@ import java.util.Optional;
  *   4. Si ya existe → UPDATE  (accion="ACTUALIZADO") — nunca se sobreescribe precioPVP
  *      si el admin ya lo modificó manualmente (precio != precioPVP recibido)
  *
- * El slug lo genera automáticamente Producto#generarSlug() en @PrePersist/@PreUpdate.
+ * El slug lo genera automáticamente Producto#generarSlug() en @PrePersist/@PreUpdate,
+ * salvo que SellerKing mande uno explícito (dto.getSlug()) — caso de productos ancla
+ * con landing propia para campañas de Meta Ads, donde el slug se controla desde la
+ * ficha web de SellerKing en vez de derivarse del nombre.
  * El precio de coste interno (campo `precio`) se inicializa al precioPVP recibido
  * solo en la creación, como valor temporal hasta que el admin lo ajuste.
  */
@@ -62,6 +65,7 @@ public class SellerKingProductService {
         if (dto.getImagen3()     != null) producto.setImagen3(dto.getImagen3());
         if (dto.getImagen4()     != null) producto.setImagen4(dto.getImagen4());
         if (dto.getStock()       != null) producto.setStock(dto.getStock());
+        if (dto.getSlug() != null && !dto.getSlug().isBlank()) producto.setSlug(dto.getSlug());
         producto.setNuevo(dto.isNuevo());
 
         // PVP: siempre se actualiza con lo que manda SellerKing
@@ -71,10 +75,12 @@ public class SellerKingProductService {
 
         // precio (coste interno): solo se inicializa en la primera creación.
         // Si ya existe, el admin es responsable de este campo.
+        // Prioridad: precioCoste real del proveedor > precioPVP como último recurso
+        // (ese último recurso deja margen 0 y validarMargen() desactivará el producto).
         if (esNuevo) {
-            BigDecimal precioInicial = dto.getPrecioPVP() != null
-                    ? dto.getPrecioPVP()
-                    : BigDecimal.ONE; // fallback de seguridad para pasar @NotNull
+            BigDecimal precioInicial = dto.getPrecioCoste() != null
+                    ? dto.getPrecioCoste()
+                    : (dto.getPrecioPVP() != null ? dto.getPrecioPVP() : BigDecimal.ONE);
             producto.setPrecio(precioInicial);
             producto.setActivo(true);
         }
@@ -106,6 +112,7 @@ public class SellerKingProductService {
         if (dto.getImagen4()     != null) producto.setImagen4(dto.getImagen4());
         if (dto.getStock()       != null) producto.setStock(dto.getStock());
         if (dto.getPrecioPVP()   != null) producto.setPrecioPVP(dto.getPrecioPVP());
+        if (dto.getSlug() != null && !dto.getSlug().isBlank()) producto.setSlug(dto.getSlug());
         producto.setNuevo(dto.isNuevo());
 
         Producto guardado = productoRepository.save(producto);

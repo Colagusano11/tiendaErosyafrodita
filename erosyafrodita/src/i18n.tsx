@@ -6,7 +6,7 @@ export const DEFAULT_LANGUAGE: SupportedLanguage = 'es';
 const messages: Record<SupportedLanguage, Record<string, any>> = {
   es: {
     header: {
-      searchPlaceholder: 'Encuentra tu esencia...',
+      searchPlaceholder: 'Buscar productos...',
       wishlist: 'Favoritos',
       cart: 'Carrito',
       admin: 'Administración',

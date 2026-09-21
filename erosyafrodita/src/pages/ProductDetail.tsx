@@ -19,8 +19,14 @@ import StockAlertModal from "../components/StockAlertModal";
 
 import { getMarketingContent } from "../config/marketingDemo";
 import { FragranceProfileGrid } from "../components/product-landing/FragranceProfileGrid";
-import { ProductVideoSection } from "../components/product-landing/ProductVideoSection";
 import { ProductGalleryGrid } from "../components/product-landing/ProductGalleryGrid";
+import { ProductInfoTabs } from "../components/product-landing/ProductInfoTabs";
+import { ProductBenefits } from "../components/product-landing/ProductBenefits";
+import { ProductAudienceFit } from "../components/product-landing/ProductAudienceFit";
+import { ProductTestimonials } from "../components/product-landing/ProductTestimonials";
+import { ProductBeforeAfter } from "../components/product-landing/ProductBeforeAfter";
+import { ProductTrustBar } from "../components/product-landing/ProductTrustBar";
+import { ProductPurchaseCard } from "../components/product-landing/ProductPurchaseCard";
 import { ProductFAQAccordion } from "../components/product-landing/ProductFAQAccordion";
 
 // Marcas curadas de Novedades (Sincronizado con Home)
@@ -220,7 +226,7 @@ const ProductDetail: React.FC = () => {
       <div className="bg-background-dark text-text-main font-display flex flex-col min-h-screen">
         <Header />
         <main className="flex-grow flex items-center justify-center">
-          <div className="animate-pulse text-primary font-bold">Cargando esencia...</div>
+          <div className="animate-pulse text-primary font-bold">Cargando producto...</div>
         </main>
         <Footer />
       </div>
@@ -255,12 +261,14 @@ const ProductDetail: React.FC = () => {
 
   const marketingContent = product ? getMarketingContent(product.ean) : null;
   const seoTitle = product.tituloSeo
+    ?? marketingContent?.seoTitle
     ?? `${name} | AGE Parfums`;
 
   const seoDescription = product.descripcionSeo
+    ?? marketingContent?.seoDescription
     ?? (product.descripcion
         ? product.descripcion.replace(/<[^>]+>/g, "").slice(0, 155)
-        : `Descubre ${name} de ${brand}. Fragancia exclusiva con envío gratis en AGE Parfums.`);
+        : `Descubre ${name} de ${brand}. Envío gratis en AGE Parfums.`);
 
   return (
     <div className="bg-background-dark text-text-main font-display flex flex-col min-h-screen">
@@ -268,7 +276,7 @@ const ProductDetail: React.FC = () => {
         title={seoTitle}
         description={seoDescription}
         image={mainImg || undefined}
-        keywords={`${name}, ${brand}, perfumes de lujo, AGE Parfums, comprar perfume online`}
+        keywords={`${name}, ${brand}, ${product.categoria || ''}, AGE Parfums`}
         type="product"
         price={precioFinal.toFixed(2)}
         availability={product.stock > 0 ? 'in stock' : 'out of stock'}
@@ -444,28 +452,6 @@ const ProductDetail: React.FC = () => {
                 <span className="text-charcoal/60">{product.ean || "—"}</span>
               </div>
 
-              {marketingContent && (
-                <div className="mb-6 border-l-2 border-primary/45 pl-4 py-1.5 bg-charcoal/[0.02] rounded-r-xl">
-                  <p className="text-primary text-sm font-extrabold uppercase tracking-wider mb-2">
-                    {marketingContent.claim}
-                  </p>
-                  <p className="text-charcoal/80 text-sm font-normal leading-relaxed max-w-lg font-sans">
-                    {marketingContent.shortDescription}
-                  </p>
-                </div>
-              )}
-
-              {product.descripcion && product.descripcion.includes("<") ? (
-                <div 
-                  className="premium-description-container mb-8 max-w-lg"
-                  dangerouslySetInnerHTML={{ __html: product.descripcion }}
-                />
-              ) : (
-                <p className="text-charcoal/80 text-sm leading-relaxed mb-8 max-w-lg font-normal font-sans">
-                  {product.descripcion || "Una obra maestra olfativa diseñada para aquellos que buscan dejar una huella divina. Ingredientes seleccionados para garantizar la máxima pureza y longevidad en la piel."}
-                </p>
-              )}
-
               {/* Desplegable de Características (Estilo Amazon) */}
               <div className="border-t border-charcoal/10 mt-2 mb-8 pt-4">
                 <button
@@ -602,12 +588,47 @@ const ProductDetail: React.FC = () => {
           </div>
         </div>
 
-        {/* --- SECCIONES DE MARKETING ADAPTADAS (PERFUME LACOSTE/ROCHAS/ADOLFO DOMINGUEZ) --- */}
+        {/* Pestañas de información (Descripción/Info/Aplicación/Ingredientes/Fabricante) — justo después del hero, antes de la galería */}
+        <ProductInfoTabs product={product} marketing={marketingContent} />
+
+        {/* Galería editorial. Solo tiene sentido si hay algo más que la foto principal (ya visible en el hero): fotos secundarias o vídeo. Los productos de relleno con una única foto no la muestran. */}
+        {product.imagen && (() => {
+          const gallerySecondaryImages = [product.imagen2, product.imagen3, product.imagen4]
+            .filter((url): url is string => typeof url === "string" && url.trim().length > 0)
+            .map((src) => ({ src, alt: name }));
+          const galleryVideo = marketingContent?.videoUrl || marketingContent?.youtubeUrl ? {
+            url: marketingContent.videoUrl ?? "",
+            poster: marketingContent.videoPoster,
+            youtubeUrl: marketingContent.youtubeUrl,
+          } : undefined;
+
+          if (gallerySecondaryImages.length === 0 && !galleryVideo) return null;
+
+          return (
+            <ProductGalleryGrid
+              mainImage={product.imagen}
+              mainAlt={name}
+              secondaryImages={gallerySecondaryImages}
+              video={galleryVideo}
+            />
+          );
+        })()}
+
+        {/* --- Beneficios → confianza → dudas → compra: escalera directa hacia la venta --- */}
         {marketingContent && (
           <div className="space-y-4">
             <FragranceProfileGrid marketing={marketingContent} />
-            <ProductVideoSection product={product} marketing={marketingContent} />
-            <ProductGalleryGrid />
+            <ProductBenefits marketing={marketingContent} />
+            <ProductAudienceFit marketing={marketingContent} />
+            <ProductTestimonials marketing={marketingContent} />
+            <ProductBeforeAfter marketing={marketingContent} />
+            <ProductTrustBar />
+            <ProductFAQAccordion marketing={marketingContent} />
+            <ProductPurchaseCard
+              product={product}
+              marketing={marketingContent}
+              onNotifyStock={handleNotify}
+            />
           </div>
         )}
 
@@ -616,7 +637,7 @@ const ProductDetail: React.FC = () => {
           <section className="mb-24 py-16 px-4 md:px-10 bg-gradient-to-r from-primary/5 via-transparent to-transparent rounded-[3rem] border-l border-primary/20">
             <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-6">
               <div>
-                <h3 className="text-2xl font-black text-charcoal tracking-tighter">Joyas del <span className="text-primary italic font-serif">Olimpo</span></h3>
+                <h3 className="text-2xl font-black text-charcoal tracking-tighter">También te puede interesar</h3>
                 <p className="text-[10px] font-black uppercase tracking-[0.3em] text-charcoal/30 mt-2">Novedades recomendadas para ti</p>
               </div>
               <Link to="/catalog?status=NUEVOS" className="text-[10px] font-black uppercase tracking-widest text-primary hover:text-charcoal transition-colors underline underline-offset-8">Ver todas las novedades</Link>
@@ -637,7 +658,7 @@ const ProductDetail: React.FC = () => {
           <div className="flex flex-col lg:flex-row gap-20">
             {/* Resumen de Ratings */}
             <div className="w-full lg:w-1/3">
-              <h3 className="text-2xl font-black mb-8 tracking-tighter">Voces del <span className="text-primary italic font-serif">Olimpo</span></h3>
+              <h3 className="text-2xl font-black mb-8 tracking-tighter">Opiniones de clientes</h3>
               <div className="flex items-center gap-6 mb-10">
                 <span className="text-7xl font-black text-primary">{reviewsTotal > 0 ? reviewsMedia.toFixed(1) : "—"}</span>
                 <div>
@@ -647,7 +668,7 @@ const ProductDetail: React.FC = () => {
                     ))}
                   </div>
                   <p className="text-[10px] font-black uppercase tracking-widest text-charcoal/30">
-                    {reviewsTotal > 0 ? `Basado en ${reviewsTotal} ritual${reviewsTotal !== 1 ? "es" : ""}` : "Sin valoraciones aún"}
+                    {reviewsTotal > 0 ? `Basado en ${reviewsTotal} ${reviewsTotal !== 1 ? "opiniones" : "opinión"}` : "Sin valoraciones aún"}
                   </p>
                 </div>
               </div>
@@ -677,13 +698,13 @@ const ProductDetail: React.FC = () => {
                 <h4 className="text-lg font-black mb-6 uppercase tracking-widest">Comparte tu Experiencia</h4>
 
                 {!isAuthenticated ? (
-                  <p className="text-charcoal/40 text-sm font-light">
+                  <p className="text-charcoal/40 text-xl font-light">
                     <Link to="/login" className="text-primary hover:underline font-bold">Inicia sesión</Link> para dejar una reseña.
                   </p>
                 ) : !hasPurchased ? (
                   <div className="flex flex-col gap-4">
-                    <p className="text-charcoal/40 text-sm font-light">
-                      Solo los usuarios que han <span className="text-primary font-bold italic">adquirido esta esencia</span> pueden compartir su experiencia.
+                    <p className="text-charcoal/40 text-xl font-light">
+                      Solo los usuarios que han <span className="text-primary font-bold italic">adquirido este producto</span> pueden compartir su experiencia.
                     </p>
                     <div className="p-4 rounded-2xl bg-primary/5 border border-primary/10 inline-block w-fit">
                       <span className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-2">
@@ -708,8 +729,8 @@ const ProductDetail: React.FC = () => {
                       ))}
                     </div>
                     <textarea
-                      className="w-full bg-charcoal/10 border border-charcoal/10 rounded-3xl p-6 text-sm focus:border-primary/50 outline-none h-32 mb-4 font-light text-charcoal/70 placeholder:text-charcoal/20 transition-all"
-                      placeholder="Describe cómo te hizo sentir esta fragancia..."
+                      className="w-full bg-charcoal/10 border border-charcoal/10 rounded-3xl p-6 text-xl focus:border-primary/50 outline-none h-40 mb-4 font-light text-charcoal/70 placeholder:text-charcoal/20 transition-all"
+                      placeholder="Cuéntanos tu experiencia con este producto..."
                       value={newComment}
                       onChange={e => setNewComment(e.target.value)}
                     />
@@ -719,7 +740,7 @@ const ProductDetail: React.FC = () => {
                       disabled={submitting}
                       className="px-10 py-4 bg-primary text-charcoal rounded-full text-[10px] font-black uppercase tracking-[0.2em] hover:bg-white hover:scale-105 transition-all shadow-lg shadow-primary/10 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {submitting ? "Publicando..." : "Publicar en el Olimpo"}
+                      {submitting ? "Publicando..." : "Publicar reseña"}
                     </button>
                   </>
                 )}
@@ -728,7 +749,7 @@ const ProductDetail: React.FC = () => {
               {/* Comentarios */}
               <div className="space-y-12">
                 {reviews.length === 0 && (
-                  <p className="text-charcoal/30 text-sm font-light italic">Aún no hay reseñas. ¡Sé el primero!</p>
+                  <p className="text-charcoal/30 text-xl font-light italic">Aún no hay reseñas. ¡Sé el primero!</p>
                 )}
                 {reviews.map(r => (
                   <motion.div
@@ -751,7 +772,7 @@ const ProductDetail: React.FC = () => {
                         {new Date(r.fecha).toLocaleDateString("es-ES", { day: "2-digit", month: "short", year: "numeric" })}
                       </span>
                     </div>
-                    {r.comentario && <p className="text-charcoal/50 text-sm leading-relaxed italic font-light">"{r.comentario}"</p>}
+                    {r.comentario && <p className="text-charcoal/50 text-xl leading-relaxed italic font-light">"{r.comentario}"</p>}
                   </motion.div>
                 ))}
               </div>

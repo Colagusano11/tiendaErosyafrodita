@@ -4,7 +4,7 @@
 //  Para cambiar el descuento: modificar LAUNCH_DISCOUNT (0.10 = 10%)
 // ============================================================
 
-export const LAUNCH_PROMO_ACTIVE = true;
+export const LAUNCH_PROMO_ACTIVE = false;
 export const LAUNCH_DISCOUNT = 0.10; // 10%
 
 /** Devuelve el precio final aplicando la promo si está activa */

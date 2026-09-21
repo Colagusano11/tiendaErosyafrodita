@@ -18,7 +18,7 @@ export const RelatedProducts: React.FC<RelatedProductsProps> = ({ recomendados }
         <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-6">
           <div>
             <span className="text-[10px] font-black uppercase tracking-[0.3em] text-perfume-green/60 block mb-2">
-              Sugerencias del Olimpo
+Recomendados para ti
             </span>
             <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tight text-perfume-green">
               Joyas Recomendadas

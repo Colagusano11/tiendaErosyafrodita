@@ -95,7 +95,7 @@ const OrderDetailPage: React.FC = () => {
         manufacturer: ""
       } as any as Producto, prod.cantidad, false);
     });
-    showAlert("Ritual Reinvocado", "Hemos añadido los artículos de este ritual a tu bolsa divina.", "success");
+    showAlert("Pedido añadido", "Hemos añadido los artículos de este pedido a tu carrito.", "success");
     navigate("/cart");
   };
 
@@ -286,7 +286,7 @@ const OrderDetailPage: React.FC = () => {
 
                       {/* Dirección Integrada */}
                       <div className="mt-6 pt-4 border-t border-charcoal/10">
-                        <p className="text-primary/60 text-[10px] uppercase font-black tracking-widest mb-2">Destino del Ritual</p>
+                        <p className="text-primary/60 text-[10px] uppercase font-black tracking-widest mb-2">Dirección de envío</p>
                         <p className="text-charcoal/60 text-sm font-medium leading-relaxed italic">
                           {pedido.nombre} {pedido.apellidos}<br />
                           {pedido.calle}<br />

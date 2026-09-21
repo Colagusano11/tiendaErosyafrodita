@@ -75,7 +75,7 @@ const LaunchModal: React.FC = () => {
                   <span className="text-primary">AGE Parfums</span>
                 </h2>
                 <p className="text-slate-400 text-[11px] sm:text-sm font-medium mt-1 sm:mt-2 leading-relaxed max-w-[280px] sm:max-w-none">
-                  Tu destino de perfumería y cosmética premium. Celebra nuestro lanzamiento con una oferta exclusiva.
+                  Tu tienda de belleza y cosmética premium. Celebra nuestro lanzamiento con una oferta exclusiva.
                 </p>
               </div>
 

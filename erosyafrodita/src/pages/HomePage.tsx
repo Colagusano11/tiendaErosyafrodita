@@ -9,7 +9,6 @@ import { useCart } from "../context/CartContext";
 import { useTranslation } from "../i18n";
 import { motion } from "framer-motion";
 import SEO from "../components/SEO";
-import homeHeader from "../assets/home-header.jpeg";
 
 // Las marcas se cargan ahora desde la configuración del backend.
 
@@ -78,28 +77,26 @@ const HomePage: React.FC = () => {
     (async () => {
       try {
         setLoading(true);
-        const { getProductos, getConfiguracion } = await import("../api/products");
-        
+        const { getProductos, getConfiguracion, getCategorias, getManufacturers } = await import("../api/products");
+
         // Cargar productos y configuración en paralelo
-        const [data, config] = await Promise.all([
+        const [data, config, categorias, marcas] = await Promise.all([
           getProductos(0, 200),
-          getConfiguracion()
+          getConfiguracion(),
+          getCategorias(),
+          getManufacturers()
         ]);
 
         const content: Producto[] = data.content || [];
         const withImage = content.filter(p => !!p.imagen && p.stock > 0);
 
-        // Marcas y categorías realmente disponibles ahora mismo (catálogo en vivo,
-        // no una lista fija) — así el marquee y las pastillas de categoría se
-        // adaptan solos según lo que subas a la tienda.
-        const brandSet = new Set<string>();
-        const categorySet = new Set<string>();
-        withImage.forEach(p => {
-          if (p.manufacturer) brandSet.add(p.manufacturer.trim());
-          if (p.categoria) categorySet.add(p.categoria.trim());
-        });
-        setAvailableBrands(Array.from(brandSet).sort((a, b) => a.localeCompare(b)));
-        setAvailableCategories(categorySet);
+        // Marcas y categorías realmente disponibles en TODO el catálogo (no solo en la
+        // página de 200 productos de arriba, que viene ordenada por precio ascendente y
+        // por eso podía dejar fuera categorías/marcas cuyos únicos productos son caros —
+        // ej. "Cabello" no aparecía porque su único producto, más caro que la mayoría del
+        // relleno, quedaba fuera de los 200 más baratos).
+        setAvailableBrands([...marcas].sort((a, b) => a.localeCompare(b)));
+        setAvailableCategories(new Set(categorias));
 
         // Parsear marcas desde config
         const novedadesBrands = config.novedadesBrands 
@@ -115,6 +112,11 @@ const HomePage: React.FC = () => {
             p.manufacturer!.toUpperCase().includes(b)
           );
 
+        // Los productos "enriquecidos" (ficha completa + landing propia: producto.nuevo=true
+        // en BBDD) son los que realmente queremos vender — van siempre primero en Novedades,
+        // por encima incluso de la lista de marcas del config.
+        const isNovedadProduct = (p: Producto) => p.nuevo === true || isNovedadBrand(p);
+
         const isRecomendadoBrand = (p: Producto) =>
           !!p.manufacturer &&
           recomendadosBrands.some((b: string) =>
@@ -122,8 +124,8 @@ const HomePage: React.FC = () => {
           );
 
         // --- NOVEDADES ---
-        const novedadesBranded = shuffleArray(withImage.filter(isNovedadBrand));
-        const novedadesExtra = shuffleArray(withImage.filter(p => !isNovedadBrand(p)));
+        const novedadesBranded = shuffleArray(withImage.filter(isNovedadProduct));
+        const novedadesExtra = shuffleArray(withImage.filter(p => !isNovedadProduct(p)));
         const novedadesAll = [...novedadesBranded, ...novedadesExtra];
         setNovedadesPool(novedadesAll);
 
@@ -131,7 +133,7 @@ const HomePage: React.FC = () => {
 
         // --- OFERTA DE LA SEMANA ---
         const conDescuento = withImage.filter(p => p.precioPVP > p.precio);
-        const highAppealConDescuento = conDescuento.filter(isNovedadBrand);
+        const highAppealConDescuento = conDescuento.filter(isNovedadProduct);
         const ofertaPool = highAppealConDescuento.length > 0 ? highAppealConDescuento : conDescuento;
         const ofertaCandidate = ofertaPool
           .sort((a, b) => (b.precioPVP - b.precio) - (a.precioPVP - a.precio))[0] ?? null;
@@ -163,9 +165,9 @@ const HomePage: React.FC = () => {
   return (
     <div className="bg-white text-charcoal font-display flex flex-col min-h-screen relative">
       <SEO
-        title="AGE Parfums | Ritual de Belleza y Lujo"
-        description="Descubre nuestra exclusiva colección de perfumes y cosmética premium. Ritual de belleza inspirado en los dioses para hombres y mujeres."
-        keywords="perfumes de lujo, cosmética premium, AGE Parfums, belleza divina, fragancias exclusivas"
+        title="AGE Parfums | Perfumería y Cosmética de Lujo"
+        description="Descubre nuestra exclusiva colección de perfumes y cosmética premium para hombres y mujeres."
+        keywords="perfumes de lujo, cosmética premium, AGE Parfums, belleza, fragancias exclusivas"
       />
       {/* Schema.org JSON-LD para la Organización y Sitio Web */}
       <script type="application/ld+json">
@@ -204,81 +206,93 @@ const HomePage: React.FC = () => {
       <Header />
       <main className="flex-grow">
 
-        {/* Home Header Banner */}
-        <div className="w-full px-0 sm:px-4 lg:px-20 pb-4 sm:pb-6">
-          <div className="max-w-[1440px] mx-auto relative sm:px-0">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
+        {/* Hero editorial — sin foto, la marca y el buscador son el protagonista */}
+        <section className="w-full bg-perfume-sand border-b border-perfume-sand-dark px-4 lg:px-20 py-16 md:py-24">
+          <div className="max-w-[1440px] mx-auto text-center">
+            <motion.img
+              initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
-              className="w-full overflow-hidden rounded-xl sm:rounded-2xl shadow-2xl shadow-black/40 border border-white/5 bg-black"
+              transition={{ duration: 0.5 }}
+              src="/AGE-SVG.jpeg"
+              alt="AGE Parfums"
+              className="w-28 md:w-36 mx-auto mb-5"
+            />
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="text-[9px] md:text-[11px] font-black uppercase tracking-[0.5em] text-perfume-green/50 mb-5"
             >
-              <img
-                src={homeHeader}
-                alt="AGE Parfums — Colección"
-                className="w-full h-auto min-h-[200px] sm:min-h-[300px] lg:h-auto object-cover sm:object-cover"
-                style={{ objectPosition: window.innerWidth < 640 ? "right center" : "center center" }}
-              />
-              
-              {/* Texto "Mágico" solo para móvil (donde se corta la foto) */}
-              <div className="absolute inset-0 h-full w-full flex flex-col items-center justify-center p-4 text-center sm:hidden bg-black/10 backdrop-blur-[1px] z-10">
-                  <motion.h1 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5 }}
-                    className="text-2xl xs:text-3xl font-black text-white leading-none uppercase tracking-tighter drop-shadow-[0_4px_15px_rgba(0,0,0,1)]"
-                  >
-                    AGE <span className="text-primary italic font-serif">Parfums</span>
-                  </motion.h1>
-                  <motion.p 
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.8 }}
-                    className="mt-2 text-[9px] font-black uppercase tracking-[0.5em] text-primary drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
-                  >
-                    La Esencia Divina
-                  </motion.p>
+              Perfumería y Cosmética de Lujo
+            </motion.p>
+            <motion.h1
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15, duration: 0.6 }}
+              className="font-serif italic text-4xl md:text-6xl lg:text-7xl text-perfume-green leading-none tracking-tight mb-6"
+            >
+              AGE Parfums
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.35, duration: 0.6 }}
+              className="text-sm md:text-base text-perfume-green/70 font-light max-w-xl mx-auto mb-10 leading-relaxed"
+            >
+              Una selección curada de las firmas más exclusivas, para quienes entienden que el detalle lo es todo.
+            </motion.p>
+
+            {/* Buscador */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.5 }}
+              className="max-w-2xl mx-auto"
+            >
+              <div className="bg-white border border-perfume-sand-dark p-1 sm:p-1.5 rounded-full shadow-sm flex items-center group focus-within:border-perfume-green/40 transition-all duration-300">
+                <div className="size-8 sm:size-11 rounded-full bg-perfume-sand flex items-center justify-center text-perfume-green/40 group-focus-within:text-perfume-green transition-all shrink-0">
+                  <span className="material-symbols-outlined text-lg sm:text-xl">search</span>
+                </div>
+                <input
+                  type="text"
+                  name="q"
+                  autoComplete="off"
+                  spellCheck={false}
+                  placeholder="Busca marca, aroma o nombre..."
+                  className="flex-1 bg-transparent border-none outline-none px-2 sm:px-5 text-perfume-green text-sm font-light placeholder:text-perfume-green/30"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                          handleSearch();
+                      }
+                  }}
+                />
+                <button
+                  onClick={handleSearch}
+                  className="hidden sm:flex h-10 px-6 rounded-full bg-perfume-green text-perfume-sand text-[9px] font-black uppercase tracking-[0.2em] hover:bg-primary hover:text-perfume-green transition-all items-center justify-center"
+                >
+                  Buscar
+                </button>
               </div>
             </motion.div>
 
-            {/* BUSCADOR PREMIUM INTEGRADO - Optimizado para Mobile */}
-            <motion.div 
-               initial={{ opacity: 0, y: 10 }}
-               animate={{ opacity: 1, y: 0 }}
-               transition={{ delay: 0.3, duration: 0.5 }}
-               className="mt-4 sm:-mt-10 relative z-20 px-2 sm:px-0"
+            {/* CTA secundario */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.65, duration: 0.5 }}
             >
-              <div className="max-w-3xl mx-auto">
-                <div className="bg-charcoal/60 backdrop-blur-3xl border border-white/20 p-1.5 sm:p-2 rounded-full sm:rounded-[2.5rem] shadow-2xl shadow-black/50 flex items-center group focus-within:border-primary/50 transition-all duration-500">
-                  <div className="size-10 sm:size-14 rounded-full bg-white/5 flex items-center justify-center text-white/40 group-focus-within:text-primary group-focus-within:bg-primary/10 transition-all shrink-0">
-                    <span className="material-symbols-outlined text-xl sm:text-2xl">search</span>
-                  </div>
-                  <input 
-                    type="text" 
-                    name="q"
-                    autoComplete="off"
-                    spellCheck={false}
-                    placeholder="Busca marca, aroma o nombre..."
-                    className="flex-1 bg-transparent border-none outline-none px-3 sm:px-6 text-white text-sm sm:text-base font-light placeholder:text-white/40"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                            handleSearch();
-                        }
-                    }}
-                  />
-                  <button 
-                    onClick={handleSearch}
-                    className="hidden sm:flex h-12 px-8 rounded-full bg-primary text-charcoal text-[10px] font-black uppercase tracking-[0.2em] hover:bg-white transition-all items-center justify-center"
-                  >
-                    Buscar
-                  </button>
-                </div>
-              </div>
+              <Link
+                to="/catalog"
+                className="inline-flex items-center gap-2 mt-8 text-[10px] font-black uppercase tracking-[0.3em] text-perfume-green border-b border-perfume-green/40 pb-1 hover:border-perfume-green transition-all"
+              >
+                Descubrir la colección
+                <span className="material-symbols-outlined !text-[14px]">arrow_forward</span>
+              </Link>
             </motion.div>
           </div>
-        </div>
+        </section>
 
         {/* Categories Strip sanitized */}
         <div className="px-4 lg:px-6 py-4 lg:py-6">
@@ -362,7 +376,7 @@ const HomePage: React.FC = () => {
                 <Link
                   key={`${brand}-${i}`}
                   to={`/catalog?manufacturer=${encodeURIComponent(brand)}`}
-                  className="text-[10px] font-black tracking-[0.4em] text-charcoal/20 uppercase hover:text-primary transition-all whitespace-nowrap cursor-pointer hover:scale-110"
+                  className="text-[10px] font-black tracking-[0.4em] text-charcoal uppercase hover:text-primary transition-all whitespace-nowrap cursor-pointer hover:scale-110"
                   title={`Ver productos de ${brand}`}
                 >
                   {brand}
@@ -397,7 +411,7 @@ const HomePage: React.FC = () => {
                     {featuredProduct.nombre}
                   </h3>
                   <p className="text-xs sm:text-sm text-charcoal/50 mb-6 sm:mb-8 max-w-md font-light leading-relaxed">
-                    Descubre la esencia exclusiva de {featuredProduct.manufacturer}.
+                    Descubre la selección exclusiva de {featuredProduct.manufacturer}.
                     Una oportunidad única para elevar tu colección personal.
                   </p>
                   <div className="flex items-baseline gap-4 sm:gap-6 mb-6 sm:mb-8">

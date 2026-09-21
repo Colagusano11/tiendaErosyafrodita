@@ -170,7 +170,7 @@ const Profile: React.FC = () => {
         ...formData
       });
       setProfile(updated);
-      showAlert("Perfil Actualizado", "Tus datos han sido guardados con éxito en el Olimpo.", "success");
+      showAlert("Perfil Actualizado", "Tus datos han sido guardados con éxito.", "success");
     } catch (err: any) {
       setError(err.message ?? "Error al actualizar el perfil.");
     } finally {
@@ -774,7 +774,7 @@ const Profile: React.FC = () => {
                         <div className="flex flex-col gap-4 w-full">
                           <div className="flex flex-col gap-1">
                             <span className="text-charcoal font-medium">Cambiar Contraseña</span>
-                            <span className="text-text-gold text-xs leading-relaxed">
+                            <span className="text-charcoal/60 text-xs leading-relaxed">
                               Por tu seguridad, introduce tu contraseña actual antes de establecer una nueva.
                             </span>
                           </div>
@@ -803,7 +803,7 @@ const Profile: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => setActiveTab("direcciones")}
-                        className="px-8 py-3 rounded-lg border border-transparent text-text-gold text-sm font-bold hover:text-charcoal transition-colors"
+                        className="px-8 py-3 rounded-lg border border-transparent text-charcoal/60 text-sm font-bold hover:text-charcoal transition-colors"
                       >
                         Cancelar
                       </button>

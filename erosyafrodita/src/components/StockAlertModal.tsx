@@ -90,12 +90,12 @@ const StockAlertModal: React.FC<StockAlertModalProps> = ({ isOpen, onClose, onSu
                   disabled={isSubmitting}
                   className="w-full py-4 bg-primary text-charcoal rounded-full text-[10px] font-black uppercase tracking-[0.2em] hover:bg-white hover:scale-[1.02] transition-all shadow-lg shadow-primary/10 disabled:opacity-50"
                 >
-                  {isSubmitting ? "Registrando..." : "Activar Ritual de Aviso"}
+                  {isSubmitting ? "Registrando..." : "Activar aviso de stock"}
                 </button>
               </form>
               
               <p className="mt-6 text-[8px] font-bold text-white/20 uppercase tracking-[0.2em]">
-                Privacidad garantizada. Sin spam, solo esencia.
+                Privacidad garantizada. Sin spam.
               </p>
             </div>
           </motion.div>

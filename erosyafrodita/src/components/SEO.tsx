@@ -21,8 +21,8 @@ const OG_DEFAULT = `${SITE_URL}/og-image.png`;
 
 const SEO: React.FC<SEOProps> = ({
   title,
-  description = 'Boutique exclusiva de perfumes de lujo. Descubre la esencia de los dioses en AGE Parfums.',
-  keywords    = 'perfumes, lujo, belleza, AGE Parfums, fragancias',
+  description = 'Boutique exclusiva de perfumería y cosmética de lujo. Descubre AGE Parfums.',
+  keywords    = 'perfumes, cosmética, belleza, lujo, AGE Parfums',
   image       = OG_DEFAULT,
   url,
   type        = 'website',
@@ -33,7 +33,7 @@ const SEO: React.FC<SEOProps> = ({
 }) => {
   const pageTitle = title
     ? (title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`)
-    : `${SITE_NAME} — Perfumes y Fragancias de Lujo`;
+    : `${SITE_NAME} — Perfumería y Cosmética de Lujo`;
 
   // Canonical: siempre sin el hash — apunta a la URL limpia
   // Las SPAs con hash-routing tienen el mismo dominio para todos los productos;

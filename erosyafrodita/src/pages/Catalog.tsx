@@ -15,15 +15,15 @@ import SEO from "../components/SEO";
 
 // ── Skeleton Card ──
 const SkeletonCard: React.FC = () => (
-  <div className="flex flex-col rounded-2xl bg-charcoal-surface border border-white/5 overflow-hidden animate-pulse">
-    <div className="aspect-square bg-white/5" />
+  <div className="flex flex-col rounded-2xl bg-charcoal-surface border border-charcoal/5 overflow-hidden animate-pulse">
+    <div className="aspect-square bg-charcoal/5" />
     <div className="p-3 space-y-2">
-      <div className="h-2 w-1/3 bg-white/10 rounded-full" />
-      <div className="h-3 w-full bg-white/8 rounded-full" />
-      <div className="h-3 w-4/5 bg-white/8 rounded-full" />
+      <div className="h-2 w-1/3 bg-charcoal/10 rounded-full" />
+      <div className="h-3 w-full bg-charcoal/8 rounded-full" />
+      <div className="h-3 w-4/5 bg-charcoal/8 rounded-full" />
       <div className="flex justify-between items-center pt-1">
         <div className="h-4 w-12 bg-emerald-500/20 rounded-full" />
-        <div className="size-9 rounded-full bg-white/5" />
+        <div className="size-9 rounded-full bg-charcoal/5" />
       </div>
     </div>
   </div>
@@ -51,7 +51,7 @@ const Chip: React.FC<{ label: string; onRemove: () => void }> = ({ label, onRemo
     {label}
     <button
       onClick={onRemove}
-      className="hover:text-rose-400 transition-colors"
+      className="hover:text-rose-700 transition-colors"
       aria-label={`Quitar filtro ${label}`}
     >
       <span className="material-symbols-outlined !text-[12px]">close</span>
@@ -201,9 +201,9 @@ const Catalog: React.FC = () => {
       description = "Sumérgete en esencias femeninas exclusivas.";
     } else if (filtros.categoria === "Cosmética") {
       title = "Cosmética Premium | Eros & Afrodita";
-      description = "Rituales de belleza de alta gama.";
+      description = "Cosmética de alta gama.";
     } else if (filtros.manufacturer) {
-      title = `Perfumes ${filtros.manufacturer} | Eros & Afrodita`;
+      title = `${filtros.manufacturer} | Eros & Afrodita`;
       description = `Toda la colección de ${filtros.manufacturer}.`;
     } else if (filtros.nombre) {
       title = `"${filtros.nombre}" | Eros & Afrodita`;
@@ -231,7 +231,7 @@ const Catalog: React.FC = () => {
   };
 
   return (
-    <div className="bg-background-dark text-white font-display min-h-screen flex flex-col selection:bg-primary/30">
+    <div className="bg-perfume-sand text-charcoal font-display min-h-screen flex flex-col selection:bg-primary/30">
       <SEO
         title={seoTitle}
         description={seoDescription}
@@ -242,16 +242,16 @@ const Catalog: React.FC = () => {
       <div className="flex-1 flex flex-col lg:flex-row max-w-[1600px] mx-auto w-full px-4 lg:px-6 py-6 lg:py-10 gap-6">
 
         {/* ── Mobile filter toggle ── */}
-        <div className="lg:hidden flex items-center justify-between bg-charcoal-surface p-3.5 rounded-2xl border border-white/5">
+        <div className="lg:hidden flex items-center justify-between bg-charcoal-surface p-3.5 rounded-2xl border border-charcoal/5">
           <div className="flex flex-col">
             <span className="text-[10px] font-black uppercase tracking-widest text-primary">Filtros</span>
-            <span className="text-[10px] text-gray-400 font-bold uppercase">
+            <span className="text-[10px] text-charcoal/50 font-bold uppercase">
               {paginacion.totalElements} productos
             </span>
           </div>
           <button
             onClick={() => setShowMobileFilters(!showMobileFilters)}
-            className="relative flex items-center gap-2 bg-primary text-background-dark px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20"
+            className="relative flex items-center gap-2 bg-primary text-charcoal px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20"
           >
             {showMobileFilters ? "Ocultar" : "Filtrar"}
             <span className="material-symbols-outlined text-sm">
@@ -271,13 +271,13 @@ const Catalog: React.FC = () => {
             showMobileFilters ? "block" : "hidden"
           } lg:block w-full lg:w-[230px] shrink-0`}
         >
-          <div className="bg-charcoal-surface rounded-2xl p-5 border border-white/5 lg:sticky lg:top-28 shadow-2xl overflow-hidden relative">
+          <div className="bg-charcoal-surface rounded-2xl p-5 border border-charcoal/5 lg:sticky lg:top-28 shadow-2xl overflow-hidden relative">
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary/4 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
 
             {/* Sidebar header */}
             <div className="flex justify-between items-center mb-5 relative z-10">
               <div className="flex items-center gap-2">
-                <h3 className="text-sm font-black text-white tracking-tight">Filtros</h3>
+                <h3 className="text-sm font-black text-charcoal tracking-tight">Filtros</h3>
                 <AnimatePresence>
                   {activeCount > 0 && (
                     <motion.span
@@ -295,7 +295,7 @@ const Catalog: React.FC = () => {
               {activeCount > 0 && (
                 <button
                   onClick={clearFilters}
-                  className="text-[10px] font-bold text-gray-500 uppercase tracking-widest hover:text-rose-400 transition-colors"
+                  className="text-[10px] font-bold text-charcoal/40 uppercase tracking-widest hover:text-rose-700 transition-colors"
                 >
                   Limpiar
                 </button>
@@ -306,11 +306,11 @@ const Catalog: React.FC = () => {
 
               {/* Búsqueda */}
               <div>
-                <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2.5">
+                <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-charcoal/40 mb-2.5">
                   Búsqueda
                 </h4>
                 <div className="relative">
-                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">
+                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-charcoal/40 text-sm">
                     search
                   </span>
                   <input
@@ -318,18 +318,18 @@ const Catalog: React.FC = () => {
                     placeholder="¿Qué buscas?..."
                     value={filtros.nombre || ""}
                     onChange={(e) => handleFilterChange("nombre", e.target.value || undefined)}
-                    className="w-full bg-background-dark border border-white/10 rounded-xl py-2.5 pl-9 pr-3 text-xs font-semibold text-white placeholder:text-gray-600 focus:border-primary/50 outline-none transition-colors"
+                    className="w-full bg-white border border-charcoal/10 rounded-xl py-2.5 pl-9 pr-3 text-xs font-semibold text-charcoal placeholder:text-charcoal/30 focus:border-primary/50 outline-none transition-colors"
                   />
                 </div>
               </div>
 
               {/* Marca */}
               <div>
-                <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2.5">
+                <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-charcoal/40 mb-2.5">
                   Marca
                 </h4>
                 <div className="relative">
-                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">
+                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-charcoal/40 text-sm">
                     branding_watermark
                   </span>
                   <select
@@ -337,7 +337,7 @@ const Catalog: React.FC = () => {
                     onChange={(e) =>
                       handleFilterChange("manufacturer", e.target.value || undefined)
                     }
-                    className="w-full bg-background-dark border border-white/10 rounded-xl py-2.5 pl-9 pr-8 text-xs font-semibold text-white appearance-none focus:border-primary/50 outline-none cursor-pointer transition-colors"
+                    className="w-full bg-white border border-charcoal/10 rounded-xl py-2.5 pl-9 pr-8 text-xs font-semibold text-charcoal appearance-none focus:border-primary/50 outline-none cursor-pointer transition-colors"
                   >
                     <option value="">Cualquier marca</option>
                     {marcas.map((m) => (
@@ -346,7 +346,7 @@ const Catalog: React.FC = () => {
                       </option>
                     ))}
                   </select>
-                  <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm pointer-events-none">
+                  <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-charcoal/40 text-sm pointer-events-none">
                     expand_more
                   </span>
                 </div>
@@ -354,11 +354,11 @@ const Catalog: React.FC = () => {
 
               {/* Categoría */}
               <div>
-                <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2.5">
+                <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-charcoal/40 mb-2.5">
                   Categoría
                 </h4>
                 <div className="relative">
-                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">
+                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-charcoal/40 text-sm">
                     category
                   </span>
                   <select
@@ -366,7 +366,7 @@ const Catalog: React.FC = () => {
                     onChange={(e) =>
                       handleFilterChange("categoria", e.target.value || undefined)
                     }
-                    className="w-full bg-background-dark border border-white/10 rounded-xl py-2.5 pl-9 pr-8 text-xs font-semibold text-white appearance-none focus:border-primary/50 outline-none cursor-pointer transition-colors"
+                    className="w-full bg-white border border-charcoal/10 rounded-xl py-2.5 pl-9 pr-8 text-xs font-semibold text-charcoal appearance-none focus:border-primary/50 outline-none cursor-pointer transition-colors"
                   >
                     <option value="">Cualquier categoría</option>
                     {categorias.map((cat) => (
@@ -375,7 +375,7 @@ const Catalog: React.FC = () => {
                       </option>
                     ))}
                   </select>
-                  <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm pointer-events-none">
+                  <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-charcoal/40 text-sm pointer-events-none">
                     expand_more
                   </span>
                 </div>
@@ -383,7 +383,7 @@ const Catalog: React.FC = () => {
 
               {/* Género — chips animados */}
               <div>
-                <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2.5">
+                <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-charcoal/40 mb-2.5">
                   Género
                 </h4>
                 <div className="flex flex-wrap gap-2">
@@ -403,7 +403,7 @@ const Catalog: React.FC = () => {
                         className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all duration-200 border ${
                           active
                             ? "bg-primary text-charcoal border-primary shadow shadow-primary/30"
-                            : "bg-background-dark text-gray-400 border-white/10 hover:border-white/25 hover:text-white"
+                            : "bg-white text-charcoal/50 border-charcoal/10 hover:border-charcoal/25 hover:text-charcoal"
                         }`}
                       >
                         <span className="material-symbols-outlined !text-[13px]">{icon}</span>
@@ -417,7 +417,7 @@ const Catalog: React.FC = () => {
               {/* Precio */}
               <div>
                 <div className="flex justify-between items-center mb-2.5">
-                  <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-500">
+                  <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-charcoal/40">
                     Precio máx.
                   </h4>
                   <span className="text-[10px] font-black text-primary">
@@ -437,9 +437,9 @@ const Catalog: React.FC = () => {
                   onTouchEnd={(e: any) =>
                     handleFilterChange("maxPrecio", parseInt(e.target.value))
                   }
-                  className="w-full h-1.5 bg-background-dark rounded-lg appearance-none cursor-pointer accent-primary"
+                  className="w-full h-1.5 bg-perfume-sand-dark rounded-lg appearance-none cursor-pointer accent-primary"
                 />
-                <div className="flex justify-between text-[9px] font-black text-gray-600 mt-2">
+                <div className="flex justify-between text-[9px] font-black text-charcoal/30 mt-2">
                   <span>0€</span>
                   <span>500€+</span>
                 </div>
@@ -458,9 +458,9 @@ const Catalog: React.FC = () => {
               <nav className="mb-1.5 hidden sm:flex items-center gap-1.5 text-[10px] text-primary/50 font-bold uppercase tracking-widest">
                 <Link to="/" className="hover:text-primary transition-colors">Inicio</Link>
                 <span className="material-symbols-outlined !text-[12px]">chevron_right</span>
-                <span className="text-white/40">Catálogo</span>
+                <span className="text-charcoal/40">Catálogo</span>
               </nav>
-              <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tighter">
+              <h1 className="text-3xl sm:text-4xl font-black text-charcoal tracking-tighter">
                 {filtros.status === "NOVEDADES" ? (
                   <>
                     Nuestras <span className="text-primary italic font-serif">Novedades</span>
@@ -482,7 +482,7 @@ const Catalog: React.FC = () => {
                 )}
               </h1>
               {!loading && (
-                <p className="text-xs text-gray-500 mt-1 font-semibold">
+                <p className="text-xs text-charcoal/40 mt-1 font-semibold">
                   {paginacion.totalElements.toLocaleString("es-ES")} producto
                   {paginacion.totalElements !== 1 ? "s" : ""}
                   {activeCount > 0 && " · filtros aplicados"}
@@ -490,12 +490,12 @@ const Catalog: React.FC = () => {
               )}
             </div>
 
-            <div className="flex items-center gap-3 bg-charcoal-surface pl-4 pr-2 py-1.5 rounded-full border border-white/5 shadow-lg w-full sm:w-auto">
-              <span className="text-[10px] font-black uppercase tracking-widest text-gray-500 whitespace-nowrap">
+            <div className="flex items-center gap-3 bg-charcoal-surface pl-4 pr-2 py-1.5 rounded-full border border-charcoal/5 shadow-lg w-full sm:w-auto">
+              <span className="text-[10px] font-black uppercase tracking-widest text-charcoal/40 whitespace-nowrap">
                 Ordenar
               </span>
               <select
-                className="bg-transparent border-none text-xs font-bold text-white focus:ring-0 cursor-pointer pr-6 grow outline-none"
+                className="bg-transparent border-none text-xs font-bold text-charcoal focus:ring-0 cursor-pointer pr-6 grow outline-none"
                 value={filtros.orden || ""}
                 onChange={(e) => handleFilterChange("orden", e.target.value || undefined)}
               >
@@ -552,7 +552,7 @@ const Catalog: React.FC = () => {
                 )}
                 <button
                   onClick={clearFilters}
-                  className="text-[10px] font-black text-gray-500 uppercase tracking-widest hover:text-rose-400 transition-colors px-1"
+                  className="text-[10px] font-black text-charcoal/40 uppercase tracking-widest hover:text-rose-700 transition-colors px-1"
                 >
                   Limpiar todo
                 </button>
@@ -566,10 +566,10 @@ const Catalog: React.FC = () => {
               <span className="material-symbols-outlined text-rose-500 text-5xl mb-3 block">
                 error
               </span>
-              <p className="text-rose-200 font-semibold mb-4">{error}</p>
+              <p className="text-rose-700 font-semibold mb-4">{error}</p>
               <button
                 onClick={() => aplicarFiltros(filtros)}
-                className="px-6 py-2 bg-rose-500/20 text-rose-400 rounded-full text-xs font-bold hover:bg-rose-500 hover:text-white transition-all"
+                className="px-6 py-2 bg-rose-500/20 text-rose-700 rounded-full text-xs font-bold hover:bg-rose-500 hover:text-charcoal transition-all"
               >
                 Reintentar
               </button>
@@ -606,16 +606,16 @@ const Catalog: React.FC = () => {
                   animate={{ opacity: 1, y: 0 }}
                   className="flex flex-col items-center justify-center py-24 text-center"
                 >
-                  <span className="material-symbols-outlined text-gray-600 text-[64px] mb-4">
+                  <span className="material-symbols-outlined text-charcoal/30 text-[64px] mb-4">
                     search_off
                   </span>
                   <h3 className="text-xl font-bold mb-2">Sin resultados</h3>
-                  <p className="text-gray-400 text-sm max-w-xs">
+                  <p className="text-charcoal/50 text-sm max-w-xs">
                     Prueba ajustando los filtros para encontrar lo que buscas.
                   </p>
                   <button
                     onClick={clearFilters}
-                    className="mt-6 px-8 py-2.5 bg-white text-background-dark rounded-full font-black text-xs tracking-widest uppercase hover:bg-primary transition-all"
+                    className="mt-6 px-8 py-2.5 bg-white text-charcoal rounded-full font-black text-xs tracking-widest uppercase hover:bg-primary transition-all"
                   >
                     Restablecer filtros
                   </button>
@@ -628,7 +628,7 @@ const Catalog: React.FC = () => {
                   <button
                     onClick={() => handlePageChange(paginacion.page - 1)}
                     disabled={paginacion.page === 0}
-                    className="size-11 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-background-dark disabled:opacity-20 transition-all"
+                    className="size-11 rounded-full border border-charcoal/10 flex items-center justify-center hover:bg-white hover:text-charcoal disabled:opacity-20 transition-all"
                   >
                     <span className="material-symbols-outlined">chevron_left</span>
                   </button>
@@ -637,7 +637,7 @@ const Catalog: React.FC = () => {
                     item === "..." ? (
                       <span
                         key={`d${idx}`}
-                        className="w-8 text-center text-white/20 font-black text-sm"
+                        className="w-8 text-center text-charcoal/20 font-black text-sm"
                       >
                         …
                       </span>
@@ -648,7 +648,7 @@ const Catalog: React.FC = () => {
                         className={`size-11 rounded-full text-xs font-black transition-all ${
                           paginacion.page === item
                             ? "bg-primary text-charcoal shadow-lg shadow-primary/30"
-                            : "text-white/40 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10"
+                            : "text-charcoal/40 hover:text-charcoal hover:bg-charcoal/5 border border-transparent hover:border-charcoal/10"
                         }`}
                       >
                         {(item as number) + 1}
@@ -659,7 +659,7 @@ const Catalog: React.FC = () => {
                   <button
                     onClick={() => handlePageChange(paginacion.page + 1)}
                     disabled={paginacion.page === paginacion.totalPages - 1}
-                    className="size-11 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-background-dark disabled:opacity-20 transition-all"
+                    className="size-11 rounded-full border border-charcoal/10 flex items-center justify-center hover:bg-white hover:text-charcoal disabled:opacity-20 transition-all"
                   >
                     <span className="material-symbols-outlined">chevron_right</span>
                   </button>

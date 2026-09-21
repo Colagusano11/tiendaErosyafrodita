@@ -1,0 +1,62 @@
+{
+  "brand": "Lorenzo Villoresi",
+  "claim": "El aroma de la piel recién empolvada: una rosa delicada envuelta en notas polvorientas, creada en un palacio florentino del siglo XV.",
+  "shortDescription": "Teint de Neige (\"color de nieve\") es la fragancia más icónica del perfumista independiente Lorenzo Villoresi: un floral polvoriento de rosa, jazmín y haba tonka que evoca la piel maquillada con polvos de arroz de otra época. Unisex, elaborada de forma artesanal en Florencia desde el año 2000.",
+  "productInfo": "Eau de Parfum de 50ml, formato spray. Creada en el año 2000 por Lorenzo Villoresi, perfumista independiente florentino (no pertenece a ningún grupo de lujo). Se elabora en la propia casa Villoresi, un palacio del siglo XV con vistas al río Arno, con ingredientes naturales de alta calidad.",
+  "ingredients": "Elaborado con esencias naturales de alta calidad: absoluto de rosa, jazmín e ylang-ylang, haba tonka, heliotropo y almizcle blanco, sobre una base alcohólica. Villoresi trabaja como perfumista independiente con materias primas naturales seleccionadas personalmente, evitando la producción industrial masiva típica de las grandes casas de perfumería.",
+  "manufacturerInfo": "Lorenzo Villoresi es un perfumista independiente nacido y formado en Florencia, que en 1990 fundó su propia casa en el palacio familiar del siglo XV a orillas del Arno. Sus viajes por Oriente Próximo marcaron su forma de trabajar los aromáticos y las especias. En 2006 recibió el Prix François Coty, considerado un \"Oscar\" de la perfumería, y es miembro fundador de la Accademia dell'Arte del Profumo de Florencia.",
+  "benefits": [
+    "Fragancia de autor, elaborada de forma artesanal por una casa independiente, no un gran grupo de lujo",
+    "Unisex: floral polvoriento de rosa y jazmín que no se ciñe a lo masculino o femenino",
+    "Larga duración gracias a su base de almizcle, haba tonka y heliotropo"
+  ],
+  "fragranceFamily": "Floral Amaderado Almizclado",
+  "topNotes": ["Notas polvorientas", "Rosa", "Ylang-ylang", "Jazmín"],
+  "heartNotes": ["Rosa", "Haba tonka", "Notas florales", "Jazmín"],
+  "baseNotes": ["Heliotropo", "Almizcle", "Rosa", "Jazmín"],
+  "recommendedFor": [
+    "Quien busca un perfume de nicho distinto a lo que se ve en cualquier gran superficie"
+  ],
+  "audienceFit": [
+    {
+      "title": "Buscas algo que nadie más lleva",
+      "description": "Lorenzo Villoresi no se vende en grandes cadenas de perfumería — es una fragancia de nicho italiana, elaborada por un perfumista independiente en su propio palacio de Florencia. Difícil de encontrar, fácil de recordar."
+    },
+    {
+      "title": "Te gustan los florales polvorientos, no los dulces empalagosos",
+      "description": "Teint de Neige es delicado y polvoriento, evocando el tacto de la piel maquillada con polvos de antaño — muy alejado de los perfumes gourmand o excesivamente dulces."
+    },
+    {
+      "title": "Quieres un unisex de verdad",
+      "description": "Su combinación de rosa, jazmín y almizcle funciona igual de bien en piel masculina que femenina, sin caer en lo genérico."
+    },
+    {
+      "title": "Valoras la artesanía sobre el marketing de gran marca",
+      "description": "Villoresi es perfumista independiente, premiado con el Prix François Coty — su casa elabora los perfumes con métodos artesanales toscanos, no en una fábrica de un grupo de lujo."
+    }
+  ],
+  "recommendedOccasions": ["Uso diario", "Ocasiones especiales donde quieras destacar por ser diferente"],
+  "season": ["Otoño", "Invierno"],
+  "faqs": [
+    {
+      "question": "¿Es un perfume para hombre o para mujer?",
+      "answer": "Es unisex. Su acorde de rosa, jazmín y almizcle está pensado para llevarse indistintamente, sin encasillarse en lo masculino o femenino."
+    },
+    {
+      "question": "¿Por qué no lo encuentro en otras perfumerías?",
+      "answer": "Lorenzo Villoresi es una casa de perfumería de nicho, independiente, que no distribuye en grandes cadenas como sí hacen las marcas de los grandes grupos de lujo. Se vende en perfumerías especializadas y muy pocos puntos de venta."
+    },
+    {
+      "question": "¿Cuánto dura sobre la piel?",
+      "answer": "Al ser un Eau de Parfum con base de almizcle, haba tonka y heliotropo, tiene una duración larga, típica de las fragancias de nicho de mayor concentración."
+    },
+    {
+      "question": "¿Qué significa \"Teint de Neige\"?",
+      "answer": "En francés significa \"color de nieve\" — hace referencia al efecto de la piel empolvada con los polvos de arroz que se usaban antiguamente, la inspiración central de esta fragancia."
+    }
+  ],
+  "seoTitle": "Teint de Neige Eau de Parfum Lorenzo Villoresi 50ml",
+  "seoDescription": "Teint de Neige de Lorenzo Villoresi, perfumería de nicho florentina. Floral polvoriento de rosa, jazmín y almizcle, unisex. Descúbrelo en AGE Parfums.",
+  "testimonials": [],
+  "beforeAfter": []
+}

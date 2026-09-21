@@ -12,7 +12,7 @@ export const FragranceProfileGrid: React.FC<FragranceProfileGridProps> = ({ mark
 
   return (
     <section id="notas" className="w-full bg-background-dark text-charcoal font-display py-16 md:py-24 border-t border-charcoal/5">
-      <div className="w-full max-w-[1200px] mx-auto px-4 md:px-10">
+      <div className="w-full max-w-[1440px] mx-auto px-4 md:px-10">
         
         {/* Cabecera */}
         <div className="text-center mb-12 md:mb-16">
@@ -47,7 +47,7 @@ export const FragranceProfileGrid: React.FC<FragranceProfileGridProps> = ({ mark
               </h3>
 
               {/* Descripción */}
-              <p className="text-xs text-text-muted font-light leading-relaxed">
+              <p className="text-lg text-text-muted font-light leading-relaxed">
                 {note.desc}
               </p>
             </div>

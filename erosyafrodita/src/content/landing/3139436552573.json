@@ -1,0 +1,62 @@
+{
+  "brand": "Talika",
+  "claim": "Antiedad sin irritación: piel más lisa, firme y luminosa desde el primer uso.",
+  "shortDescription": "Crema de día de la firma francesa Talika, de textura envolvente y no irritante, formulada para alisar y reafirmar el rostro. Combina bakuchiol (alternativa suave al retinol), péptidos Matrixyl 3000 y niacinamida para combatir arrugas, manchas y falta de firmeza sin agredir la piel. Resultados visibles en 28 días.",
+  "productInfo": "Day Cream Anti-Âge de Talika, marca francesa de belleza con más de 90 años de historia (conocida especialmente por sus sérums de pestañas). Formato de 50 ml, fabricada en Francia, con un 92% de ingredientes de origen natural. Es la versión de día de la línea Skintelligence; existe también una versión de noche independiente.",
+  "application": "Aplicar sobre el rostro y el cuello perfectamente limpios, con movimientos circulares y ascendentes. Usar por la mañana para completar la rutina de cuidado facial.",
+  "ingredients": "Bakuchiol al 0,5%, alternativa suave al retinol con propiedades antioxidantes y antiarrugas, sin el efecto irritante habitual del retinol. Matrixyl 3000 al 3%, complejo de péptidos que estimula la síntesis de colágeno y elastina. Niacinamida al 2%, que reduce manchas oscuras y fortalece la barrera cutánea. Ácido hialurónico de bajo peso molecular (100-400 kDa) para hidratación profunda. Aloe vera con propiedades calmantes e hidratantes. Prebióticos y adenosina, que refuerzan las defensas naturales de la piel y su energía celular.",
+  "manufacturerInfo": "Talika es una marca francesa de belleza con más de 90 años de historia, reconocida internacionalmente por sus sérums activadores de pestañas y cejas, y con una gama de skincare que aplica esa misma filosofía de ingredientes activos a la piel del rostro.",
+  "benefits": [
+    "Piel visiblemente más lisa, firme e hidratada, con tono uniforme y luminoso",
+    "Reduce arrugas y manchas sin irritar, gracias al bakuchiol como alternativa al retinol",
+    "Fórmula con un 92% de ingredientes de origen natural, fabricada en Francia"
+  ],
+  "recommendedFor": [
+    "Todo tipo de piel, especialmente pieles sensibles"
+  ],
+  "audienceFit": [
+    {
+      "title": "Antiedad sin irritación",
+      "description": "Si tu piel no tolera bien el retinol tradicional, el bakuchiol al 0,5% ofrece un efecto antiarrugas y antioxidante similar, sin el picor ni el enrojecimiento habituales."
+    },
+    {
+      "title": "Pérdida de firmeza",
+      "description": "El complejo de péptidos Matrixyl 3000 está pensado para quienes empiezan a notar flacidez o pérdida de firmeza en el rostro, estimulando la producción de colágeno y elastina."
+    },
+    {
+      "title": "Manchas y tono irregular",
+      "description": "La niacinamida al 2% ayuda a reducir manchas oscuras y a unificar el tono de la piel, ideal para quienes buscan un aspecto más luminoso y homogéneo."
+    },
+    {
+      "title": "Piel sensible o reactiva",
+      "description": "La fórmula, con aloe vera y prebióticos, está pensada para tolerarse bien incluso en pieles sensibles que reaccionan mal a otros tratamientos antiedad más agresivos."
+    }
+  ],
+  "recommendedOccasions": [
+    "Rutina de mañana, sobre piel limpia"
+  ],
+  "season": [],
+  "faqs": [
+    {
+      "question": "¿Cuándo se aplica, mañana o noche?",
+      "answer": "Es la versión de día de la línea Skintelligence — se aplica por la mañana sobre el rostro y el cuello perfectamente limpios, con movimientos circulares y ascendentes. Talika tiene una versión de noche independiente para completar la rutina."
+    },
+    {
+      "question": "¿Es apta para pieles sensibles?",
+      "answer": "Sí, está formulada para ser bien tolerada incluso en pieles sensibles, gracias al bakuchiol (una alternativa más suave que el retinol) y a ingredientes calmantes como el aloe vera."
+    },
+    {
+      "question": "¿Qué resultados puedo esperar?",
+      "answer": "Según el fabricante, la piel se percibe más lisa, firme y luminosa desde el primer uso, con resultados visibles en la reducción de arrugas y manchas a partir de 28 días de uso continuado."
+    },
+    {
+      "question": "¿Qué diferencia tiene con el retinol tradicional?",
+      "answer": "Usa bakuchiol al 0,5% en lugar de retinol — ofrece un efecto antioxidante y antiarrugas similar, pero sin el enrojecimiento o la irritación que puede causar el retinol en pieles sensibles."
+    }
+  ],
+  "videoUrl": "/uploads/talika/talika-ambiente.mp4",
+  "seoTitle": "Talika Skintelligence Anti-Age Day Cream 50ml",
+  "seoDescription": "Crema de día antiedad Talika con bakuchiol, Matrixyl 3000 y niacinamida. Antiedad sin irritación. Descúbrela en AGE Parfums.",
+  "testimonials": [],
+  "beforeAfter": []
+}

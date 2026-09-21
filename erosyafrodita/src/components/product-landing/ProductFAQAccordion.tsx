@@ -17,7 +17,7 @@ export const ProductFAQAccordion: React.FC<ProductFAQAccordionProps> = ({ market
 
   return (
     <section id="faq" className="w-full bg-background-dark text-charcoal font-display py-16 md:py-24 border-t border-charcoal/5">
-      <div className="w-full max-w-[800px] mx-auto px-4">
+      <div className="w-full max-w-[1440px] mx-auto px-4 md:px-10">
         
         {/* Cabecera */}
         <div className="text-center mb-12 md:mb-16">
@@ -57,7 +57,7 @@ export const ProductFAQAccordion: React.FC<ProductFAQAccordionProps> = ({ market
                   className="transition-all duration-300 overflow-hidden"
                   style={{ maxHeight: isOpen ? "200px" : "0px" }}
                 >
-                  <div className="px-6 pb-5 text-xs text-text-muted font-light leading-relaxed border-t border-border-dark/40 pt-4">
+                  <div className="px-6 pb-5 text-lg text-text-muted font-light leading-relaxed border-t border-border-dark/40 pt-4">
                     {faq.answer}
                   </div>
                 </div>

@@ -1,15 +1,23 @@
 import React from "react";
 
-export const ProductTrustBar: React.FC = () => {
-  const phoneNumber = "34685611801"; 
+interface ProductTrustBarProps {
+  authenticityTitle?: string;
+  authenticityDesc?: string;
+}
+
+export const ProductTrustBar: React.FC<ProductTrustBarProps> = ({
+  authenticityTitle = "Producto 100% Original",
+  authenticityDesc = "Garantizado. Adquirido solo de distribuidores y canales oficiales.",
+}) => {
+  const phoneNumber = "34685611801";
   const message = encodeURIComponent("Hola AGE Parfums, tengo una consulta sobre un producto...");
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
 
   const trustItems = [
     {
       icon: "verified",
-      title: "Fragancia 100% Original",
-      desc: "Garantizada. Adquirida solo de distribuidores y canales oficiales."
+      title: authenticityTitle,
+      desc: authenticityDesc
     },
     {
       icon: "local_shipping",
@@ -43,7 +51,7 @@ export const ProductTrustBar: React.FC = () => {
                 <h4 className="text-xs font-black uppercase tracking-wider mb-1 text-perfume-green">
                   {item.title}
                 </h4>
-                <p className="text-[10px] text-perfume-green/60 leading-relaxed">
+                <p className="text-base text-perfume-green/60 leading-relaxed">
                   {item.desc}
                 </p>
               </div>
@@ -63,7 +71,7 @@ export const ProductTrustBar: React.FC = () => {
               <h4 className="text-sm font-black uppercase tracking-wider text-perfume-green mb-1">
                 ¿Tienes alguna consulta especial?
               </h4>
-              <p className="text-[10px] text-perfume-green/60 max-w-md leading-relaxed">
+              <p className="text-base text-perfume-green/60 max-w-md leading-relaxed">
                 Contacta con nuestro equipo de asesores de belleza a través de WhatsApp. Te responderemos al instante.
               </p>
             </div>
