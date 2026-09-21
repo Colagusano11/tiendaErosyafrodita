@@ -30,7 +30,7 @@ public class PedidoServicieImpl implements PedidoServicie {
     // Deben coincidir con erosyafrodita/src/config/promo.ts (LAUNCH_PROMO_ACTIVE /
     // LAUNCH_DISCOUNT). Es el descuento automático de lanzamiento sin cupón — el
     // servidor es quien decide si se aplica y cuánto, nunca el cliente.
-    private static final boolean LAUNCH_PROMO_ACTIVE = true;
+    private static final boolean LAUNCH_PROMO_ACTIVE = false;
     private static final BigDecimal LAUNCH_DISCOUNT = new BigDecimal("0.10");
 
     private final PedidoRepository pedidoRepository;
