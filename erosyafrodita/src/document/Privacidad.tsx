@@ -44,8 +44,8 @@ const Privacidad: React.FC = () => {
                   <span className="text-primary shrink-0">·</span>
                   <span>
                     <span className="text-charcoal font-semibold">Correo Electrónico:</span>{" "}
-                    <a href="mailto:erosyafrodita.com@gmail.com" className="text-primary hover:underline">
-                      erosyafrodita.com@gmail.com
+                    <a href="mailto:soporte@ageperfumes.com" className="text-primary hover:underline">
+                      soporte@ageperfumes.com
                     </a>
                   </span>
                 </li>
@@ -178,8 +178,8 @@ const Privacidad: React.FC = () => {
             <div className="bg-charcoal-surface border border-charcoal/10 rounded-xl p-5 text-sm text-charcoal/60 leading-relaxed">
               <p>
                 Puedes ejercer estos derechos enviando un correo electrónico a{" "}
-                <a href="mailto:erosyafrodita.com@gmail.com" className="text-primary hover:underline">
-                  erosyafrodita.com@gmail.com
+                <a href="mailto:soporte@ageperfumes.com" className="text-primary hover:underline">
+                  soporte@ageperfumes.com
                 </a>{" "}
                 o una carta a <span className="text-charcoal">CELEGOR SL – AVDA. SANTA EUGENIA, N. 29 – 28031 MADRID</span>, adjuntando una copia de tu DNI o documento identificativo.
               </p>

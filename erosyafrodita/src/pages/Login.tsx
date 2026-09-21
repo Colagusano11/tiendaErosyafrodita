@@ -208,7 +208,7 @@ const Login: React.FC = () => {
 
                     <label className="block group">
                       <span className="text-white text-xs font-semibold mb-1.5 block ml-1 text-white/70">Email</span>
-                      <input name="email" type="email" value={formData.email} onChange={handleChange} required className="w-full h-11 bg-surface-dark border border-border-gold/50 rounded-full px-5 text-white placeholder-white/20 focus:outline-none focus:border-primary text-sm transition-all" placeholder="ejemplo@erosyafrodita.com" />
+                      <input name="email" type="email" value={formData.email} onChange={handleChange} required className="w-full h-11 bg-surface-dark border border-border-gold/50 rounded-full px-5 text-white placeholder-white/20 focus:outline-none focus:border-primary text-sm transition-all" placeholder="ejemplo@ageperfumes.com" />
                     </label>
 
                     <label className="block group relative">

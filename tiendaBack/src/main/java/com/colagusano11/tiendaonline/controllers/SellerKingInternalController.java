@@ -94,7 +94,7 @@ public class SellerKingInternalController {
         pedidoRepository.save(pedido);
 
         String emailDest = pedido.getEmail();
-        if (emailDest != null && !emailDest.isBlank() && !emailDest.equals("info@erosyafrodita.com")) {
+        if (emailDest != null && !emailDest.isBlank() && !emailDest.equals("info@ageperfumes.com")) {
             try {
                 emailService.enviarEmailEnvio(pedido, body.trackingNumber(), body.trackingUrl(), emailDest);
             } catch (Exception e) {
@@ -108,7 +108,7 @@ public class SellerKingInternalController {
                 "estado", pedido.getEstado(),
                 "numSeguimiento", pedido.getNumSeguimiento() != null ? pedido.getNumSeguimiento() : "",
                 "urlSeguimiento", pedido.getUrlSeguimiento() != null ? pedido.getUrlSeguimiento() : "",
-                "emailEnviado", emailDest != null && !emailDest.isBlank() && !emailDest.equals("info@erosyafrodita.com")
+                "emailEnviado", emailDest != null && !emailDest.isBlank() && !emailDest.equals("info@ageperfumes.com")
         ));
     }
 

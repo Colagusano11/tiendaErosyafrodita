@@ -151,7 +151,7 @@ public class GeminiCopyService {
                - Tono poético, con 2-3 emojis bien colocados
                - Termina con 4-6 hashtags relevantes en español
                - Incluye una llamada a la acción ("Encuéntralo en nuestra web", "Disponible ahora", etc.)
-               - Ejemplo: "Una brisa cítrica que despierta los sentidos... 🍋 Hugo Boss Bottled es la fragancia del hombre que deja huella. Disponible en erosyafrodita.com 💫 #perfumes #hugoboss #fragancia #lujo #erosyafrodita"
+               - Ejemplo: "Una brisa cítrica que despierta los sentidos... 🍋 Hugo Boss Bottled es la fragancia del hombre que deja huella. Disponible en ageperfumes.com 💫 #perfumes #hugoboss #fragancia #lujo #ageperfumes"
 
             Devuelve SOLO el JSON. Sin texto adicional. Sin bloques ```json. Solo el objeto JSON.
             """.formatted(

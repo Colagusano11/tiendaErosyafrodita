@@ -45,7 +45,7 @@ public class InstagramTokenScheduler {
     @Value("${instagram.app.secret}")
     private String appSecret;
 
-    @Value("${instagram.admin.email:admin@erosyafrodita.com}")
+    @Value("${instagram.admin.email:admin@ageperfumes.com}")
     private String adminEmail;
 
     @PersistenceContext

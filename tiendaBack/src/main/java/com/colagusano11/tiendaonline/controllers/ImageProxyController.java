@@ -17,7 +17,7 @@ import reactor.core.publisher.Mono;
  *
  * Descarga la imagen del origen (Amazon u otro CDN) y la reenvía
  * con cabeceras correctas, permitiendo que Meta Graph API la descargue
- * desde el dominio propio (erosyafrodita.com) sin bloqueos CORS/hotlink.
+ * desde el dominio propio (ageperfumes.com) sin bloqueos CORS/hotlink.
  *
  * SEGURIDAD: solo permite dominios de imagen conocidos.
  */
@@ -33,7 +33,7 @@ public class ImageProxyController {
         "images-na.ssl-images-amazon.com",
         "ws-eu.amazon-adsystem.com",
         "cloudfront.net",
-        "erosyafrodita.com"
+        "ageperfumes.com"
     );
 
     public ImageProxyController(WebClient.Builder builder) {
@@ -51,7 +51,7 @@ public class ImageProxyController {
         return webClient.get()
             .uri(url)
             .header(HttpHeaders.USER_AGENT,
-                "Mozilla/5.0 (compatible; ErosyAfroditaBot/1.0; +https://erosyafrodita.com)")
+                "Mozilla/5.0 (compatible; AGEParfumsBot/1.0; +https://ageperfumes.com)")
             .retrieve()
             .toEntityFlux(byte[].class)
             .flatMap(response -> {

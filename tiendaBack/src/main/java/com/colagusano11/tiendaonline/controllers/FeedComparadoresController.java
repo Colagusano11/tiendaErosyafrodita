@@ -34,10 +34,10 @@ public class FeedComparadoresController {
 
     private final ProductoRepository productoRepository;
 
-    @Value("${app.base-url:https://www.erosyafrodita.com}")
+    @Value("${app.base-url:https://www.ageperfumes.com}")
     private String baseUrl;
 
-    @Value("${app.image-proxy-url:https://api.erosyafrodita.com/proxy/image}")
+    @Value("${app.image-proxy-url:https://api.ageperfumes.com/proxy/image}")
     private String imageProxyUrl;
 
     public FeedComparadoresController(ProductoRepository productoRepository) {

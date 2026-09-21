@@ -36,7 +36,7 @@ public class ContactoController {
 
         try {
             // Enviamos el correo a la dirección de Gmail indicada por el usuario
-            emailService.enviarEmailGenerico("erosyafrodita.com@gmail.com", "NUEVO CONTACTO: " + contacto.getNombre(), cuerpo);
+            emailService.enviarEmailGenerico("soporte@ageperfumes.com", "NUEVO CONTACTO: " + contacto.getNombre(), cuerpo);
             return ResponseEntity.ok(Map.of("message", "Mensaje enviado correctamente"));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(Map.of("error", "No se pudo enviar el mensaje: " + e.getMessage()));

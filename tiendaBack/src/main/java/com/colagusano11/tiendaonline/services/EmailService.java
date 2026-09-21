@@ -157,7 +157,7 @@ public class EmailService {
                pedido.getCalle() + "<br/>" + pedido.getCodigoPostal() + " " + pedido.getCiudad() + " (" + pedido.getProvincia() + ")</p>" +
             "</div>" +
             "<p style='font-size:13px;color:rgba(255,255,255,0.3);text-align:center;'>" +
-            "Si tienes cualquier duda puedes rastrear tu pedido en cualquier momento desde <a href='https://erosyafrodita.com/rastrear' style='color:" + COLOR_GOLD + ";'>erosyafrodita.com</a>." +
+            "Si tienes cualquier duda puedes rastrear tu pedido en cualquier momento desde <a href='https://ageperfumes.com/rastrear' style='color:" + COLOR_GOLD + ";'>ageperfumes.com</a>." +
             "</p>";
 
         String fullHtml = STYLISH_TEMPLATE.replace("{{CONTENT}}", content);

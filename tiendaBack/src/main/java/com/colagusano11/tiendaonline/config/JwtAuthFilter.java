@@ -72,7 +72,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     String authorityRole = (role != null) ? role : "ROLE_USER";
                     
                     // Asegurar que el email maestro siempre sea ADMIN
-                    if ("erosyafrodita.com@gmail.com".equalsIgnoreCase(email)) {
+                    if ("soporte@ageperfumes.com".equalsIgnoreCase(email)) {
                         authorityRole = "ROLE_ADMIN";
                     } else if ("ADMIN".equalsIgnoreCase(authorityRole)) {
                         authorityRole = "ROLE_ADMIN";

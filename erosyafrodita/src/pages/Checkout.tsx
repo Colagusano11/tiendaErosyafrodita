@@ -502,7 +502,7 @@ const Checkout: React.FC = () => {
       // cardField.submit inicia el flujo. El resultado se maneja en los callbacks onSuccess y onError definidos arriba.
       await cardField.submit({
         name: cardholderName,
-        email: userEmail ? userEmail.trim() : (createdPedidoRef.current?.email || tempAddressRef.current.email.trim() || "soporte@erosyafrodita.com")
+        email: userEmail ? userEmail.trim() : (createdPedidoRef.current?.email || tempAddressRef.current.email.trim() || "soporte@ageperfumes.com")
       });
       
     } catch (err: any) {

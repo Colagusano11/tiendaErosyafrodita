@@ -26,7 +26,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [name, setName] = useState<string | null>(sessionStorage.getItem('userName'));
   const [apellidos, setApellidos] = useState<string | null>(sessionStorage.getItem('userApellidos'));
   const [isAdmin, setIsAdmin] = useState<boolean>(
-    sessionStorage.getItem('isAdmin') === 'true' || sessionStorage.getItem('user') === 'erosyafrodita.com@gmail.com'
+    sessionStorage.getItem('isAdmin') === 'true' || sessionStorage.getItem('user') === 'soporte@ageperfumes.com'
   );
   const [loading, setLoading] = useState(false);
 
@@ -64,7 +64,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const data = await authService.login(credentials);
       console.log("🔐 Autenticación exitosa (Sesión Volátil). Payload:", data);
       
-      const isUserAdmin = !!data.admin || data.email === 'erosyafrodita.com@gmail.com';
+      const isUserAdmin = !!data.admin || data.email === 'soporte@ageperfumes.com';
 
       setUser(data.email);
       setToken(data.token);

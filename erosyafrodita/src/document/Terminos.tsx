@@ -15,7 +15,7 @@ const Terminos: React.FC = () => {
           </h1>
           <p className="mt-3 text-sm text-secondary">
             Última actualización: abril de 2025. Por favor, lee atentamente estos Términos y Condiciones antes de utilizar el sitio web{" "}
-            <span className="text-primary font-medium">www.erosyafrodita.com</span> o realizar cualquier compra.
+            <span className="text-primary font-medium">www.ageperfumes.com</span> o realizar cualquier compra.
           </p>
         </div>
 
@@ -143,7 +143,7 @@ const Terminos: React.FC = () => {
               {[
                 {
                   titulo: "Cómo solicitarlo",
-                  texto: "El cliente deberá comunicarlo por correo electrónico a erosyafrodita.com@gmail.com indicando el número de pedido y el motivo de la devolución.",
+                  texto: "El cliente deberá comunicarlo por correo electrónico a soporte@ageperfumes.com indicando el número de pedido y el motivo de la devolución.",
                 },
                 {
                   titulo: "Estado del producto",
@@ -177,9 +177,9 @@ const Terminos: React.FC = () => {
               Garantías del Producto
             </h2>
             <p className="text-charcoal/60 text-sm leading-relaxed">
-              Todos los productos vendidos en <span className="text-charcoal font-semibold">www.erosyafrodita.com</span> cuentan con la garantía legal de conformidad establecida en la normativa española y europea vigente (2 años para productos nuevos). En caso de detectar un defecto de fabricación, el cliente deberá contactar con nosotros en{" "}
-              <a href="mailto:erosyafrodita.com@gmail.com" className="text-primary hover:underline">
-                erosyafrodita.com@gmail.com
+              Todos los productos vendidos en <span className="text-charcoal font-semibold">www.ageperfumes.com</span> cuentan con la garantía legal de conformidad establecida en la normativa española y europea vigente (2 años para productos nuevos). En caso de detectar un defecto de fabricación, el cliente deberá contactar con nosotros en{" "}
+              <a href="mailto:soporte@ageperfumes.com" className="text-primary hover:underline">
+                soporte@ageperfumes.com
               </a>{" "}
               adjuntando fotografías del producto y el número de pedido.
             </p>
@@ -262,8 +262,8 @@ const Terminos: React.FC = () => {
               <p className="text-charcoal font-bold text-sm mb-1">¿Tienes alguna duda?</p>
               <p className="text-charcoal/60 text-sm">
                 Puedes contactarnos en{" "}
-                <a href="mailto:erosyafrodita.com@gmail.com" className="text-primary hover:underline">
-                  erosyafrodita.com@gmail.com
+                <a href="mailto:soporte@ageperfumes.com" className="text-primary hover:underline">
+                  soporte@ageperfumes.com
                 </a>{" "}
                 o llamarnos al{" "}
                 <a href="tel:+34685611801" className="text-primary hover:underline">

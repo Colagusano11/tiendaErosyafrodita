@@ -20,11 +20,11 @@ import java.util.List;
  *
  * El feed se regenera cada 6 horas (cron) y se cachea en memoria.
  * Google Merchant Center descarga el feed desde:
- *   GET https://api.erosyafrodita.com/api/feeds/google-shopping.xml
+ *   GET https://api.ageperfumes.com/api/feeds/google-shopping.xml
  *
  * Requisitos en application.properties:
- *   app.base.url      = https://erosyafrodita.com        (tienda)
- *   app.api.base.url  = https://api.erosyafrodita.com    (backend/api)
+ *   app.base.url      = https://ageperfumes.com        (tienda)
+ *   app.api.base.url  = https://api.ageperfumes.com    (backend/api)
  *   app.shop.name     = Eros y Afrodita
  *   app.shop.currency = EUR
  */
@@ -117,7 +117,7 @@ public class GoogleShoppingFeedService {
                  .append("      <g:mpn>").append(escape(p.getSku() != null ? p.getSku() : p.getEan())).append("</g:mpn>\n")
                  // — Datos básicos —
                  .append("      <title>").append(titulo).append("</title>\n")
-                 .append("      <link>").append(baseUrl).append("/perfume/").append(slug).append("</link>\n")
+                 .append("      <link>").append(baseUrl).append("/product/").append(slug).append("</link>\n")
                  .append("      <g:image_link>").append(escape(imagenUrl)).append("</g:image_link>\n")
                  .append(imgsAdicionales)
                  .append("      <g:price>").append(precioVenta).append("</g:price>\n");

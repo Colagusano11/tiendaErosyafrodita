@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
  * Cómo registrarlo en Google Merchant Center:
  *   1. Merchant Center → Productos → Fuentes de datos → Añadir fuente
  *   2. Tipo: "Feed programado"
- *   3. URL: https://api.erosyafrodita.com/api/feed/google-shopping
+ *   3. URL: https://api.ageperfumes.com/api/feed/google-shopping
  *   4. Frecuencia de actualización: diaria
  *   5. País de destino: España | Idioma: Español | Divisa: EUR
  */

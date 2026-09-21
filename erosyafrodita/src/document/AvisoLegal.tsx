@@ -40,8 +40,8 @@ const AvisoLegal: React.FC = () => {
               <span className="text-primary shrink-0">·</span>
               <span>
                 <span className="text-charcoal font-semibold">Correo Electrónico de Contacto:</span>{" "}
-                <a href="mailto:erosyafrodita.com@gmail.com" className="text-primary hover:underline">
-                  erosyafrodita.com@gmail.com
+                <a href="mailto:soporte@ageperfumes.com" className="text-primary hover:underline">
+                  soporte@ageperfumes.com
                 </a>
               </span>
             </li>
@@ -72,7 +72,7 @@ const AvisoLegal: React.FC = () => {
             </h2>
             <p className="text-charcoal/60 text-sm leading-relaxed">
               El presente Aviso Legal regula el acceso y el uso del sitio web{" "}
-              <span className="text-primary font-medium">www.erosyafrodita.com</span>, incluyendo los contenidos y servicios puestos a disposición de los usuarios en y/o a través de él.
+              <span className="text-primary font-medium">www.ageperfumes.com</span>, incluyendo los contenidos y servicios puestos a disposición de los usuarios en y/o a través de él.
             </p>
           </section>
 
@@ -93,7 +93,7 @@ const AvisoLegal: React.FC = () => {
             </h2>
             <p className="text-charcoal/60 text-sm leading-relaxed">
               Todos los derechos de propiedad intelectual e industrial del sitio web{" "}
-              <span className="text-primary font-medium">www.erosyafrodita.com</span> y de sus contenidos (imágenes, textos, diseños, logotipos, etc.) son propiedad de CELEGOR, S.L. o de terceros que han autorizado su uso. Queda expresamente prohibida la reproducción, distribución, comunicación pública y transformación, total o parcial, de los contenidos de este sitio web, sin la autorización previa y expresa de CELEGOR, S.L.
+              <span className="text-primary font-medium">www.ageperfumes.com</span> y de sus contenidos (imágenes, textos, diseños, logotipos, etc.) son propiedad de CELEGOR, S.L. o de terceros que han autorizado su uso. Queda expresamente prohibida la reproducción, distribución, comunicación pública y transformación, total o parcial, de los contenidos de este sitio web, sin la autorización previa y expresa de CELEGOR, S.L.
             </p>
           </section>
 

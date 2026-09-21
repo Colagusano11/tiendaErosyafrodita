@@ -16,7 +16,7 @@ interface SEOProps {
 }
 
 const SITE_NAME  = 'AGE Parfums';
-const SITE_URL   = 'https://erosyafrodita.com';
+const SITE_URL   = 'https://ageperfumes.com';
 const OG_DEFAULT = `${SITE_URL}/og-image.png`;
 
 const SEO: React.FC<SEOProps> = ({

@@ -113,7 +113,8 @@ public class SecurityConfig {
             "http://localhost:81",
             "http://localhost",
             "http://127.0.0.1",
-            "https://erosyafrodita.com"
+            "https://ageperfumes.com",
+            "https://www.ageperfumes.com"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("Content-Type", "Authorization"));

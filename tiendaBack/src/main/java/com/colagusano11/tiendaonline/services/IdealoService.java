@@ -59,7 +59,7 @@ public class IdealoService {
                 offer.put("brand", p.getManufacturer());
                 offer.put("title", p.getNombre());
                 offer.put("categoryPath", List.of(p.getCategoria() != null ? p.getCategoria() : "Belleza"));
-                offer.put("url", "https://erosyafrodita.com/producto/" + p.getSlug());
+                offer.put("url", "https://ageperfumes.com/product/" + p.getSlug());
                 offer.put("imageUrls", List.of(p.getImagen()));
                 
                 // Lógica de precio (PVP o Oferta)

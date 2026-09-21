@@ -176,10 +176,10 @@ const HomePage: React.FC = () => {
             "@context": "https://schema.org",
             "@type": "WebSite",
             "name": "AGE Parfums",
-            "url": "https://erosyafrodita.com",
+            "url": "https://ageperfumes.com",
             "potentialAction": {
               "@type": "SearchAction",
-              "target": "https://erosyafrodita.com/#/catalog?search={search_term_string}",
+              "target": "https://ageperfumes.com/#/catalog?search={search_term_string}",
               "query-input": "required name=search_term_string"
             }
           },
@@ -187,8 +187,8 @@ const HomePage: React.FC = () => {
             "@context": "https://schema.org",
             "@type": "Organization",
             "name": "AGE Parfums",
-            "url": "https://erosyafrodita.com",
-            "logo": "https://erosyafrodita.com/logo-eros.png",
+            "url": "https://ageperfumes.com",
+            "logo": "https://ageperfumes.com/AGE-SVG.jpeg",
             "contactPoint": {
               "@type": "ContactPoint",
               "telephone": "+34-600-000-000",

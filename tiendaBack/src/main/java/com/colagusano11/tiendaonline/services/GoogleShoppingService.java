@@ -27,10 +27,10 @@ public class GoogleShoppingService {
 
     private final ProductoRepository productoRepository;
 
-    @Value("${app.base-url:https://www.erosyafrodita.com}")
+    @Value("${app.base-url:https://www.ageperfumes.com}")
     private String baseUrl;
 
-    @Value("${app.image-proxy-url:https://api.erosyafrodita.com/proxy/image}")
+    @Value("${app.image-proxy-url:https://api.ageperfumes.com/proxy/image}")
     private String imageProxyUrl;
 
     // Categoría Google para perfumes: 2915 = "Health & Beauty > Fragrances"
@@ -80,9 +80,10 @@ public class GoogleShoppingService {
                     : generarDescripcionBasica(p);
             xml.append("      <g:description>").append(escaparXml(truncar(descripcion, 5000))).append("</g:description>\n");
 
-            // URL del producto
-            String slug = generarSlug(p.getNombre());
-            String linkProducto = baseUrl + "/perfumes/" + p.getId() + "-" + slug;
+            // URL del producto — usa el slug real guardado, no uno regenerado del nombre
+            // (podría no coincidir con el que asigna Producto.generarSlug() al crear/editar).
+            String slug = (p.getSlug() != null && !p.getSlug().isBlank()) ? p.getSlug() : generarSlug(p.getNombre());
+            String linkProducto = baseUrl + "/product/" + slug;
             xml.append("      <g:link>").append(escaparXml(linkProducto)).append("</g:link>\n");
 
             // Imagen principal

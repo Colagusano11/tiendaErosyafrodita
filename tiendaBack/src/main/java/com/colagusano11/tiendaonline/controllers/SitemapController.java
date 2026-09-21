@@ -21,17 +21,17 @@ import java.util.List;
  * Estas URLs deben estar FUERA del prefijo /api para que Google las encuentre
  * en la raíz del dominio. Configurar en Spring Security como permitAll().
  *
- * Ejemplo de URL real: https://erosyafrodita.com/sitemap.xml
+ * Ejemplo de URL real: https://ageperfumes.com/sitemap.xml
  * (si el frontend y el backend comparten dominio vía reverse proxy)
  *
- * Si backend y frontend están en dominios distintos (api.erosyafrodita.com vs erosyafrodita.com),
+ * Si backend y frontend están en dominios distintos (api.ageperfumes.com vs ageperfumes.com),
  * añade en tu servidor Nginx/Caddy una regla que proxy-pase /sitemap.xml y /robots.txt
  * desde el dominio raíz a este controlador.
  */
 @RestController
 public class SitemapController {
 
-    @Value("${app.base.url:https://erosyafrodita.com}")
+    @Value("${app.base.url:https://ageperfumes.com}")
     private String baseUrl;
 
     private final ProductoRepository productoRepository;
@@ -46,7 +46,7 @@ public class SitemapController {
      * Incluye:
      *  - Página de inicio
      *  - Páginas de categoría (/catalog?categoria=...)
-     *  - Página de cada producto activo (/perfume/{slug})
+     *  - Página de cada producto activo (/product/{slug})
      *
      * Google indexa ~50.000 URLs por sitemap. Con el catálogo actual está lejos de ese límite.
      */
@@ -61,10 +61,10 @@ public class SitemapController {
 
         // ── Páginas estáticas ──────────────────────────────────────────────
         appendUrl(sb, baseUrl + "/",               hoy, "daily",   "1.00");
-        appendUrl(sb, baseUrl + "/#/catalog",       hoy, "daily",   "0.90");
-        appendUrl(sb, baseUrl + "/#/about",         hoy, "monthly", "0.30");
-        appendUrl(sb, baseUrl + "/#/contact",       hoy, "monthly", "0.30");
-        appendUrl(sb, baseUrl + "/#/faq",           hoy, "monthly", "0.30");
+        appendUrl(sb, baseUrl + "/catalog",       hoy, "daily",   "0.90");
+        appendUrl(sb, baseUrl + "/about",         hoy, "monthly", "0.30");
+        appendUrl(sb, baseUrl + "/contact",       hoy, "monthly", "0.30");
+        appendUrl(sb, baseUrl + "/faq",           hoy, "monthly", "0.30");
 
         // ── Páginas de categoría ────────────────────────────────────────────
         List.of(
@@ -72,7 +72,7 @@ public class SitemapController {
             "Novedades", "Ofertas"
         ).forEach(cat -> {
             String catSlug = cat.toLowerCase().replace(" ", "-");
-            appendUrl(sb, baseUrl + "/#/catalog?categoria=" + catSlug, hoy, "weekly", "0.70");
+            appendUrl(sb, baseUrl + "/catalog?categoria=" + catSlug, hoy, "weekly", "0.70");
         });
 
         // ── Páginas de producto ─────────────────────────────────────────────
@@ -88,7 +88,7 @@ public class SitemapController {
             // Prioridad mayor para productos en oferta o en stock
             String priority = p.isEnOferta() ? "0.90" : (p.getStock() > 0 ? "0.80" : "0.50");
 
-            appendUrl(sb, baseUrl + "/#/product/" + p.getSlug(), lastMod, "weekly", priority);
+            appendUrl(sb, baseUrl + "/product/" + p.getSlug(), lastMod, "weekly", priority);
         }
 
         sb.append("</urlset>");
@@ -111,11 +111,11 @@ public class SitemapController {
             "# Rutas privadas — no indexar\n" +
             "Disallow: /api/admin/\n" +
             "Disallow: /api/auth/\n" +
-            "Disallow: /#/checkout\n" +
-            "Disallow: /#/cart\n" +
-            "Disallow: /#/profile\n" +
-            "Disallow: /#/login\n" +
-            "Disallow: /#/admin\n" +
+            "Disallow: /checkout\n" +
+            "Disallow: /cart\n" +
+            "Disallow: /profile\n" +
+            "Disallow: /login\n" +
+            "Disallow: /admin\n" +
             "\n" +
             "Sitemap: " + baseUrl + "/sitemap.xml\n";
 

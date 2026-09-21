@@ -39,7 +39,7 @@ public class InstagramAutoPostScheduler {
     @Value("${instagram.autopost.enabled:true}")
     private boolean enabled;
 
-    @Value("${instagram.admin.email:admin@erosyafrodita.com}")
+    @Value("${instagram.admin.email:admin@ageperfumes.com}")
     private String adminEmail;
 
     private final ProductoRepository productoRepository;

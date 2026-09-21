@@ -111,7 +111,7 @@ public class PedidoServicieImpl implements PedidoServicie {
             emailDestino = usuario.getEmail();
         }
         if (emailDestino == null) {
-            emailDestino = "info@erosyafrodita.com";
+            emailDestino = "info@ageperfumes.com";
         }
         pedido.setEmail(emailDestino);
 
@@ -321,7 +321,7 @@ public class PedidoServicieImpl implements PedidoServicie {
         pedidoTrak.registrarPago(pedidoPagado);
 
         try {
-            String emailDest = pedidoPagado.getEmail() != null ? pedidoPagado.getEmail() : "info@erosyafrodita.com";
+            String emailDest = pedidoPagado.getEmail() != null ? pedidoPagado.getEmail() : "info@ageperfumes.com";
             emailService.enviarEmailPedido(pedidoPagado, emailDest);
         } catch (Exception e) {
             System.err.println("Error enviando email tras pago: " + e.getMessage());
