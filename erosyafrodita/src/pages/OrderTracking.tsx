@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { rastrearPedido, PedidoSalida } from "../api/order";
+import { rastrearPedido, PedidoSalida, formatNumPedido } from "../api/order";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -16,15 +16,18 @@ const TrackOrder: React.FC = () => {
         e.preventDefault();
         if (!orderId || !email) return;
         
-        if (isNaN(Number(orderId))) {
-            setError("El número de pedido debe ser una cifra válida.");
+        // Acepta el número del correo (AGE-2026-00042), "#42" o solo "42"
+        const match = orderId.trim().match(/^(?:AGE-\d{4}-)?#?(\d+)$/i);
+        if (!match) {
+            setError("El número de pedido no es válido. Usa el formato del correo, por ejemplo AGE-2026-00042.");
             return;
         }
+        const idNumerico = Number(match[1]);
 
         try {
             setLoading(true);
             setError(null);
-            const data = await rastrearPedido(Number(orderId), email.trim());
+            const data = await rastrearPedido(idNumerico, email.trim());
             setPedido(data);
         } catch (err: any) {
             setError("No hemos encontrado ningún pedido con esos datos. Por favor, verifica el número y el correo.");
@@ -72,10 +75,10 @@ const TrackOrder: React.FC = () => {
                                         <div className="relative">
                                             <span className="absolute left-5 top-1/2 -translate-y-1/2 material-symbols-outlined text-primary/50 text-xl">tag</span>
                                             <input 
-                                                type="number" 
+                                                type="text"
                                                 value={orderId}
                                                 onChange={(e) => setOrderId(e.target.value)}
-                                                placeholder="Ej: 1024"
+                                                placeholder="Ej: AGE-2026-00042"
                                                 className="w-full h-14 bg-background-dark border border-charcoal/10 rounded-2xl pl-14 pr-6 text-charcoal placeholder:text-charcoal/30 focus:border-primary/50 outline-none transition-all group-hover:border-charcoal/20"
                                                 required
                                             />
@@ -133,7 +136,7 @@ const TrackOrder: React.FC = () => {
                                         <span className="material-symbols-outlined">arrow_back</span>
                                     </button>
                                     <div>
-                                        <h2 className="text-3xl font-black tracking-tight">Pedido #{pedido.idPedido}</h2>
+                                        <h2 className="text-3xl font-black tracking-tight">Pedido {formatNumPedido(pedido.idPedido, pedido.fechaCreacion)}</h2>
                                         <p className="text-primary text-[10px] font-black uppercase tracking-widest mt-1">
                                             Estado Atual: {pedido.estado}
                                         </p>
@@ -270,7 +273,7 @@ const TrackOrder: React.FC = () => {
                                     <h3 className="text-primary/60 text-[10px] font-black uppercase tracking-widest mb-4">¿Necesitas ayuda?</h3>
                                     <div className="flex gap-4">
                                         <Link to="/contact" className="flex-1 h-12 bg-charcoal/5 hover:bg-charcoal/10 rounded-xl flex items-center justify-center text-xs font-bold transition-all">Soporte</Link>
-                                        <a href={`https://wa.me/34600000000?text=Hola, tengo una duda sobre mi pedido #${pedido.idPedido}`} className="flex-1 h-12 bg-primary text-charcoal rounded-xl flex items-center justify-center text-xs font-black uppercase tracking-tighter transition-all">WhatsApp</a>
+                                        <a href={`https://wa.me/34600000000?text=Hola, tengo una duda sobre mi pedido ${formatNumPedido(pedido.idPedido, pedido.fechaCreacion)}`} className="flex-1 h-12 bg-primary text-charcoal rounded-xl flex items-center justify-center text-xs font-black uppercase tracking-tighter transition-all">WhatsApp</a>
                                     </div>
                                 </div>
                             </div>

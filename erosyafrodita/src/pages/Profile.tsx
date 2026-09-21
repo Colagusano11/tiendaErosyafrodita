@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { getHistorial, PedidoSalida } from "../api/order";
+import { getHistorial, PedidoSalida, formatNumPedido } from "../api/order";
 import { useAuth } from "../context/AuthContext";
 import { useAlert } from "../context/AlertContext";
 import { userService, UserProfile as UserProfileType } from "../api/userService";
@@ -858,7 +858,7 @@ const Profile: React.FC = () => {
                         <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
                           <div className="flex-1">
                             <div className="flex items-center gap-3 mb-2">
-                              <span className="text-xs font-black uppercase tracking-[0.2em] text-primary">Pedido #{pedido.idPedido}</span>
+                              <span className="text-xs font-black uppercase tracking-[0.2em] text-primary">Pedido {formatNumPedido(pedido.idPedido, pedido.fechaCreacion)}</span>
                               <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${pedido.estado === 'ENTREGADO'
                                   ? 'bg-green-500/10 text-green-500 border-green-500/20'
                                   : pedido.estado === 'CANCELADO'

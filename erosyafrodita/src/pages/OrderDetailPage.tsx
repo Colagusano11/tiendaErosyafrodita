@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { getPedidoById, PedidoSalida, confirmarPago } from "../api/order";
+import { getPedidoById, PedidoSalida, confirmarPago, formatNumPedido } from "../api/order";
 import { useAlert } from "../context/AlertContext";
 import { useCart } from "../context/CartContext";
 import type { Producto } from "../api/products";
@@ -140,7 +140,7 @@ const OrderDetailPage: React.FC = () => {
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-3">
                 <h1 className="text-charcoal text-3xl md:text-4xl font-black tracking-tight">
-                  Pedido #{pedido.idPedido}
+                  Pedido {formatNumPedido(pedido.idPedido, pedido.fechaCreacion)}
                 </h1>
                 <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${pedido.estado === 'ENTREGADO'
                     ? 'bg-green-500/20 text-green-500 border-green-500/30'
@@ -400,7 +400,7 @@ const OrderDetailPage: React.FC = () => {
               <span className="material-symbols-outlined text-primary text-5xl">description</span>
               <h3 className="text-white text-xl font-bold">Solicitar Factura</h3>
               <p className="text-sm text-yellow-300/80 mb-2">
-                Si desea que le emitamos una factura oficial de compra, por favor póngase en contacto con nosotros a través de WhatsApp o mediante nuestra página de Contacto, indicando el número de pedido: <strong className="text-white">#{pedido.idPedido}</strong>.
+                Si desea que le emitamos una factura oficial de compra, por favor póngase en contacto con nosotros a través de WhatsApp o mediante nuestra página de Contacto, indicando el número de pedido: <strong className="text-white">{formatNumPedido(pedido.idPedido, pedido.fechaCreacion)}</strong>.
               </p>
               <div className="flex gap-4 w-full mt-2">
                 <button

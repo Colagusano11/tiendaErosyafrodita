@@ -161,3 +161,9 @@ export async function rastrearPedido(id: number, email: string): Promise<PedidoS
   });
   return response.data;
 }
+
+/** Número de pedido legible, igual que el del correo de confirmación: AGE-2026-00042 */
+export function formatNumPedido(idPedido: number, fechaCreacion?: string): string {
+  const anio = fechaCreacion ? new Date(fechaCreacion).getFullYear() : new Date().getFullYear();
+  return `AGE-${anio}-${String(idPedido).padStart(5, "0")}`;
+}
