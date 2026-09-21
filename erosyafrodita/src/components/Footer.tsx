@@ -139,6 +139,18 @@ const Footer: React.FC = () => (
           <span className="hover:text-primary cursor-pointer transition-colors">X / Twitter</span>
         </div>
       </div>
+
+      <div className="mt-6 pt-6 border-t border-white/5 text-center text-[10px] font-medium tracking-wide text-white/20">
+        Hecha por{" "}
+        <a
+          href="https://alvaromartinezlopez.dev"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-white/40 hover:text-primary transition-colors underline decoration-white/10 underline-offset-2"
+        >
+          Álvaro Martínez López
+        </a>
+      </div>
     </div>
   </footer>
 );
