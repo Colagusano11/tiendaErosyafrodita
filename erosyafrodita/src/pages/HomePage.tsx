@@ -125,11 +125,24 @@ const HomePage: React.FC = () => {
 
         // --- NOVEDADES ---
         const novedadesBranded = shuffleArray(withImage.filter(isNovedadProduct));
-        const novedadesExtra = shuffleArray(withImage.filter(p => !isNovedadProduct(p)));
-        const novedadesAll = [...novedadesBranded, ...novedadesExtra];
+
+        // Después de los productos "ancla", priorizamos los que más margen (PVP - coste)
+        // dejan — son los que más interesa que se vean/vendan, aunque no tengan ficha
+        // propia todavía.
+        const novedadesBrandedIds = new Set(novedadesBranded.map(p => p.id));
+        const topMargen = [...withImage]
+          .filter(p => !novedadesBrandedIds.has(p.id))
+          .sort((a, b) => (b.precioPVP - b.precio) - (a.precioPVP - a.precio))
+          .slice(0, 12);
+        const topMargenIds = new Set(topMargen.map(p => p.id));
+
+        const novedadesExtra = shuffleArray(
+          withImage.filter(p => !novedadesBrandedIds.has(p.id) && !topMargenIds.has(p.id))
+        );
+        const novedadesAll = [...novedadesBranded, ...topMargen, ...novedadesExtra];
         setNovedadesPool(novedadesAll);
 
-        const novedadesIds = new Set(novedadesBranded.map(p => p.id));
+        const novedadesIds = new Set(novedadesAll.slice(0, novedadesBranded.length + topMargen.length).map(p => p.id));
 
         // --- OFERTA DE LA SEMANA ---
         const conDescuento = withImage.filter(p => p.precioPVP > p.precio);
