@@ -81,7 +81,7 @@ const SEO: React.FC<SEOProps> = ({
 
       {/* ── Twitter / X Cards ─────────────────────────────────────────────── */}
       <meta name="twitter:card"        content="summary_large_image" />
-      <meta name="twitter:site"        content="@erosyafrodita" />
+      <meta name="twitter:site"        content="@ageparfums" />
       <meta name="twitter:title"       content={pageTitle} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image"       content={ogImage} />

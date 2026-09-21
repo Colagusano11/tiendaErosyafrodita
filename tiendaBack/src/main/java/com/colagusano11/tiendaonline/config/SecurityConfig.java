@@ -48,7 +48,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/internal/**").permitAll()
                 // Endpoints públicos: auth, registro, productos, categorías
                 .requestMatchers(HttpMethod.POST, "/auth/**", "/usuarios/registro").permitAll()
-                .requestMatchers(HttpMethod.GET, "/productos/**", "/categorias/**", "/api/feeds/**", "/feeds/**", "/api/feed/**", "/feed/**", "/proxy-image/**", "/resenas/**", "/pedidos/rastrear").permitAll()
+                .requestMatchers(HttpMethod.GET, "/productos/**", "/categorias/**", "/api/feeds/**", "/feeds/**", "/api/feed/**", "/feed/**", "/proxy-image/**", "/resenas/**", "/pedidos/rastrear", "/sitemap.xml", "/robots.txt", "/social-preview/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/avisos-stock/suscribir", "/api/avisos-stock/suscribir").permitAll()
                 .requestMatchers(HttpMethod.GET, "/actuator/**").permitAll()
                 // Endpoints de Pedidos para Invitados (crear pedido y arrancar pago con Revolut)
