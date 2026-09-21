@@ -144,12 +144,8 @@ public class GoogleShoppingService {
             xml.append("      <g:shipping>\n");
             xml.append("        <g:country>ES</g:country>\n");
             xml.append("        <g:service>Envío estándar</g:service>\n");
-            // Envío gratis si el pedido supera X€ (ajustar según tu política)
-            double precioFinal = (p.getPrecioOferta() != null
-                    && p.getPrecioOferta().compareTo(BigDecimal.ZERO) > 0)
-                    ? p.getPrecioOferta().doubleValue()
-                    : p.getPrecio().doubleValue();
-            String costeEnvio = precioFinal >= 30.0 ? "0.00 EUR" : "3.99 EUR";
+            // Envío siempre gratis: debe coincidir con lo que muestra la web (Merchant Center compara).
+            String costeEnvio = "0.00 EUR";
             xml.append("        <g:price>").append(costeEnvio).append("</g:price>\n");
             xml.append("        <g:min_handling_time>0</g:min_handling_time>\n");
             xml.append("        <g:max_handling_time>1</g:max_handling_time>\n");

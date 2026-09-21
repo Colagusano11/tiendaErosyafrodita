@@ -49,6 +49,10 @@ const Header: React.FC = () => {
 
 
   return (
+    <>
+    <div className="w-full bg-primary text-charcoal text-center py-1.5 px-4 text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em]">
+      Envío gratis en todos los pedidos
+    </div>
     <header className="sticky top-0 z-50 w-full bg-charcoal border-b border-white/10 lg:backdrop-blur-md lg:bg-charcoal/95">
       <div className="max-w-[1440px] mx-auto flex items-center justify-between px-4 lg:px-10 py-3">
         {/* Navigation / Burger (Mobile) */}
@@ -242,6 +246,7 @@ const Header: React.FC = () => {
         </div>
       )}
     </header>
+    </>
   );
 };
 

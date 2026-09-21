@@ -916,7 +916,7 @@ const Checkout: React.FC = () => {
                       </div>
                       <div className="flex flex-col items-center text-center gap-1 p-3 rounded-2xl bg-charcoal/5 border border-charcoal/10">
                         <span className="material-symbols-outlined text-primary text-lg">local_shipping</span>
-                        <span className="text-[8px] font-black uppercase text-charcoal/60 tracking-widest">Envíos VIP 24/48h</span>
+                        <span className="text-[8px] font-black uppercase text-charcoal/60 tracking-widest">Envío gratis</span>
                       </div>
                     </div>
                   </div>

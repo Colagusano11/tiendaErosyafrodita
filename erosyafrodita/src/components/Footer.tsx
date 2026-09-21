@@ -117,7 +117,7 @@ const Footer: React.FC = () => (
       <div className="mt-12 py-10 border-y border-white/5 grid grid-cols-2 md:grid-cols-4 gap-8">
         {[
           { icon: "security", title: "Pago Seguro", desc: "Cifrado nivel bancario" },
-          { icon: "local_shipping", title: "Envío Prioritario", desc: "Entrega en 24/48h" },
+          { icon: "local_shipping", title: "Envío Gratis", desc: "En todos tus pedidos" },
           { icon: "verified", title: "Originalidad", desc: "Productos garantizados" },
           { icon: "support_agent", title: "Atención VIP", desc: "Soporte personalizado" }
         ].map((badge, idx) => (

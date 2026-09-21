@@ -21,8 +21,8 @@ export const ProductTrustBar: React.FC<ProductTrustBarProps> = ({
     },
     {
       icon: "local_shipping",
-      title: "Envío 24 - 48 Horas",
-      desc: "Entrega express en toda España peninsular. Gratis a partir de 49€."
+      title: "Envío Gratis",
+      desc: "En todos los pedidos, sin importe mínimo."
     },
     {
       icon: "keyboard_return",

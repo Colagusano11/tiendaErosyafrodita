@@ -75,7 +75,7 @@ const Terminos: React.FC = () => {
               Precios y Métodos de Pago
             </h2>
             <p className="text-charcoal/60 text-sm leading-relaxed mb-5">
-              Todos los precios mostrados en el sitio web están expresados en euros (€) e incluyen el IVA aplicable. Los gastos de envío se mostrarán de forma diferenciada antes de finalizar la compra.
+              Todos los precios mostrados en el sitio web están expresados en euros (€) e incluyen el IVA aplicable. El envío es gratuito en todos los pedidos, sin importe mínimo de compra.
             </p>
             <div className="bg-charcoal-surface border border-charcoal/10 rounded-2xl p-6">
               <p className="text-primary text-xs font-black uppercase tracking-widest mb-4">Métodos de pago aceptados</p>

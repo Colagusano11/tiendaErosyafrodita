@@ -271,7 +271,7 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
               </div>
               <div className="flex items-center gap-2.5">
                 <span className="material-symbols-outlined !text-[16px] text-perfume-green">local_shipping</span>
-                <span>Envío en 24-48h laborables. Gratis en pedidos superiores a 49€.</span>
+                <span>Envío gratis en todos los pedidos, sin importe mínimo.</span>
               </div>
             </div>
 
