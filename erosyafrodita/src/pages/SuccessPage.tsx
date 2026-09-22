@@ -183,7 +183,7 @@ const SuccessPage: React.FC = () => {
                         </div>
                         <div className="text-right">
                           <p className="text-white font-black text-lg">
-                            {prod.precioTotalLinea.toFixed(2)}<span className="text-primary text-xs ml-1">€</span>
+                            {(prod.precioTotalLinea ?? 0).toFixed(2)}<span className="text-primary text-xs ml-1">€</span>
                           </p>
                         </div>
                       </div>

@@ -19,8 +19,16 @@ const WishlistContext = createContext<WishlistContextType | undefined>(undefined
 
 export const WishlistProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [wishlist, setWishlist] = useState<Producto[]>(() => {
-    const stored = localStorage.getItem('wishlist');
-    return stored ? JSON.parse(stored) : [];
+    try {
+      const stored = localStorage.getItem('wishlist');
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      // Datos corruptos en localStorage (formato antiguo, truncados...) —
+      // mejor una wishlist vacía que reventar la app entera al arrancar,
+      // antes incluso de que el ErrorBoundary pueda actuar (este provider
+      // envuelve toda la app, por fuera del Router).
+      return [];
+    }
   });
 
   useEffect(() => {

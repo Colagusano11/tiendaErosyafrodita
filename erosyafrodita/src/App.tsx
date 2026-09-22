@@ -52,55 +52,60 @@ import WhatsAppButton from "./components/WhatsAppButton";
 import LaunchModal from "./components/LaunchModal";
 import CookieBanner from "./components/CookieBanner";
 import GoogleAnalytics from "./components/GoogleAnalytics";
+import ErrorBoundary, { RawErrorBoundary } from "./components/ErrorBoundary";
 
 const App: React.FC = () => {
   return (
-    <AuthProvider>
-      <AlertProvider>
-        <CartProvider>
-          <WishlistProvider>
-            <Router>
-              <GoogleAnalytics />
-              <AlertModal />
-              <AddToCartModal />
-              <WhatsAppButton />
-              <LaunchModal />
-              <CookieBanner />
-              <Suspense fallback={<PageLoader />}>
-                <Routes>
-                  <Route path="/" element={<HomePage />} />
-                  <Route path="/product/:slug" element={<ProductDetail />} />
-                  <Route path="/cart" element={<Cart />} />
-                  <Route path="/checkout" element={<Checkout />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/success" element={<SuccessPage />} />
-                  <Route path="/orders/:id" element={<OrderDetailPage />} />
-                  <Route path="/catalog" element={<Catalog />} />
-                  <Route path="/about" element={<About />} />
-                  <Route path="/contact" element={<Contact />} />
-                  <Route path="/faq" element={<Faq />} />
-                  <Route path="/wishlist" element={<Wishlist />} />
-                  <Route path="/legal/avisoLegal" element={<AvisoLegal />} />
-                  <Route path="/legal/privacidad" element={<Privacidad />} />
-                  <Route path="/legal/terminos" element={<Terminos />} />
-                  <Route path="/track-order" element={<OrderTracking />} />
+    <RawErrorBoundary>
+      <AuthProvider>
+        <AlertProvider>
+          <CartProvider>
+            <WishlistProvider>
+              <Router>
+                <GoogleAnalytics />
+                <AlertModal />
+                <AddToCartModal />
+                <WhatsAppButton />
+                <LaunchModal />
+                <CookieBanner />
+                <ErrorBoundary>
+                  <Suspense fallback={<PageLoader />}>
+                    <Routes>
+                      <Route path="/" element={<HomePage />} />
+                      <Route path="/product/:slug" element={<ProductDetail />} />
+                      <Route path="/cart" element={<Cart />} />
+                      <Route path="/checkout" element={<Checkout />} />
+                      <Route path="/login" element={<Login />} />
+                      <Route path="/profile" element={<Profile />} />
+                      <Route path="/success" element={<SuccessPage />} />
+                      <Route path="/orders/:id" element={<OrderDetailPage />} />
+                      <Route path="/catalog" element={<Catalog />} />
+                      <Route path="/about" element={<About />} />
+                      <Route path="/contact" element={<Contact />} />
+                      <Route path="/faq" element={<Faq />} />
+                      <Route path="/wishlist" element={<Wishlist />} />
+                      <Route path="/legal/avisoLegal" element={<AvisoLegal />} />
+                      <Route path="/legal/privacidad" element={<Privacidad />} />
+                      <Route path="/legal/terminos" element={<Terminos />} />
+                      <Route path="/track-order" element={<OrderTracking />} />
 
-                  {/* Rutas ADMIN — solo cupones y clientes; productos y pedidos se gestionan desde SellerKing */}
-                  <Route element={<AdminRoute />}>
-                    <Route path="/admin" element={<Navigate to="/admin/coupons" replace />} />
-                    <Route path="/admin/coupons" element={<AdminCouponsPage />} />
-                    <Route path="/admin/users" element={<AdminUsersPage />} />
-                  </Route>
+                      {/* Rutas ADMIN — solo cupones y clientes; productos y pedidos se gestionan desde SellerKing */}
+                      <Route element={<AdminRoute />}>
+                        <Route path="/admin" element={<Navigate to="/admin/coupons" replace />} />
+                        <Route path="/admin/coupons" element={<AdminCouponsPage />} />
+                        <Route path="/admin/users" element={<AdminUsersPage />} />
+                      </Route>
 
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
-              </Suspense>
-            </Router>
-          </WishlistProvider>
-        </CartProvider>
-      </AlertProvider>
-    </AuthProvider>
+                      <Route path="*" element={<Navigate to="/" replace />} />
+                    </Routes>
+                  </Suspense>
+                </ErrorBoundary>
+              </Router>
+            </WishlistProvider>
+          </CartProvider>
+        </AlertProvider>
+      </AuthProvider>
+    </RawErrorBoundary>
   );
 };
 

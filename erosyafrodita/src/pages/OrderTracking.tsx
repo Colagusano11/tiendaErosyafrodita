@@ -238,10 +238,10 @@ const TrackOrder: React.FC = () => {
                                             </div>
                                             <div className="text-right">
                                                 <p className="text-white font-black text-xl">
-                                                    {prod.precioTotalLinea.toFixed(2)}<span className="text-primary text-xs ml-1">€</span>
+                                                    {(prod.precioTotalLinea ?? 0).toFixed(2)}<span className="text-primary text-xs ml-1">€</span>
                                                 </p>
                                                 <p className="text-white/20 text-[10px] uppercase font-bold tracking-widest">
-                                                    {prod.precioUnitario.toFixed(2)}€ / ud
+                                                    {(prod.precioUnitario ?? 0).toFixed(2)}€ / ud
                                                 </p>
                                             </div>
                                         </div>

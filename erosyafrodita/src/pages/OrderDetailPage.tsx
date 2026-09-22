@@ -271,7 +271,7 @@ const OrderDetailPage: React.FC = () => {
                           {prod.nombreProducto}
                         </h4>
                         <p className="text-charcoal text-lg font-bold">
-                          {prod.precioTotalLinea.toFixed(2)} €
+                          {(prod.precioTotalLinea ?? 0).toFixed(2)} €
                         </p>
                       </div>
                       <p className="text-charcoal/60 text-sm mt-1">
@@ -280,7 +280,7 @@ const OrderDetailPage: React.FC = () => {
                       <p className="text-charcoal/60 text-sm">
                         Cantidad: {prod.cantidad}{" "}
                         <span className="text-xs opacity-60">
-                          ({prod.precioUnitario.toFixed(2)} €/u)
+                          ({(prod.precioUnitario ?? 0).toFixed(2)} €/u)
                         </span>
                       </p>
 

@@ -560,7 +560,7 @@ const ProductDetail: React.FC = () => {
                           className="px-4 py-2 rounded-xl bg-primary text-charcoal text-[9px] font-black border border-primary shadow-lg shadow-primary/10 cursor-default flex flex-col items-center leading-tight"
                         >
                           <span>{v.etiqueta}</span>
-                          <span className="opacity-70 font-bold">{v.precioPVP.toFixed(2)}€</span>
+                          <span className="opacity-70 font-bold">{(v.precioPVP ?? 0).toFixed(2)}€</span>
                         </div>
                       ) : (
                         <Link
@@ -574,7 +574,7 @@ const ProductDetail: React.FC = () => {
                         >
                           <span>{v.etiqueta}</span>
                           <span className="opacity-70 font-bold">
-                            {v.disponible ? `${v.precioPVP.toFixed(2)}€` : "Agotado"}
+                            {v.disponible ? `${(v.precioPVP ?? 0).toFixed(2)}€` : "Agotado"}
                           </span>
                         </Link>
                       )
