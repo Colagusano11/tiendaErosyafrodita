@@ -40,6 +40,12 @@ public class ProductoController {
         return productoService.findAllByEan(ean);
     }
 
+    /** Selector "Capacidad" de la ficha: mismas fragancia y marca, distinto volumen/concentración. */
+    @GetMapping("/{identifier}/variantes")
+    public List<com.colagusano11.tiendaonline.dto.ProductoVarianteDto> getVariantesPorCapacidad(@PathVariable String identifier) {
+        return productoService.getVariantesPorCapacidad(identifier);
+    }
+
     @GetMapping
     public List<Producto> getAllProductos(){
         return productoService.getAllProductos();

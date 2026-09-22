@@ -23,6 +23,7 @@ public interface ProductoService{
     Producto findById(Long id);
     Producto findByEan(String ean);
     List<Producto> findAllByEan(String ean);
+    List<com.colagusano11.tiendaonline.dto.ProductoVarianteDto> getVariantesPorCapacidad(String identifier);
    
     String createSku(Producto p);
     Producto findByEanAndDistribuidor(String ean, Distribuidor distribuidor);

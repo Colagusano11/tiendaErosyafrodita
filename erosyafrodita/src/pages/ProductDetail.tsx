@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { getProductoById, getVariantes, getNuevos, type Producto, getProductos } from "../api/products";
+import { getProductoById, getVariantesPorCapacidad, getNuevos, type Producto, type ProductoVariante, getProductos } from "../api/products";
 import { getResenas, crearResena, checkPurchaseStatus, type Resena } from "../api/reviews";
 import ProductCard from "../components/ProductCard";
 import { useCart } from "../context/CartContext";
@@ -86,7 +86,7 @@ const ProductDetail: React.FC = () => {
   const [hasPurchased, setHasPurchased] = useState(false);
   
   // Variantes y Recomendados
-  const [variantes, setVariantes] = useState<Producto[]>([]);
+  const [variantes, setVariantes] = useState<ProductoVariante[]>([]);
   const [recomendados, setRecomendados] = useState<Producto[]>([]);
   const [isStockModalOpen, setIsStockModalOpen] = useState(false);
 
@@ -119,9 +119,9 @@ const ProductDetail: React.FC = () => {
         setProduct(data);
 
         
-        // Cargar variantes (otros tamaños)
-        const v = await getVariantes(data);
-        setVariantes(v);
+        // Cargar variantes (otras capacidades/concentraciones de la misma fragancia)
+        const v = await getVariantesPorCapacidad(slug);
+        setVariantes(v.length > 1 ? v : []);
 
         // Cargar recomendados (Lógica NOVEDADES_BRANDS de la Home con pool ampliado)
         const resNovedades = await getProductos(0, 300);
@@ -524,24 +524,38 @@ const ProductDetail: React.FC = () => {
                 )}
               </div>
 
-              {/* Selector de Tamaños (Variantes) */}
+              {/* Selector de Capacidad (mismas fragancia y marca, distinto volumen/concentración) */}
               {variantes.length > 0 && (
                 <div className="mb-8">
                   <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-charcoal/30 mb-3 flex items-center gap-2">
-                    <span className="material-symbols-outlined !text-[12px]">Straighten</span> Selección de Tamaño:
+                    <span className="material-symbols-outlined !text-[12px]">straighten</span> Capacidad:
                   </h4>
                   <div className="flex flex-wrap gap-2">
-                    <div className="px-4 py-2 rounded-xl bg-primary text-charcoal text-[9px] font-black border border-primary shadow-lg shadow-primary/10 cursor-default">
-                      {product.nombre.match(/\d+\s*ml/i)?.[0] || "Actual"}
-                    </div>
                     {variantes.map(v => (
-                      <Link 
-                        key={v.id} 
-                        to={`/product/${v.slug || v.id}`}
-                        className="px-4 py-2 rounded-xl border border-charcoal/10 text-charcoal/30 text-[9px] font-black hover:border-primary hover:text-charcoal transition-all bg-charcoal/5"
-                      >
-                        {v.nombre.match(/\d+\s*ml/i)?.[0] || "Ver opción"}
-                      </Link>
+                      v.actual ? (
+                        <div
+                          key={v.slug}
+                          className="px-4 py-2 rounded-xl bg-primary text-charcoal text-[9px] font-black border border-primary shadow-lg shadow-primary/10 cursor-default flex flex-col items-center leading-tight"
+                        >
+                          <span>{v.etiqueta}</span>
+                          <span className="opacity-70 font-bold">{v.precioPVP.toFixed(2)}€</span>
+                        </div>
+                      ) : (
+                        <Link
+                          key={v.slug}
+                          to={`/product/${v.slug}`}
+                          className={`px-4 py-2 rounded-xl border text-[9px] font-black transition-all flex flex-col items-center leading-tight ${
+                            v.disponible
+                              ? "border-charcoal/10 text-charcoal/50 hover:border-primary hover:text-charcoal bg-charcoal/5"
+                              : "border-charcoal/5 text-charcoal/20 bg-charcoal/[0.02] pointer-events-none"
+                          }`}
+                        >
+                          <span>{v.etiqueta}</span>
+                          <span className="opacity-70 font-bold">
+                            {v.disponible ? `${v.precioPVP.toFixed(2)}€` : "Agotado"}
+                          </span>
+                        </Link>
+                      )
                     ))}
                   </div>
                 </div>

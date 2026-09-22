@@ -192,24 +192,23 @@ export async function getDistribuidores(): Promise<string[]> {
 
 // === Variantes y Novedades ===
 
-/**
- * Busca productos similares (variantes de tamaño)
- * Busca por marca y que el nombre empiece igual
- */
-export async function getVariantes(producto: Producto): Promise<Producto[]> {
-  if (!producto.manufacturer) return [];
-  
-  // Limpiamos el nombre de tamaños (ej: "Sauvage 100ml" -> "Sauvage")
-  const nombreBase = producto.nombre.split(/\d+\s*ml/i)[0].trim();
-  
-  const res = await filtrarProductos({
-    manufacturer: producto.manufacturer,
-    nombre: nombreBase,
-    size: 50,
-    status: "ACTIVOS"
-  });
+export interface ProductoVariante {
+  slug: string;
+  etiqueta: string;       // "50 ml · EDP"
+  precioPVP: number;
+  disponible: boolean;    // stock > 0
+  actual: boolean;        // es el producto que se está viendo
+}
 
-  return res.content.filter(p => p.id !== producto.id);
+/**
+ * Selector "Capacidad" de la ficha: misma marca + misma fragancia (el
+ * backend agrupa por nombre sin volumen/concentración/formato — nunca toca
+ * la línea de la fragancia, así que no mezcla productos distintos), con
+ * cada opción etiquetada por volumen y concentración (EDP/EDT/EDC).
+ */
+export async function getVariantesPorCapacidad(identifier: string): Promise<ProductoVariante[]> {
+  const res = await api.get<ProductoVariante[]>(`/productos/${identifier}/variantes`);
+  return res.data;
 }
 
 /**

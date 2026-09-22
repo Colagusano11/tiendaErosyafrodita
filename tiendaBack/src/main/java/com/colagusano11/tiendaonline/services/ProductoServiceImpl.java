@@ -72,6 +72,93 @@ public class ProductoServiceImpl implements ProductoService {
         return productoRepository.findAllByEanOrderByPrecioAsc(ean);
     }
 
+    // ── Variantes por capacidad ("50ml EDP" / "100ml EDT"...) ───────────────
+    //
+    // Agrupa por (marca + nombre sin volumen/concentración/formato) — a
+    // propósito NO se toca nada de la línea de la fragancia (Intense,
+    // Elixir, Homme...), solo lo puramente dimensional, para no mezclar
+    // fragancias distintas por error.
+
+    private static final java.util.regex.Pattern VOLUMEN_PATTERN =
+            java.util.regex.Pattern.compile("(\\d+)\\s*ml", java.util.regex.Pattern.CASE_INSENSITIVE);
+
+    private static final java.util.List<java.util.regex.Pattern> CONCENTRACION_PATTERNS = java.util.List.of(
+            java.util.regex.Pattern.compile("eau\\s+de\\s+parfum", java.util.regex.Pattern.CASE_INSENSITIVE),
+            java.util.regex.Pattern.compile("eau\\s+de\\s+toilette", java.util.regex.Pattern.CASE_INSENSITIVE),
+            java.util.regex.Pattern.compile("eau\\s+de\\s+cologne", java.util.regex.Pattern.CASE_INSENSITIVE),
+            java.util.regex.Pattern.compile("\\bedp\\b", java.util.regex.Pattern.CASE_INSENSITIVE),
+            java.util.regex.Pattern.compile("\\bedt\\b", java.util.regex.Pattern.CASE_INSENSITIVE),
+            java.util.regex.Pattern.compile("\\bedc\\b", java.util.regex.Pattern.CASE_INSENSITIVE)
+    );
+
+    private static final java.util.regex.Pattern RUIDO_FORMATO_PATTERN =
+            java.util.regex.Pattern.compile("\\b(spray|vapo|vaporizador|natural spray|recargable|refillable)\\b",
+                    java.util.regex.Pattern.CASE_INSENSITIVE);
+
+    /** "Eau De Parfum" / "EDP" -> "EDP", etc. Devuelve null si no encuentra ninguna. */
+    private static String extraerConcentracion(String nombre) {
+        String n = nombre.toLowerCase();
+        if (n.contains("eau de parfum") || n.matches(".*\\bedp\\b.*")) return "EDP";
+        if (n.contains("eau de toilette") || n.matches(".*\\bedt\\b.*")) return "EDT";
+        if (n.contains("eau de cologne") || n.matches(".*\\bedc\\b.*")) return "EDC";
+        return null;
+    }
+
+    /** "Lorenzo Villoresi Teint De Neige Eau De Parfum Spray 50ml" -> "lorenzo villoresi teint de neige" */
+    private static String normalizarNombreBase(String nombre) {
+        if (nombre == null) return "";
+        String n = nombre;
+        n = VOLUMEN_PATTERN.matcher(n).replaceAll(" ");
+        for (java.util.regex.Pattern p : CONCENTRACION_PATTERNS) {
+            n = p.matcher(n).replaceAll(" ");
+        }
+        n = RUIDO_FORMATO_PATTERN.matcher(n).replaceAll(" ");
+        n = n.toLowerCase().replaceAll("\\s+", " ").trim();
+        return n;
+    }
+
+    private static String etiquetaCapacidad(Producto p) {
+        java.util.regex.Matcher m = VOLUMEN_PATTERN.matcher(p.getNombre() == null ? "" : p.getNombre());
+        String volumen = m.find() ? m.group(1) + " ml" : null;
+        String concentracion = extraerConcentracion(p.getNombre() == null ? "" : p.getNombre());
+        if (volumen != null && concentracion != null) return volumen + " · " + concentracion;
+        if (volumen != null) return volumen;
+        if (concentracion != null) return concentracion;
+        return p.getNombre();
+    }
+
+    @Override
+    public List<com.colagusano11.tiendaonline.dto.ProductoVarianteDto> getVariantesPorCapacidad(String identifier) {
+        Producto actual;
+        try {
+            actual = getProducto(Long.parseLong(identifier));
+        } catch (NumberFormatException e) {
+            actual = getProductoBySlug(identifier);
+        }
+        if (actual.getManufacturer() == null || actual.getNombre() == null) {
+            return List.of();
+        }
+
+        String claveActual = normalizarNombreBase(actual.getNombre());
+        List<Producto> mismaMarca = productoRepository.findByManufacturerAndActivoTrue(actual.getManufacturer());
+
+        final Long actualId = actual.getId();
+        return mismaMarca.stream()
+                .filter(p -> normalizarNombreBase(p.getNombre()).equals(claveActual))
+                .sorted(java.util.Comparator.comparing(p -> {
+                    java.util.regex.Matcher m = VOLUMEN_PATTERN.matcher(p.getNombre() == null ? "" : p.getNombre());
+                    return m.find() ? Integer.parseInt(m.group(1)) : Integer.MAX_VALUE;
+                }))
+                .map(p -> new com.colagusano11.tiendaonline.dto.ProductoVarianteDto(
+                        p.getSlug(),
+                        etiquetaCapacidad(p),
+                        p.getPrecioPVP(),
+                        p.getStock() != null && p.getStock() > 0,
+                        p.getId().equals(actualId)
+                ))
+                .toList();
+    }
+
     @Override
     public String createSku(Producto p) {
         String prov = p.getDistribuidor() != null ? p.getDistribuidor().name().substring(0, 3) : "GEN";
