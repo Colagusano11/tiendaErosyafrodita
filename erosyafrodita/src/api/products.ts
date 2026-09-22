@@ -194,6 +194,7 @@ export async function getDistribuidores(): Promise<string[]> {
 
 export interface ProductoVariante {
   slug: string;
+  ean: string | null;
   etiqueta: string;       // "50 ml · EDP"
   precioPVP: number;
   disponible: boolean;    // stock > 0

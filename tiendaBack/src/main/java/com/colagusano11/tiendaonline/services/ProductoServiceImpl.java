@@ -151,6 +151,7 @@ public class ProductoServiceImpl implements ProductoService {
                 }))
                 .map(p -> new com.colagusano11.tiendaonline.dto.ProductoVarianteDto(
                         p.getSlug(),
+                        p.getEan(),
                         etiquetaCapacidad(p),
                         p.getPrecioPVP(),
                         p.getStock() != null && p.getStock() > 0,

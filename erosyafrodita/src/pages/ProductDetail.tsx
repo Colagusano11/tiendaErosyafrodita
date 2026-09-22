@@ -115,12 +115,15 @@ const ProductDetail: React.FC = () => {
     (async () => {
       try {
         setLoading(true);
-        const data = await getProductoById(slug);
+        // Producto y variantes se piden en paralelo (no dependen entre sí) y se
+        // fijan juntos, para que el contenido de marketing (que puede venir de
+        // una variante hermana, ver más abajo) no parpadee sin datos en el
+        // primer render.
+        const [data, v] = await Promise.all([
+          getProductoById(slug),
+          getVariantesPorCapacidad(slug),
+        ]);
         setProduct(data);
-
-        
-        // Cargar variantes (otras capacidades/concentraciones de la misma fragancia)
-        const v = await getVariantesPorCapacidad(slug);
         setVariantes(v.length > 1 ? v : []);
 
         // Cargar recomendados (Lógica NOVEDADES_BRANDS de la Home con pool ampliado)
@@ -248,7 +251,17 @@ const ProductDetail: React.FC = () => {
   const rating = 4.8;
   const mainImg = selectedImg ?? img;
 
-  const marketingContent = product ? getMarketingContent(product.ean) : null;
+  // El contenido de marketing es por familia de fragancia, no por talla: si
+  // esta variante concreta (EAN) no tiene su propia ficha, se reutiliza la
+  // de cualquier hermana (mismo nombre base, otro tamaño/concentración) que
+  // sí la tenga — una sola redacción sirve para todos los tamaños, y solo
+  // cambian precio/stock/imagen de portada, que ya vienen siempre en vivo.
+  const siblingContent = variantes
+    .map((v) => getMarketingContent(v.ean))
+    .find((c): c is NonNullable<typeof c> => !!c) ?? null;
+  const marketingContent = product
+    ? getMarketingContent(product.ean) ?? siblingContent
+    : null;
   const seoTitle = product.tituloSeo
     ?? marketingContent?.seoTitle
     ?? `${name} | AGE Parfums`;

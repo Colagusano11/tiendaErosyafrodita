@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 public class ProductoVarianteDto {
 
     private String slug;
+    private String ean;
     private String etiqueta;
     private BigDecimal precioPVP;
     private boolean disponible;
@@ -13,8 +14,9 @@ public class ProductoVarianteDto {
 
     public ProductoVarianteDto() {}
 
-    public ProductoVarianteDto(String slug, String etiqueta, BigDecimal precioPVP, boolean disponible, boolean actual) {
+    public ProductoVarianteDto(String slug, String ean, String etiqueta, BigDecimal precioPVP, boolean disponible, boolean actual) {
         this.slug = slug;
+        this.ean = ean;
         this.etiqueta = etiqueta;
         this.precioPVP = precioPVP;
         this.disponible = disponible;
@@ -23,6 +25,9 @@ public class ProductoVarianteDto {
 
     public String getSlug()               { return slug; }
     public void setSlug(String v)         { this.slug = v; }
+
+    public String getEan()                { return ean; }
+    public void setEan(String v)          { this.ean = v; }
 
     public String getEtiqueta()           { return etiqueta; }
     public void setEtiqueta(String v)     { this.etiqueta = v; }
