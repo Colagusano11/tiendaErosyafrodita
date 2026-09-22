@@ -273,7 +273,7 @@ const TrackOrder: React.FC = () => {
                                     <h3 className="text-primary/60 text-[10px] font-black uppercase tracking-widest mb-4">¿Necesitas ayuda?</h3>
                                     <div className="flex gap-4">
                                         <Link to="/contact" className="flex-1 h-12 bg-charcoal/5 hover:bg-charcoal/10 rounded-xl flex items-center justify-center text-xs font-bold transition-all">Soporte</Link>
-                                        <a href={`https://wa.me/34600000000?text=Hola, tengo una duda sobre mi pedido ${formatNumPedido(pedido.idPedido, pedido.fechaCreacion)}`} className="flex-1 h-12 bg-primary text-charcoal rounded-xl flex items-center justify-center text-xs font-black uppercase tracking-tighter transition-all">WhatsApp</a>
+                                        <a href={`https://wa.me/34685611801?text=Hola, tengo una duda sobre mi pedido ${formatNumPedido(pedido.idPedido, pedido.fechaCreacion)}`} className="flex-1 h-12 bg-primary text-charcoal rounded-xl flex items-center justify-center text-xs font-black uppercase tracking-tighter transition-all">WhatsApp</a>
                                     </div>
                                 </div>
                             </div>

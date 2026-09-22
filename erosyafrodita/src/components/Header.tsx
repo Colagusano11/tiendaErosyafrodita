@@ -237,7 +237,7 @@ const Header: React.FC = () => {
             <div className="mt-auto pt-10">
                <div className="p-6 rounded-2xl bg-white/5 border border-white/5">
                   <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-2 text-center">Atención al Cliente</p>
-                  <a href="https://wa.me/34600000000" className="flex items-center justify-center gap-2 text-primary font-black text-xs uppercase tracking-widest">
+                  <a href="https://wa.me/34685611801" className="flex items-center justify-center gap-2 text-primary font-black text-xs uppercase tracking-widest">
                     <span className="material-symbols-outlined text-sm">chat</span> WhatsApp Concierge
                   </a>
                </div>
