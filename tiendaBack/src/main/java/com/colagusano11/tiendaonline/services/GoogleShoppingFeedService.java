@@ -146,7 +146,7 @@ public class GoogleShoppingFeedService {
                  .append("      <g:availability>").append(p.getStock() > 0 ? "in stock" : "out of stock").append("</g:availability>\n")
                  // — Marca y categoría —
                  .append("      <g:brand>").append(marca).append("</g:brand>\n")
-                 .append("      <g:google_product_category>").append(categoria).append("</g:google_product_category>\n")
+                 .append("      <g:google_product_category>").append(escape(categoria)).append("</g:google_product_category>\n")
                  // — Condición —
                  .append("      <g:condition>new</g:condition>\n")
                  // — Género (si aplica) —
