@@ -6,9 +6,11 @@ Para cada EAN de la tienda, mira TODOS los proveedores (SellerKing) con
 stock > 0 ahora mismo:
 
   - 1 solo proveedor con stock -> precio normal calculado desde su coste
-    real (coste + envío + IVA de compra), margen neto objetivo, SIN oferta.
-    Margen del 12% normalmente, pero del 15% si el coste real de ESE
-    proveedor concreto es menor de 15€ (en absoluto, el 12% deja muy poco).
+    neto (coste + envío, SIN IVA de compra — es deducible, no es un coste
+    real para una empresa en régimen general), margen neto objetivo, SIN
+    oferta. Margen del 12% normalmente, pero del 15% si el coste con IVA de
+    compra incluido de ESE proveedor concreto es menor de 15€ (en absoluto,
+    el 12% deja muy poco).
 
   - 2+ proveedores con stock -> el PRECIO NORMAL (preciopvp, el que se
     tacha) se calcula desde el proveedor MÁS CARO; el PRECIO DE OFERTA
@@ -58,13 +60,34 @@ def run_psql(sql):
 
 
 def coste_real(price, supplier_id):
+    """Coste neto: proveedor + envío, SIN IVA de compra.
+
+    El IVA que se paga al proveedor (IVA soportado) NO es un coste real para
+    una empresa en régimen general — es deducible, se resta del IVA
+    repercutido en la declaración trimestral. Antes esta función multiplicaba
+    por IVA aquí Y pvp() volvía a multiplicar por IVA otra vez para el precio
+    final: el IVA de compra se estaba cobrando dos veces, inflando todo el
+    catálogo muy por encima del margen que se creía estar aplicando (un 12%
+    "nominal" salía en la práctica ~27% real). Confirmado con la empresa que
+    factura en régimen general (no recargo de equivalencia), donde este
+    cambio sí aplica.
+    """
     shipping = SHIPPING.get(supplier_id, 5.20)
-    return round((price + shipping) * IVA + 1e-9, 2)
+    return round(price + shipping + 1e-9, 2)
 
 
 def pvp(coste):
-    margen = MARGEN_NETO_BARATO if coste < UMBRAL_COSTE_BARATO else MARGEN_NETO
-    return round(coste * IVA / (1 - margen) + 1e-9, 2)
+    """Precio de venta final (IVA de venta incluido) para el margen neto
+    objetivo, calculado sobre coste NETO (sin IVA de compra, ver arriba).
+
+    El umbral UMBRAL_COSTE_BARATO se sigue comparando contra el coste con IVA
+    de compra incluido — así el tramo de margen "barato" significa lo mismo
+    que cuando se aprobó (15€ de coste real, con todo incluido), aunque el
+    precio final ya no arrastre el IVA de compra como si fuera un coste.
+    """
+    coste_con_iva_compra = coste * IVA
+    margen = MARGEN_NETO_BARATO if coste_con_iva_compra < UMBRAL_COSTE_BARATO else MARGEN_NETO
+    return round(coste / (1 - margen) * IVA + 1e-9, 2)
 
 
 def main():
