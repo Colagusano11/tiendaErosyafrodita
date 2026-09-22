@@ -32,8 +32,12 @@ Uso: python3 sync_pricing.py [--apply]
 import subprocess
 import sys
 
-MARGEN_NETO = 0.12
-MARGEN_NETO_BARATO = 0.15               # coste real < UMBRAL_COSTE_BARATO -> este margen, no el de arriba
+MARGEN_NETO = 0.20                      # antes 0.12 — decisión de Álvaro/Emilio 2026-09-22: en Amazon
+                                         # el margen real efectivo es ~24-25% (18,70% de comisión +
+                                         # 6-8% de margen propio); con 20% neto directo en la web, sin
+                                         # comisión de marketplace de por medio, queda ~5% más barato
+                                         # que Amazon y deja más margen real que el 6-8% que se gana allí.
+MARGEN_NETO_BARATO = 0.25               # coste real < UMBRAL_COSTE_BARATO -> este margen, no el de arriba
 UMBRAL_COSTE_BARATO = 15.0              # € de coste real (proveedor + envío + IVA de compra)
 IVA = 1.21
 SHIPPING = {1: 5.20, 2: 4.35}          # BTS=1, NovaEngel=2
