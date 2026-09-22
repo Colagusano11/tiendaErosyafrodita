@@ -44,17 +44,17 @@ SHIPPING = {1: 5.20, 2: 4.35}          # BTS=1, NovaEngel=2
 DESCUENTO_MINIMO_PCT = 5                # por debajo de esto, no merece la pena mostrar "oferta"
 
 # El margen fijo (20%/25%) NO garantiza por sí solo precios más baratos que
-# Amazon: el repricer de Amazon mueve esos precios de forma dinámica y en la
-# práctica ~1 de cada 3 productos salían más caros en la web con solo el
-# margen fijo (verificado 2026-09-22 contra product_store_listings, hasta un
-# 42% más caro en algún caso). Se añade un techo: si hay precio real de
+# Amazon: el repricer de Amazon mueve esos precios de forma dinámica (no es
+# un simple coste×1,24) y en la práctica la diferencia real va de -53,7% a
+# +42,1% según el producto, no un rango estrecho (verificado 2026-09-22
+# contra product_store_listings). Se añade un techo: si hay precio real de
 # Amazon ES para ese EAN, el precio web no supera Amazon × (1 -
-# DESCUENTO_MIN_VS_AMAZON) — salvo que eso baje del margen mínimo de
-# seguridad, en cuyo caso se prioriza no perder rentabilidad sobre ganarle a
-# Amazon en esa referencia concreta (mismo criterio que se aplicó a mano con
-# el Villoresi: nunca perseguir un precio por debajo del propio coste).
+# DESCUENTO_MIN_VS_AMAZON) — pero NUNCA por debajo del margen neto objetivo
+# (20%/25%, el mismo de pvp()). Decisión explícita de Álvaro/Emilio
+# 2026-09-22: el margen objetivo ES el mínimo aceptable, no hay un suelo más
+# bajo aparte — mejor quedar algo por encima de Amazon en un puñado de
+# productos (~12 de 384 comparables) que renunciar a margen real.
 DESCUENTO_MIN_VS_AMAZON = 0.05
-MARGEN_MINIMO_SEGURIDAD = 0.08
 
 APPLY = "--apply" in sys.argv
 
@@ -111,10 +111,18 @@ def pvp(coste):
     return pvp_con_margen(coste, margen)
 
 
-def aplicar_techo_amazon(precio_calculado, coste, ean, precios_amazon_es):
+def aplicar_techo_amazon(precio_calculado, coste_mas_barato_disponible, ean, precios_amazon_es):
     """Si hay precio real de Amazon ES para este EAN y el precio calculado lo
     supera, lo baja hasta Amazon × (1 - DESCUENTO_MIN_VS_AMAZON) — pero nunca
-    por debajo del margen mínimo de seguridad. Devuelve (precio_final, capado).
+    por debajo del margen neto objetivo (20%/25%, pvp()).
+
+    El suelo se evalúa sobre coste_mas_barato_disponible: el coste MÁS BARATO
+    entre todos los proveedores con stock para este EAN, no el que se usó
+    para calcular precio_calculado (que en el "precio normal"/tachado es a
+    propósito el proveedor MÁS CARO, solo de referencia visual). Si hay un
+    proveedor más barato disponible, es con ESE con el que de verdad se
+    podría servir el pedido más barato, así que es el que marca hasta dónde
+    se puede bajar sin perder el margen objetivo. Devuelve (precio_final, capado).
     """
     amazon_price = precios_amazon_es.get(ean)
     if not amazon_price or amazon_price <= 0:
@@ -124,7 +132,7 @@ def aplicar_techo_amazon(precio_calculado, coste, ean, precios_amazon_es):
     if precio_calculado <= techo:
         return precio_calculado, False
 
-    precio_min_seguro = pvp_con_margen(coste, MARGEN_MINIMO_SEGURIDAD)
+    precio_min_seguro = pvp(coste_mas_barato_disponible)
     return max(precio_min_seguro, techo), True
 
 
@@ -196,7 +204,7 @@ def main():
         caro = opciones[-1]
 
         if len(opciones) == 1 or barato[0] == caro[0]:
-            precio_normal, capado = aplicar_techo_amazon(pvp(caro[0]), caro[0], ean, precios_amazon_es)
+            precio_normal, capado = aplicar_techo_amazon(pvp(caro[0]), barato[0], ean, precios_amazon_es)
             if capado:
                 capados_a_amazon += 1
                 if precio_normal > round(precios_amazon_es[ean] * (1 - DESCUENTO_MIN_VS_AMAZON), 2):
@@ -205,7 +213,10 @@ def main():
             sin_oferta_con_datos += 1
             continue
 
-        precio_normal, capado_n = aplicar_techo_amazon(pvp(caro[0]), caro[0], ean, precios_amazon_es)
+        # El suelo de ambos (normal y oferta) se evalúa sobre barato[0], el
+        # coste más barato real disponible para este EAN — es el que de
+        # verdad determina hasta dónde se puede bajar sin perder margen.
+        precio_normal, capado_n = aplicar_techo_amazon(pvp(caro[0]), barato[0], ean, precios_amazon_es)
         precio_oferta, capado_o = aplicar_techo_amazon(pvp(barato[0]), barato[0], ean, precios_amazon_es)
         if capado_n or capado_o:
             capados_a_amazon += 1
