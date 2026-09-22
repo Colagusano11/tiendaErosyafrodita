@@ -43,6 +43,19 @@ IVA = 1.21
 SHIPPING = {1: 5.20, 2: 4.35}          # BTS=1, NovaEngel=2
 DESCUENTO_MINIMO_PCT = 5                # por debajo de esto, no merece la pena mostrar "oferta"
 
+# El margen fijo (20%/25%) NO garantiza por sí solo precios más baratos que
+# Amazon: el repricer de Amazon mueve esos precios de forma dinámica y en la
+# práctica ~1 de cada 3 productos salían más caros en la web con solo el
+# margen fijo (verificado 2026-09-22 contra product_store_listings, hasta un
+# 42% más caro en algún caso). Se añade un techo: si hay precio real de
+# Amazon ES para ese EAN, el precio web no supera Amazon × (1 -
+# DESCUENTO_MIN_VS_AMAZON) — salvo que eso baje del margen mínimo de
+# seguridad, en cuyo caso se prioriza no perder rentabilidad sobre ganarle a
+# Amazon en esa referencia concreta (mismo criterio que se aplicó a mano con
+# el Villoresi: nunca perseguir un precio por debajo del propio coste).
+DESCUENTO_MIN_VS_AMAZON = 0.05
+MARGEN_MINIMO_SEGURIDAD = 0.08
+
 APPLY = "--apply" in sys.argv
 
 
@@ -80,18 +93,39 @@ def coste_real(price, supplier_id):
     return round(price + shipping + 1e-9, 2)
 
 
-def pvp(coste):
-    """Precio de venta final (IVA de venta incluido) para el margen neto
-    objetivo, calculado sobre coste NETO (sin IVA de compra, ver arriba).
+def pvp_con_margen(coste, margen):
+    """Precio de venta final (IVA de venta incluido) para un margen neto dado,
+    calculado sobre coste NETO (sin IVA de compra, ver coste_real)."""
+    return round(coste / (1 - margen) * IVA + 1e-9, 2)
 
-    El umbral UMBRAL_COSTE_BARATO se sigue comparando contra el coste con IVA
-    de compra incluido — así el tramo de margen "barato" significa lo mismo
-    que cuando se aprobó (15€ de coste real, con todo incluido), aunque el
-    precio final ya no arrastre el IVA de compra como si fuera un coste.
+
+def pvp(coste):
+    """Precio de venta final para el margen neto objetivo (tramo normal o
+    barato). El umbral UMBRAL_COSTE_BARATO se compara contra el coste CON IVA
+    de compra incluido — así el tramo "barato" significa lo mismo que cuando
+    se aprobó (15€ de coste real, con todo incluido), aunque el precio final
+    ya no arrastre el IVA de compra como si fuera un coste.
     """
     coste_con_iva_compra = coste * IVA
     margen = MARGEN_NETO_BARATO if coste_con_iva_compra < UMBRAL_COSTE_BARATO else MARGEN_NETO
-    return round(coste / (1 - margen) * IVA + 1e-9, 2)
+    return pvp_con_margen(coste, margen)
+
+
+def aplicar_techo_amazon(precio_calculado, coste, ean, precios_amazon_es):
+    """Si hay precio real de Amazon ES para este EAN y el precio calculado lo
+    supera, lo baja hasta Amazon × (1 - DESCUENTO_MIN_VS_AMAZON) — pero nunca
+    por debajo del margen mínimo de seguridad. Devuelve (precio_final, capado).
+    """
+    amazon_price = precios_amazon_es.get(ean)
+    if not amazon_price or amazon_price <= 0:
+        return precio_calculado, False
+
+    techo = round(amazon_price * (1 - DESCUENTO_MIN_VS_AMAZON), 2)
+    if precio_calculado <= techo:
+        return precio_calculado, False
+
+    precio_min_seguro = pvp_con_margen(coste, MARGEN_MINIMO_SEGURIDAD)
+    return max(precio_min_seguro, techo), True
 
 
 def main():
@@ -116,10 +150,35 @@ def main():
         ean, supplier_id, price, stock = parts[0], int(parts[1]), float(parts[2]), int(parts[3])
         by_ean.setdefault(ean, []).append((supplier_id, price, stock))
 
+    # Precio real vigente en Amazon ES por EAN (para el techo de precio, ver
+    # aplicar_techo_amazon). Un EAN puede tener varias filas (una por
+    # supplier_products enlazado) — se ignoran duplicados, es el mismo anuncio.
+    amazon_rows = run_psql(f"""
+        SELECT sp.ean, psl.last_pushed_price
+        FROM product_store_listings psl
+        JOIN product_catalogs pc ON pc.id = psl.product_catalog_id
+        JOIN suppliers_products sp ON sp.id = pc.product_id
+        WHERE psl.marketplace_type = 'AMAZON' AND psl.store_code = 'ES'
+          AND psl.last_pushed_price IS NOT NULL AND sp.ean IN ({eans_sql});
+    """)
+    precios_amazon_es = {}
+    for line in amazon_rows.splitlines():
+        parts = line.split("\t")
+        if len(parts) < 2:
+            continue
+        ean, precio = parts[0], parts[1]
+        if ean not in precios_amazon_es:
+            try:
+                precios_amazon_es[ean] = float(precio)
+            except ValueError:
+                continue
+
     updates = []
     zeroed = 0
     con_oferta = 0
     sin_oferta_con_datos = 0
+    capados_a_amazon = 0
+    capados_por_suelo = 0
 
     for ean in eans:
         candidatos = by_ean.get(ean, [])
@@ -137,14 +196,28 @@ def main():
         caro = opciones[-1]
 
         if len(opciones) == 1 or barato[0] == caro[0]:
-            precio_normal = pvp(caro[0])
+            precio_normal, capado = aplicar_techo_amazon(pvp(caro[0]), caro[0], ean, precios_amazon_es)
+            if capado:
+                capados_a_amazon += 1
+                if precio_normal > round(precios_amazon_es[ean] * (1 - DESCUENTO_MIN_VS_AMAZON), 2):
+                    capados_por_suelo += 1
             updates.append((ean, barato[1], precio_normal, False, None, None))
             sin_oferta_con_datos += 1
             continue
 
-        precio_normal = pvp(caro[0])
-        precio_oferta = pvp(barato[0])
-        descuento_pct = round(100 * (1 - precio_oferta / precio_normal))
+        precio_normal, capado_n = aplicar_techo_amazon(pvp(caro[0]), caro[0], ean, precios_amazon_es)
+        precio_oferta, capado_o = aplicar_techo_amazon(pvp(barato[0]), barato[0], ean, precios_amazon_es)
+        if capado_n or capado_o:
+            capados_a_amazon += 1
+            if ean in precios_amazon_es:
+                techo = round(precios_amazon_es[ean] * (1 - DESCUENTO_MIN_VS_AMAZON), 2)
+                if precio_normal > techo:
+                    capados_por_suelo += 1
+        # El techo se aplica a cada precio con su propio coste — no deberían
+        # cruzarse, pero por seguridad la oferta nunca queda por encima del normal.
+        if precio_oferta > precio_normal:
+            precio_oferta = precio_normal
+        descuento_pct = round(100 * (1 - precio_oferta / precio_normal)) if precio_normal else 0
 
         if descuento_pct < DESCUENTO_MINIMO_PCT:
             # Diferencia demasiado pequeña para presentarla como oferta real.
@@ -157,6 +230,9 @@ def main():
     print(f"Sin stock en ningún proveedor: {zeroed}")
     print(f"Con precio único (sin oferta): {sin_oferta_con_datos}")
     print(f"Con oferta real activada: {con_oferta}")
+    print(f"Con precio de Amazon ES real disponible: {len(precios_amazon_es)}")
+    print(f"Bajados por el techo de Amazon (-{int(DESCUENTO_MIN_VS_AMAZON*100)}%): {capados_a_amazon}")
+    print(f"  De esos, no llegaron al techo por el margen mínimo de seguridad: {capados_por_suelo}")
 
     sql_lines = []
     for ean, stock, precio_normal, en_oferta, precio_oferta, descuento_pct in updates:
