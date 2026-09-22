@@ -256,12 +256,29 @@ public class ProductoServiceImpl implements ProductoService {
 
         java.util.LinkedHashMap<String, Producto> representantePorGrupo = new java.util.LinkedHashMap<>();
         for (Producto p : todos) {
+            // Solo se unifica por TAMAÑO (volumen): se incluye la concentración
+            // (EDP/EDT/EDC) en la clave para que un Eau de Parfum nunca se
+            // fusione con el Eau de Toilette de la misma fragancia — son
+            // productos distintos, no dos tamaños del mismo producto.
+            String concentracion = extraerConcentracion(p.getNombre() == null ? "" : p.getNombre());
             String clave = (p.getManufacturer() == null || p.getNombre() == null)
                     ? "id:" + p.getId()
-                    : p.getManufacturer().trim().toLowerCase() + "|" + normalizarNombreBase(p.getNombre());
+                    : p.getManufacturer().trim().toLowerCase() + "|" + normalizarNombreBase(p.getNombre())
+                            + "|" + (concentracion == null ? "" : concentracion);
 
             Producto actual = representantePorGrupo.get(clave);
-            if (actual == null || precioEfectivo(p).compareTo(precioEfectivo(actual)) < 0) {
+            boolean gana;
+            if (actual == null) {
+                gana = true;
+            } else if (p.isPrecioManual() != actual.isPrecioManual()) {
+                // Un producto con precio fijado a mano (p.ej. ancla de campaña) es
+                // siempre el representante del grupo, gane o no en precio — es el
+                // que se ha decidido mostrar a propósito, no el más barato.
+                gana = p.isPrecioManual();
+            } else {
+                gana = precioEfectivo(p).compareTo(precioEfectivo(actual)) < 0;
+            }
+            if (gana) {
                 representantePorGrupo.put(clave, p);
             }
         }
