@@ -132,6 +132,7 @@ services:
       args:
         - VITE_API_URL=${VITE_API_URL:-/api}
         - VITE_GA_ID=${VITE_GA_ID}
+        - VITE_META_PIXEL_ID=${VITE_META_PIXEL_ID}
         - VITE_PAYPAL_CLIENT_ID=${VITE_PAYPAL_CLIENT_ID}
     image: eros-front:latest
     container_name: eros-frontend

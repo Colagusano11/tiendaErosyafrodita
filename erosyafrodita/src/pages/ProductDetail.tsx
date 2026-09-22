@@ -28,6 +28,7 @@ import { ProductBeforeAfter } from "../components/product-landing/ProductBeforeA
 import { ProductTrustBar } from "../components/product-landing/ProductTrustBar";
 import { ProductPurchaseCard } from "../components/product-landing/ProductPurchaseCard";
 import { ProductFAQAccordion } from "../components/product-landing/ProductFAQAccordion";
+import { trackViewItem } from "../lib/tracking";
 
 // Marcas curadas de Novedades (Sincronizado con Home)
 const NOVEDADES_BRANDS = [
@@ -137,21 +138,9 @@ const ProductDetail: React.FC = () => {
         
         setRecomendados(finalPool.slice(0, 12));
         
-        // GA4: Evento view_item
-        if (typeof window.gtag === 'function') {
-          const price = data.precioPVP || data.precio;
-          window.gtag('event', 'view_item', {
-            currency: 'EUR',
-            value: price,
-            items: [{
-              item_id: data.id.toString(),
-              item_name: data.nombre,
-              price: price,
-              item_brand: data.manufacturer
-            }]
-          });
-        }
-        
+        // Analítica: Evento view_item
+        trackViewItem({ id: data.id.toString(), name: data.nombre, price: Number(data.precioPVP || data.precio), brand: data.manufacturer });
+
       } catch (e: any) {
         setError(e.message ?? "No se pudo cargar el producto");
       } finally {

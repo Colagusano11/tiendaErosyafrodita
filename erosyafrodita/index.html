@@ -12,15 +12,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&family=Noto+Sans:wght@300;400;500;600;700&family=Noto+Serif:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     
-    <!-- Google Analytics (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=%VITE_GA_ID%"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', '%VITE_GA_ID%');
-    </script>
-    
+    <!-- Google Analytics y Meta Pixel se cargan solo tras aceptar cookies,
+         ver src/lib/analyticsLoader.ts (respeto de consentimiento RGPD) -->
+
     <!-- Favicon -->
     <link rel="icon" type="image/jpeg" href="/AGE-SVG.jpeg"/>
     

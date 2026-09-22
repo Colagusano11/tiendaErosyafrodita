@@ -8,6 +8,7 @@ import React, {
 import { useAlert } from "./AlertContext";
 import { useAuth } from "./AuthContext";
 import type { Producto } from "../api/products";
+import { trackAddToCart, trackRemoveFromCart } from "../lib/tracking";
 import {
   apiAgregarAlCarrito,
   apiModificarCantidad,
@@ -132,20 +133,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
       localStorage.setItem(LOCAL_CART_KEY, JSON.stringify(newItems));
       calculateGuestTotal(newItems);
       
-      // GA4: Evento add_to_cart (Invitado)
-      if (typeof window.gtag === 'function') {
-        const price = product.precioPVP || product.precio;
-        window.gtag('event', 'add_to_cart', {
-          currency: 'EUR',
-          value: Number(price) * Number(quantity),
-          items: [{
-            item_id: product.id.toString(),
-            item_name: product.nombre,
-            price: Number(price),
-            quantity: Number(quantity)
-          }]
-        });
-      }
+      // Analítica: Evento add_to_cart (Invitado)
+      trackAddToCart({ id: product.id.toString(), name: product.nombre, price: Number(product.precioPVP || product.precio), quantity: Number(quantity) });
 
       if (showModal) {
         setLastAddedProduct(product);
@@ -179,20 +168,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
       const addRaw = Number(data.total);
       setTotal(addRaw);
 
-      // GA4: Evento add_to_cart (Registrado)
-      if (typeof window.gtag === 'function') {
-        const price = product.precioPVP || product.precio;
-        window.gtag('event', 'add_to_cart', {
-          currency: 'EUR',
-          value: Number(price) * Number(quantity),
-          items: [{
-            item_id: product.id.toString(),
-            item_name: product.nombre,
-            price: Number(price),
-            quantity: Number(quantity)
-          }]
-        });
-      }
+      // Analítica: Evento add_to_cart (Registrado)
+      trackAddToCart({ id: product.id.toString(), name: product.nombre, price: Number(product.precioPVP || product.precio), quantity: Number(quantity) });
 
 
       if (showModal) {
@@ -218,19 +195,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
       localStorage.setItem(LOCAL_CART_KEY, JSON.stringify(newItems));
       calculateGuestTotal(newItems);
 
-      // GA4: Evento remove_from_cart (Invitado)
-      if (typeof window.gtag === 'function' && itemToRemove) {
-        const price = itemToRemove.product.precioPVP || itemToRemove.product.precio;
-        window.gtag('event', 'remove_from_cart', {
-          currency: 'EUR',
-          value: Number(price) * Number(itemToRemove.quantity),
-          items: [{
-            item_id: itemToRemove.product.id.toString(),
-            item_name: itemToRemove.product.nombre,
-            price: Number(price),
-            quantity: Number(itemToRemove.quantity)
-          }]
-        });
+      // Analítica: Evento remove_from_cart (Invitado)
+      if (itemToRemove) {
+        trackRemoveFromCart({ id: itemToRemove.product.id.toString(), name: itemToRemove.product.nombre, price: Number(itemToRemove.product.precioPVP || itemToRemove.product.precio), quantity: Number(itemToRemove.quantity) });
       }
 
 
@@ -260,19 +227,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
       const removeRaw = Number(data.total);
       setTotal(removeRaw);
 
-      // GA4: Evento remove_from_cart (Registrado)
-      if (typeof window.gtag === 'function' && itemToRemove) {
+      // Analítica: Evento remove_from_cart (Registrado)
+      if (itemToRemove) {
         const price = itemToRemove.product.precioPVP || itemToRemove.product.precio;
-        window.gtag('event', 'remove_from_cart', {
-          currency: 'EUR',
-          value: price * itemToRemove.quantity,
-          items: [{
-            item_id: itemToRemove.product.id.toString(),
-            item_name: itemToRemove.product.nombre,
-            price: price,
-            quantity: itemToRemove.quantity
-          }]
-        });
+        trackRemoveFromCart({ id: itemToRemove.product.id.toString(), name: itemToRemove.product.nombre, price: Number(price), quantity: Number(itemToRemove.quantity) });
       }
     } finally {
       setLoading(false);

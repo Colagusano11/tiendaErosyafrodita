@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
+import { getConsent, setConsent } from "../lib/consent";
+import { loadAnalyticsIfConsented } from "../lib/analyticsLoader";
 
 const CookieBanner: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const consent = localStorage.getItem("cookie-consent");
-    if (!consent) {
+    if (getConsent() === "accepted") {
+      loadAnalyticsIfConsented();
+      return;
+    }
+    if (getConsent() === null) {
       // Pequeño delay para que no aparezca de golpe al cargar
       const timer = setTimeout(() => setIsVisible(true), 2000);
       return () => clearTimeout(timer);
@@ -15,7 +20,13 @@ const CookieBanner: React.FC = () => {
   }, []);
 
   const handleAccept = () => {
-    localStorage.setItem("cookie-consent", "accepted");
+    setConsent("accepted");
+    loadAnalyticsIfConsented();
+    setIsVisible(false);
+  };
+
+  const handleReject = () => {
+    setConsent("rejected");
     setIsVisible(false);
   };
 
@@ -37,24 +48,25 @@ const CookieBanner: React.FC = () => {
               <div className="space-y-1 sm:space-y-2">
                 <h4 className="text-white font-black uppercase tracking-widest text-[10px] sm:text-xs">Uso de cookies</h4>
                 <p className="text-white/60 text-[10px] sm:text-[11px] leading-relaxed font-medium">
-                  Utilizamos cookies para personalizar tu experiencia y mejorar tu visita a la tienda.
-                  Al continuar, aceptas nuestra <Link to="/legal/privacidad" className="text-primary hover:underline">Política de Privacidad</Link>.
+                  Utilizamos cookies propias necesarias para la tienda y, si lo aceptas, cookies de analítica y publicidad
+                  para medir visitas y mostrarte anuncios relevantes. Consulta nuestra{" "}
+                  <Link to="/legal/privacidad" className="text-primary hover:underline">Política de Privacidad</Link>.
                 </p>
               </div>
             </div>
 
             <div className="flex gap-2 sm:gap-3">
               <button
+                onClick={handleReject}
+                className="flex-1 h-9 sm:h-12 border border-white/10 text-white/60 rounded-full font-black text-[9px] sm:text-[10px] uppercase tracking-widest hover:border-white/20 hover:text-white transition-all"
+              >
+                Rechazar
+              </button>
+              <button
                 onClick={handleAccept}
                 className="flex-1 h-9 sm:h-12 bg-primary text-charcoal rounded-full font-black text-[9px] sm:text-[10px] uppercase tracking-widest hover:bg-white hover:scale-[1.02] transition-all shadow-lg shadow-primary/10"
               >
                 Aceptar
-              </button>
-              <button
-                onClick={() => setIsVisible(false)}
-                className="px-4 sm:px-6 h-9 sm:h-12 border border-white/10 text-white/40 rounded-full font-black text-[9px] sm:text-[10px] uppercase tracking-widest hover:border-white/20 hover:text-white/60 transition-all"
-              >
-                Cerrar
               </button>
             </div>
           </div>

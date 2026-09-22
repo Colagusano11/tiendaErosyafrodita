@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { getPedidoById, PedidoSalida, confirmarPago } from "../api/order";
+import { trackPurchase } from "../lib/tracking";
 
 interface LocationState {
   pedidoId?: number;
@@ -47,20 +48,17 @@ const SuccessPage: React.FC = () => {
 
         setPedido(data);
 
-        // GA4: Evento purchase
-        if (typeof window.gtag === 'function') {
-          window.gtag('event', 'purchase', {
-            transaction_id: data.idPedido.toString(),
-            value: Number(data.total),
-            currency: 'EUR',
-            items: data.productos.map(p => ({
-              item_id: p.idProducto.toString(),
-              item_name: p.nombreProducto,
-              price: Number(p.precioUnitario),
-              quantity: Number(p.cantidad)
-            }))
-          });
-        }
+        // Analítica: Evento purchase
+        trackPurchase(
+          data.idPedido.toString(),
+          data.productos.map(p => ({
+            id: p.idProducto.toString(),
+            name: p.nombreProducto,
+            price: Number(p.precioUnitario),
+            quantity: Number(p.cantidad),
+          })),
+          Number(data.total)
+        );
 
       } catch (err: any) {
         setError(err.message ?? "No se pudo cargar el pedido.");

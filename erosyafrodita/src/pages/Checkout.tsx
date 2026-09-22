@@ -12,6 +12,7 @@ import { useAlert } from "../context/AlertContext";
 import RevolutCheckout from "@revolut/checkout";
 import { PedidoSalida, iniciarPago, confirmarPago } from "../api/order";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import { trackBeginCheckout } from "../lib/tracking";
 
 const Checkout: React.FC = () => {
   const { items, total, clearCart } = useCart();
@@ -41,17 +42,16 @@ const Checkout: React.FC = () => {
   const finalTotal = calculateDiscountedTotal();
 
   React.useEffect(() => {
-    if (items.length > 0 && typeof window.gtag === 'function') {
-      window.gtag('event', 'begin_checkout', {
-        currency: 'EUR',
-        value: Number(calculateDiscountedTotal()),
-        items: items.map(item => ({
-          item_id: item.product.id.toString(),
-          item_name: item.product.nombre,
+    if (items.length > 0) {
+      trackBeginCheckout(
+        items.map(item => ({
+          id: item.product.id.toString(),
+          name: item.product.nombre,
           price: Number(item.product.precioPVP || item.product.precio),
-          quantity: Number(item.quantity)
-        }))
-      });
+          quantity: Number(item.quantity),
+        })),
+        Number(calculateDiscountedTotal())
+      );
     }
   }, [items.length, total]); // Use items.length to avoid unnecessary triggers
 
