@@ -54,7 +54,7 @@ const SEO: React.FC<SEOProps> = ({
       {/* ── Open Graph ────────────────────────────────────────────────────── */}
       <meta property="og:site_name"   content={SITE_NAME} />
       <meta property="og:url"         content={canonical} />
-      <meta property="og:type"        content={type === 'product' ? 'og:product' : 'website'} />
+      <meta property="og:type"        content={type === 'product' ? 'product' : 'website'} />
       <meta property="og:title"       content={pageTitle} />
       <meta property="og:description" content={description} />
       <meta property="og:image"       content={ogImage} />

@@ -327,13 +327,13 @@ const ProductDetail: React.FC = () => {
                 "@type": "ListItem",
                 "position": 1,
                 "name": "Inicio",
-                "item": window.location.origin + "/#/"
+                "item": window.location.origin + "/"
               },
               {
                 "@type": "ListItem",
                 "position": 2,
                 "name": "Catálogo",
-                "item": window.location.origin + "/#/catalog"
+                "item": window.location.origin + "/catalog"
               },
               {
                 "@type": "ListItem",
