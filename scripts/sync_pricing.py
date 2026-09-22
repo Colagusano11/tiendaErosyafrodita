@@ -7,6 +7,8 @@ stock > 0 ahora mismo:
 
   - 1 solo proveedor con stock -> precio normal calculado desde su coste
     real (coste + envío + IVA de compra), margen neto objetivo, SIN oferta.
+    Margen del 12% normalmente, pero del 15% si el coste real de ESE
+    proveedor concreto es menor de 15€ (en absoluto, el 12% deja muy poco).
 
   - 2+ proveedores con stock -> el PRECIO NORMAL (preciopvp, el que se
     tacha) se calcula desde el proveedor MÁS CARO; el PRECIO DE OFERTA
@@ -29,6 +31,8 @@ import subprocess
 import sys
 
 MARGEN_NETO = 0.12
+MARGEN_NETO_BARATO = 0.15               # coste real < UMBRAL_COSTE_BARATO -> este margen, no el de arriba
+UMBRAL_COSTE_BARATO = 15.0              # € de coste real (proveedor + envío + IVA de compra)
 IVA = 1.21
 SHIPPING = {1: 5.20, 2: 4.35}          # BTS=1, NovaEngel=2
 DESCUENTO_MINIMO_PCT = 5                # por debajo de esto, no merece la pena mostrar "oferta"
@@ -59,7 +63,8 @@ def coste_real(price, supplier_id):
 
 
 def pvp(coste):
-    return round(coste * IVA / (1 - MARGEN_NETO) + 1e-9, 2)
+    margen = MARGEN_NETO_BARATO if coste < UMBRAL_COSTE_BARATO else MARGEN_NETO
+    return round(coste * IVA / (1 - margen) + 1e-9, 2)
 
 
 def main():
