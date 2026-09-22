@@ -55,6 +55,14 @@ public class Producto {
     private BigDecimal precioOferta;
     private boolean alertaMargen       = false;
 
+    /**
+     * Precio fijado a mano (p.ej. productos ancla para campañas, posicionados
+     * por marca/gancho, no por la fórmula de coste). scripts/sync_pricing.py
+     * respeta este flag y nunca recalcula preciopvp/oferta para estas filas.
+     */
+    @Column(name = "precio_manual", nullable = false)
+    private boolean precioManual       = false;
+
     @Column(unique = true)
     private String slug;
 
@@ -185,6 +193,8 @@ public class Producto {
     public void setDescuentoOferta(BigDecimal d)          { this.descuentoOferta = d; }
     public BigDecimal getPrecioOferta()                   { return precioOferta; }
     public void setPrecioOferta(BigDecimal precioOferta)  { this.precioOferta = precioOferta; }
+    public boolean isPrecioManual()                       { return precioManual; }
+    public void setPrecioManual(boolean precioManual)     { this.precioManual = precioManual; }
     public boolean isNuevo()                              { return nuevo; }
     public void setNuevo(boolean nuevo)                   { this.nuevo = nuevo; }
     public boolean isAlertaMargen()                       { return alertaMargen; }
