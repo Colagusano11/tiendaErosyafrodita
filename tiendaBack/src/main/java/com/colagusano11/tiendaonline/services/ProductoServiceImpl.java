@@ -210,7 +210,7 @@ public class ProductoServiceImpl implements ProductoService {
             }
         }
 
-        // Lógica para Novedades por Marcas configuradas (AGRUPADO)
+        // Lógica para Novedades por Marcas configuradas (AGRUPADO por tamaño)
         if ("NOVEDADES".equalsIgnoreCase(status)) {
             Configuracion config = getConfiguracion();
             if (config.getNovedadesBrands() != null && !config.getNovedadesBrands().isBlank()) {
@@ -219,16 +219,74 @@ public class ProductoServiceImpl implements ProductoService {
                         .filter(s -> !s.isEmpty())
                         .toList();
                 // Usamos la versión agrupada para novedades
-                return productoRepository.searchAdvancedNativeGrouped(nombre, categoria, gender, distEnum, manufacturer, sku, minPrecio, maxPrecio, pageable);
+                return unificarPorTamano(nombre, categoria, gender, distEnum, manufacturer, sku, minPrecio, maxPrecio, orden, pageable);
             }
         }
 
-        // Lógica para el Catálogo Web (AGRUPADO)
+        // Lógica para el Catálogo Web (AGRUPADO por tamaño)
         if ("ACTIVOS".equalsIgnoreCase(status) || status == null || status.isEmpty()) {
-            return productoRepository.searchAdvancedNativeGrouped(nombre, categoria, gender, distEnum, manufacturer, sku, minPrecio, maxPrecio, pageable);
+            return unificarPorTamano(nombre, categoria, gender, distEnum, manufacturer, sku, minPrecio, maxPrecio, orden, pageable);
         }
 
         return productoRepository.searchAdvanced(nombre, categoria, gender, distEnum, manufacturer, sku, status, minPrecio, maxPrecio, pageable);
+    }
+
+    /**
+     * Unifica por tamaño el listado del catálogo: mismo criterio que el
+     * selector de capacidad de la ficha de producto (marca + nombre sin
+     * volumen/concentración/formato), para no repetir la misma fragancia una
+     * vez por cada ml en la parrilla. De cada grupo se muestra el producto
+     * más barato (precio de oferta si tiene, si no PVP) como representante
+     * de la tarjeta — el resto de tamaños se eligen ya en la ficha.
+     *
+     * La query base no pagina productos individuales: trae TODOS los que
+     * cumplen el filtro (activos + con stock, es poco volumen — unos 900),
+     * agrupa y pagina en memoria sobre los grupos ya unificados. Necesario
+     * porque el agrupado por nombre normalizado no es expresable en SQL de
+     * forma sencilla y paginar antes de agrupar dejaría páginas con huecos
+     * o duplicados repartidos entre páginas.
+     */
+    private Page<Producto> unificarPorTamano(String nombre, String categoria, String gender,
+            Distribuidor distEnum, String manufacturer, String sku,
+            BigDecimal minPrecio, BigDecimal maxPrecio, String orden, Pageable pageable) {
+
+        List<Producto> todos = productoRepository.searchAdvancedNativeGrouped(
+                nombre, categoria, gender, distEnum, manufacturer, sku, minPrecio, maxPrecio,
+                Pageable.unpaged()).getContent();
+
+        java.util.LinkedHashMap<String, Producto> representantePorGrupo = new java.util.LinkedHashMap<>();
+        for (Producto p : todos) {
+            String clave = (p.getManufacturer() == null || p.getNombre() == null)
+                    ? "id:" + p.getId()
+                    : p.getManufacturer().trim().toLowerCase() + "|" + normalizarNombreBase(p.getNombre());
+
+            Producto actual = representantePorGrupo.get(clave);
+            if (actual == null || precioEfectivo(p).compareTo(precioEfectivo(actual)) < 0) {
+                representantePorGrupo.put(clave, p);
+            }
+        }
+
+        List<Producto> representantes = new java.util.ArrayList<>(representantePorGrupo.values());
+        if ("precioDesc".equalsIgnoreCase(orden)) {
+            representantes.sort(java.util.Comparator.comparing(Producto::getPrecio,
+                    java.util.Comparator.nullsLast(java.util.Comparator.reverseOrder())));
+        } else if ("precioAsc".equalsIgnoreCase(orden)) {
+            representantes.sort(java.util.Comparator.comparing(Producto::getPrecio,
+                    java.util.Comparator.nullsLast(java.util.Comparator.naturalOrder())));
+        } else if ("idDesc".equalsIgnoreCase(orden) || "fechaDesc".equalsIgnoreCase(orden)) {
+            representantes.sort(java.util.Comparator.comparing(Producto::getId).reversed());
+        }
+
+        int total = representantes.size();
+        int desde = Math.min(pageable.getPageNumber() * pageable.getPageSize(), total);
+        int hasta = Math.min(desde + pageable.getPageSize(), total);
+        return new PageImpl<>(representantes.subList(desde, hasta), pageable, total);
+    }
+
+    private static BigDecimal precioEfectivo(Producto p) {
+        if (p.isEnOferta() && p.getPrecioOferta() != null) return p.getPrecioOferta();
+        if (p.getPrecioPVP() != null) return p.getPrecioPVP();
+        return p.getPrecio() != null ? p.getPrecio() : BigDecimal.valueOf(Long.MAX_VALUE);
     }
 
     @Override
