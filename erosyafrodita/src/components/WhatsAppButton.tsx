@@ -1,11 +1,15 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useCookieBannerLikelyVisible } from "../lib/consent";
 
 const WhatsAppButton: React.FC = () => {
     // Reemplaza con el número real de la empresa
-    const phoneNumber = "34685611801"; 
+    const phoneNumber = "34685611801";
     const message = encodeURIComponent("Hola AGE Parfums, tengo una consulta sobre un producto...");
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
+    // En móvil el banner de cookies ocupa casi todo el ancho de abajo — si no
+    // se aparta, el botón queda tapado/asomando detrás del banner.
+    const cookieBannerVisible = useCookieBannerLikelyVisible();
 
     return (
         <motion.a
@@ -16,7 +20,9 @@ const WhatsAppButton: React.FC = () => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             whileHover={{ scale: 1.1, y: -5 }}
             whileTap={{ scale: 0.9 }}
-            className="fixed bottom-8 right-8 z-[90] size-16 bg-[#25D366] rounded-full flex items-center justify-center shadow-[0_10px_30px_rgba(37,211,102,0.4)] group overflow-hidden"
+            className={`fixed right-4 sm:right-8 z-[90] size-16 bg-[#25D366] rounded-full flex items-center justify-center shadow-[0_10px_30px_rgba(37,211,102,0.4)] group overflow-hidden transition-[bottom] duration-300 ${
+                cookieBannerVisible ? "bottom-40 sm:bottom-8" : "bottom-8"
+            }`}
         >
             {/* Efecto de pulso radante */}
             <div className="absolute inset-0 bg-white/20 scale-0 group-hover:scale-150 transition-transform duration-700 rounded-full"></div>

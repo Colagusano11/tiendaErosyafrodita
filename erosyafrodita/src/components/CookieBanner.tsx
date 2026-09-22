@@ -1,33 +1,25 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
-import { getConsent, setConsent } from "../lib/consent";
+import { getConsent, setConsent, useCookieBannerLikelyVisible } from "../lib/consent";
 import { loadAnalyticsIfConsented } from "../lib/analyticsLoader";
 
 const CookieBanner: React.FC = () => {
-  const [isVisible, setIsVisible] = useState(false);
+  const isVisible = useCookieBannerLikelyVisible();
 
   useEffect(() => {
     if (getConsent() === "accepted") {
       loadAnalyticsIfConsented();
-      return;
-    }
-    if (getConsent() === null) {
-      // Pequeño delay para que no aparezca de golpe al cargar
-      const timer = setTimeout(() => setIsVisible(true), 2000);
-      return () => clearTimeout(timer);
     }
   }, []);
 
   const handleAccept = () => {
     setConsent("accepted");
     loadAnalyticsIfConsented();
-    setIsVisible(false);
   };
 
   const handleReject = () => {
     setConsent("rejected");
-    setIsVisible(false);
   };
 
   return (
