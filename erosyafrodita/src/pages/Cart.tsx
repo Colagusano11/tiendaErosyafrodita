@@ -62,7 +62,7 @@ const Cart: React.FC = () => {
                         </p>
                       </div>
                       <span className="text-xl font-bold text-white">
-                        {product.precioUnitario ? product.precioUnitario.toFixed(2) : (product.precioPVP ?? product.precio).toFixed(2)} €
+                        {(product.precioUnitario || product.precioPVP || product.precio || 0).toFixed(2)} €
                       </span>
                     </div>
                     <div className="flex items-center justify-between mt-4">
