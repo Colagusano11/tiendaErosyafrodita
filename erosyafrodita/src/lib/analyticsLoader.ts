@@ -39,11 +39,21 @@ function loadMetaPixel(): void {
   if (!pixelId || pixelLoaded) return;
   pixelLoaded = true;
 
-  // Snippet oficial de Meta (fbevents.js)
+  // Snippet oficial de Meta (fbevents.js) — replicado literal, incluido el
+  // detalle de que la cola se rellena con queue.push(arguments) (un único
+  // elemento = los argumentos de esa llamada), NO queue.push.apply(n, args):
+  // esto último llama a Array.prototype.push con `this` apuntando a la
+  // propia función `n`, y en un bundle ES module (siempre en modo strict)
+  // intentar reescribir Function.prototype.length (no editable) petaba con
+  // "Cannot assign to read only property 'length'" — reventaba React entero
+  // en cuanto se cargaba el píxel (pantalla en blanco, sin ningún 404 detrás).
   (function (f: Window, b: Document, e: string, v: string) {
     if (f.fbq) return;
-    const n: Window["fbq"] = function (...args: unknown[]) {
-      (n.callMethod ? n.callMethod : n.queue!.push).apply(n, args as never);
+    const n: Window["fbq"] = function () {
+      // eslint-disable-next-line prefer-rest-params
+      if (n.callMethod) n.callMethod.apply(n, arguments as unknown as unknown[]);
+      // eslint-disable-next-line prefer-rest-params
+      else n.queue!.push(arguments as unknown as unknown[]);
     } as Window["fbq"];
     if (!f._fbq) f._fbq = n;
     n.push = n;
