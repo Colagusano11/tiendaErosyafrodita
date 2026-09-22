@@ -524,6 +524,15 @@ const ProductDetail: React.FC = () => {
                 )}
               </div>
 
+              {product.stock > 0 && (
+                <div className="flex items-center gap-2 mb-8">
+                  <span className="size-1.5 rounded-full bg-emerald-400"></span>
+                  <span className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.2em]">
+                    {product.stock <= 5 ? `¡Últimas unidades! Solo ${product.stock} en stock` : "En stock"}
+                  </span>
+                </div>
+              )}
+
               {/* Selector de Capacidad (mismas fragancia y marca, distinto volumen/concentración) */}
               {variantes.length > 0 && (
                 <div className="mb-8">
