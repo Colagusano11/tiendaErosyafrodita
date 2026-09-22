@@ -94,6 +94,14 @@ public class GoogleShoppingFeedService {
                 ? p.getPrecioPVP().toPlainString() + " " + currency : null;
             String precioVenta = precioFinal.toPlainString() + " " + currency;
 
+            // g:description es obligatorio para Merchant Center — antes no se mandaba en ningún item.
+            String descripcionRaw = p.getDescripcionSeo() != null && !p.getDescripcionSeo().isBlank()
+                ? p.getDescripcionSeo()
+                : (p.getDescripcion() != null && !p.getDescripcion().isBlank()
+                    ? p.getDescripcion()
+                    : p.getNombre());
+            String descripcion = escape(descripcionRaw.length() > 5000 ? descripcionRaw.substring(0, 5000) : descripcionRaw);
+
             String categoria = mapearCategoria(p.getCategoria());
             String genero    = mapearGenero(p.getGender());
             String marca     = p.getManufacturer() != null ? escape(p.getManufacturer()) : "Sin marca";
@@ -117,15 +125,20 @@ public class GoogleShoppingFeedService {
                  .append("      <g:mpn>").append(escape(p.getSku() != null ? p.getSku() : p.getEan())).append("</g:mpn>\n")
                  // — Datos básicos —
                  .append("      <title>").append(titulo).append("</title>\n")
+                 .append("      <description>").append(descripcion).append("</description>\n")
                  .append("      <link>").append(baseUrl).append("/product/").append(slug).append("</link>\n")
                  .append("      <g:image_link>").append(escape(imagenUrl)).append("</g:image_link>\n")
-                 .append(imgsAdicionales)
-                 .append("      <g:price>").append(precioVenta).append("</g:price>\n");
+                 .append(imgsAdicionales);
 
-            // Precio tachado solo si hay oferta activa
+            // g:price es SIEMPRE el precio de referencia (tachado); si hay oferta activa,
+            // g:sale_price lleva el precio real cobrado. Antes, con oferta activa, se
+            // escribían DOS <g:price> en el mismo item (uno con el precio de oferta, otro
+            // con el de referencia) — XML inválido para Merchant Center. Con las 426 ofertas
+            // reales activadas hoy por el nuevo motor de precios, esto afectaba ya a casi
+            // la mitad del feed.
+            items.append("      <g:price>").append(precioBase != null ? precioBase : precioVenta).append("</g:price>\n");
             if (p.isEnOferta() && precioBase != null && !precioBase.equals(precioVenta)) {
-                items.append("      <g:sale_price>").append(precioVenta).append("</g:sale_price>\n")
-                     .append("      <g:price>").append(precioBase).append("</g:price>\n");
+                items.append("      <g:sale_price>").append(precioVenta).append("</g:sale_price>\n");
             }
 
             items
