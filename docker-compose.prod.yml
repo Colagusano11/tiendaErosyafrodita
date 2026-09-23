@@ -67,9 +67,14 @@ services:
     ports: !reset []
     environment:
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
-      FRONTEND_URL: https://${DOMAIN:-erosyafrodita.com}
-      APP_FRONTEND_URL: https://${DOMAIN:-erosyafrodita.com}
-      REVOLUT_WEBHOOK_URL: https://${DOMAIN:-erosyafrodita.com}/api/pagos/revolut/webhook
+      # El valor por defecto es solo un último recurso si DOMAIN no está
+      # definido en .env — antes apuntaba a erosyafrodita.com, un dominio
+      # que ya no resuelve, y eso dejó el sitemap.xml y robots.txt en
+      # producción señalando a un sitio muerto (Google nunca pudo indexar
+      # nada real). Ver .env: DOMAIN=ageperfumes.com.
+      FRONTEND_URL: https://${DOMAIN:-ageperfumes.com}
+      APP_FRONTEND_URL: https://${DOMAIN:-ageperfumes.com}
+      REVOLUT_WEBHOOK_URL: https://${DOMAIN:-ageperfumes.com}/api/pagos/revolut/webhook
     labels:
       - "traefik.enable=false"
 
