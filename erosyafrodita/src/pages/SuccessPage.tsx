@@ -4,6 +4,9 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { getPedidoById, PedidoSalida, confirmarPago } from "../api/order";
 import { trackPurchase } from "../lib/tracking";
+import GoogleCustomerReviewsOptIn from "../components/GoogleCustomerReviewsOptIn";
+
+const ESTADOS_SIN_ENCUESTA: PedidoSalida["estado"][] = ["CANCELADO", "PENDIENTE_DE_PAGO", "DEVUELTO"];
 
 interface LocationState {
   pedidoId?: number;
@@ -75,6 +78,15 @@ const SuccessPage: React.FC = () => {
   return (
     <div className="bg-background-dark font-display text-charcoal antialiased min-h-screen flex flex-col selection:bg-primary/30">
       <Header />
+
+      {pedido && !ESTADOS_SIN_ENCUESTA.includes(pedido.estado) && (
+        <GoogleCustomerReviewsOptIn
+          orderId={pedido.idPedido.toString()}
+          email={pedido.email}
+          orderDateISO={pedido.fechaCreacion}
+          gtins={pedido.productos.map((p) => p.ean).filter((ean): ean is string => !!ean)}
+        />
+      )}
 
       <main className="flex-grow flex justify-center py-12 md:py-20 px-4">
         <div className="w-full max-w-[900px] flex flex-col gap-12 animate-in fade-in slide-in-from-bottom-8 duration-1000">
