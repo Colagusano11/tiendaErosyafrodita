@@ -12,6 +12,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Genera el feed XML de Google Shopping (formato RSS 2.0 con namespace g:).
@@ -141,6 +143,16 @@ public class GoogleShoppingFeedService {
                 items.append("      <g:sale_price>").append(precioVenta).append("</g:sale_price>\n");
             }
 
+            // Precio por unidad (obligatorio por normativa UE en perfumería/cosmética):
+            // no tenemos un campo de capacidad dedicado, así que se extrae del propio
+            // nombre del producto (ej. "...100ml", "...3.5g"). Si no se detecta con
+            // fiabilidad, se omite el atributo en vez de arriesgarse a enviar un dato
+            // incorrecto.
+            String medidaUnidad = extraerMedidaUnidad(p.getNombre());
+            if (medidaUnidad != null) {
+                items.append("      <g:unit_pricing_measure>").append(medidaUnidad).append("</g:unit_pricing_measure>\n");
+            }
+
             items
                  // — Disponibilidad —
                  .append("      <g:availability>").append(p.getStock() > 0 ? "in stock" : "out of stock").append("</g:availability>\n")
@@ -211,6 +223,28 @@ public class GoogleShoppingFeedService {
             case "unisex", "mixto" -> "unisex";
             default -> "";
         };
+    }
+
+    private static final Pattern MEDIDA_PATTERN =
+        Pattern.compile("(\\d+(?:[.,]\\d+)?)\\s*(ml|gr|g|kg|l)\\b", Pattern.CASE_INSENSITIVE);
+
+    /**
+     * Extrae la medida de contenido (ej. "100ml", "3.5g") del nombre del producto.
+     * Si el nombre trae varias cifras (formato + código de tono, etc.), se queda
+     * con la última coincidencia, que en nuestro catálogo es siempre la capacidad
+     * real (el formato habitual es "... <capacidad><unidad>" al final del nombre).
+     */
+    private String extraerMedidaUnidad(String nombre) {
+        if (nombre == null) return null;
+        Matcher matcher = MEDIDA_PATTERN.matcher(nombre);
+        String medida = null;
+        while (matcher.find()) {
+            String valor = matcher.group(1).replace(",", ".");
+            String unidad = matcher.group(2).toLowerCase();
+            if (unidad.equals("gr")) unidad = "g";
+            medida = valor + unidad;
+        }
+        return medida;
     }
 
     /** Escapa caracteres especiales XML. */
