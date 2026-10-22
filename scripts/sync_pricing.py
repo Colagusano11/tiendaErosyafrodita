@@ -22,6 +22,13 @@ stock > 0 ahora mismo:
     "más barato" que comparar -> vuelve a caer en el caso de 1 solo
     proveedor: precio normal recalculado con el que quede, sin oferta.
 
+  - Fichas con precio_manual=1 (p.ej. los productos ancla de Meta Ads): el
+    precio y la oferta NO se tocan nunca, pero el STOCK sí se sincroniza
+    igual que en el resto (el del proveedor más barato con stock, o 0 si
+    ninguno lo tiene). Antes se excluían por completo y su stock se quedaba
+    congelado: el ancla Villoresi Teint de Neige EDP enseñaba 150 uds cuando
+    BTS tenía 13, y la EDT 100ml 98 cuando BTS ya no la tenía (2026-10-22).
+
 Pensado para sustituir a sync_stock.sh como cron (stock y precio deben
 moverse juntos, o quedan inconsistentes entre ciclos).
 
@@ -139,9 +146,9 @@ def aplicar_techo_amazon(precio_calculado, coste_mas_barato_disponible, ean, pre
 def main():
     eans_raw = run_mysql("SELECT ean FROM productos WHERE ean IS NOT NULL AND precio_manual=0;")
     eans = [l.strip() for l in eans_raw.splitlines() if l.strip()]
-    manuales_raw = run_mysql("SELECT COUNT(*) FROM productos WHERE ean IS NOT NULL AND precio_manual=1;")
-    n_manuales = manuales_raw.strip() or "0"
-    print(f"{len(eans)} EAN a recalcular ({n_manuales} con precio_manual=1, excluidos — no se tocan).")
+    manuales_raw = run_mysql("SELECT ean FROM productos WHERE ean IS NOT NULL AND precio_manual=1;")
+    eans_manuales = [l.strip() for l in manuales_raw.splitlines() if l.strip()]
+    print(f"{len(eans)} EAN a recalcular ({len(eans_manuales)} con precio_manual=1: se sincroniza solo su stock, el precio no se toca).")
 
     eans_sql = ",".join(f"'{e}'" for e in eans)
     supplier_rows = run_psql(f"""
@@ -238,6 +245,28 @@ def main():
             updates.append((ean, barato[1], precio_normal, True, precio_oferta, descuento_pct))
             con_oferta += 1
 
+    # Fichas con precio manual: solo stock, mismo criterio que arriba (proveedor
+    # más barato con stock; 0 si ninguno). Sin precio ni oferta en el UPDATE.
+    stock_manuales = {}
+    if eans_manuales:
+        manuales_sql = ",".join(f"'{e}'" for e in eans_manuales)
+        manual_rows = run_psql(f"""
+            SELECT ean, supplier_id, price, stock
+            FROM suppliers_products
+            WHERE stock > 0 AND ean IN ({manuales_sql});
+        """)
+        cand_manuales = {}
+        for line in manual_rows.splitlines():
+            parts = line.split("\t")
+            if len(parts) < 4:
+                continue
+            cand_manuales.setdefault(parts[0], []).append((int(parts[1]), float(parts[2]), int(parts[3])))
+        for ean in eans_manuales:
+            cands = cand_manuales.get(ean, [])
+            stock_manuales[ean] = min(cands, key=lambda c: coste_real(c[1], c[0]))[2] if cands else 0
+            updates.append((ean, stock_manuales[ean], None, False, None, None))
+
+    print(f"Fichas con precio manual (solo stock): {len(stock_manuales)} -> {stock_manuales}")
     print(f"Sin stock en ningún proveedor: {zeroed}")
     print(f"Con precio único (sin oferta): {sin_oferta_con_datos}")
     print(f"Con oferta real activada: {con_oferta}")
