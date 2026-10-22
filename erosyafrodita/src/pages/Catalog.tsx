@@ -342,7 +342,7 @@ const Catalog: React.FC = () => {
                     <option value="">Cualquier marca</option>
                     {marcas.map((m) => (
                       <option key={m} value={m}>
-                        {m}
+                        {m.toLocaleUpperCase("es")}
                       </option>
                     ))}
                   </select>
